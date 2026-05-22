@@ -1,7 +1,8 @@
 <map id="baecon::bvhar::ng_local_sparsity" name="baecon::bvhar::ng_local_sparsity">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,181,45"/>
-<area shape="rect" id="Node000002" href="$namespacebaecon_1_1bvhar.html#af7bc4252ab994b7a89c6924961f852cc" title=" " alt="" coords="229,13,403,38"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="182,23,215,23,215,28,182,28"/>
-<area shape="rect" id="Node000003" href="$namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6" title=" " alt="" coords="451,5,593,45"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="403,23,437,23,437,28,403,28"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,22,181,62"/>
+<area shape="rect" id="Node000002" href="$namespacebaecon_1_1bvhar.html#af7bc4252ab994b7a89c6924961f852cc" title=" " alt="" coords="229,29,403,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="182,39,215,39,215,45,182,45"/>
+<area shape="rect" id="Node000003" href="$namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b" title=" " alt="" coords="451,29,588,55"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="403,39,437,39,437,45,403,45"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="486,31,479,21,483,11,496,5,519,3,548,6,559,16,555,20,545,11,519,8,498,10,486,15,484,20,490,28"/>
 </map>

@@ -164,7 +164,6 @@ var namespacebaecon_1_1bvhar =
     [ "dl_local_sparsity", "namespacebaecon_1_1bvhar.html#a96055d0d67b0ef0ce25216b42c0b9f36", null ],
     [ "dl_global_sparsity", "namespacebaecon_1_1bvhar.html#a31b50ca3f8bb822fa2d0efa6ce2c9262", null ],
     [ "dl_mn_sparsity", "namespacebaecon_1_1bvhar.html#aa105b15419c68f09e8de5cdb3a58fc47", null ],
-    [ "dl_mn_sparsity", "namespacebaecon_1_1bvhar.html#a36c69f5fab27636bb278145d35a62a6f", null ],
     [ "dl_logdens_dir", "namespacebaecon_1_1bvhar.html#a374a80c12987b6754b05fe2ada3080bc", null ],
     [ "dl_dir_griddy", "namespacebaecon_1_1bvhar.html#a6c3c48c71628e44cf35f6df65068935a", null ],
     [ "thin_record", "namespacebaecon_1_1bvhar.html#ad137bcdf4655b746f69c7b509a771708", null ],

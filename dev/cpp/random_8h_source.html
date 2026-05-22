@@ -26,7 +26,7 @@
  <tr id="projectrow">
   <td id="projectlogo"><img alt="Logo" src="apple-touch-icon.png"/></td>
   <td id="projectalign">
-   <div id="projectname">bvhar<span id="projectnumber">&#160;2.4.0.9005</span>
+   <div id="projectname">bvhar<span id="projectnumber">&#160;2.4.0.9006</span>
    </div>
    <div id="projectbrief">C++ headers by bvhar package</div>
   </td>
@@ -434,31 +434,54 @@ $(document).ready(function(){initNavTree('random_8h_source.html',''); initResiza
 <div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span><span class="comment">// @param chi Third parameter of GIG</span></div>
 <div class="foldopen" id="foldopen00316" data-start="{" data-end="}">
 <div class="line"><a id="l00316" name="l00316"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#af7bc4252ab994b7a89c6924961f852cc">  316</a></span><span class="keyword">inline</span> <span class="keywordtype">double</span> <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#af7bc4252ab994b7a89c6924961f852cc">sim_gig</a>(<span class="keywordtype">double</span> lambda, <span class="keywordtype">double</span> psi, <span class="keywordtype">double</span> chi, <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
-<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>  <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6">cut_param</a>(psi);</div>
-<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>  <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6">cut_param</a>(chi);</div>
-<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>  boost::random::generalized_inverse_gaussian_distribution&lt;&gt; rdist(lambda, psi, chi);</div>
-<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>  <span class="keywordflow">return</span> rdist(rng);</div>
-<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>}</div>
+<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>  <span class="keywordflow">if</span> (chi &lt; <a class="code hl_define" href="commondefs_8h.html#ad1a8dcfa01b68407083e32d0682994dd">BVHAR_DBL_TOL</a> || <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::isnan</a>(chi)) {</div>
+<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>    <span class="keywordflow">if</span> (lambda &gt; 0) {</div>
+<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>      <span class="keywordflow">return</span> gamma_rand(lambda, 2 / psi, rng);</div>
+<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (lambda &lt; 0) {</div>
+<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>      <span class="keywordflow">return</span> 1 / gamma_rand(-lambda, 2 / chi, rng);</div>
+<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>    }</div>
+<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>  }</div>
+<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>  <span class="keywordflow">if</span> (psi &lt; <a class="code hl_define" href="commondefs_8h.html#ad1a8dcfa01b68407083e32d0682994dd">BVHAR_DBL_TOL</a> || <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::isnan</a>(psi)) {</div>
+<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>    <span class="keywordflow">if</span> (lambda &lt; 0) {</div>
+<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>      <span class="keywordflow">return</span> 1 / gamma_rand(-lambda, 2 / chi, rng);</div>
+<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (lambda &gt; 0) {</div>
+<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>      <span class="keywordflow">return</span> gamma_rand(lambda, 2 / psi, rng);</div>
+<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>    }</div>
+<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>  }</div>
+<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>  cut_positive_param(psi);</div>
+<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>  cut_positive_param(chi);</div>
+<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>  boost::random::generalized_inverse_gaussian_distribution&lt;&gt; rdist(lambda, psi, chi);</div>
+<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>  <span class="keywordflow">return</span> rdist(rng);</div>
+<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>}</div>
 </div>
-<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span> </div>
-<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span><span class="comment">// Generate Inverse Gaussian Distribution</span></div>
-<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span><span class="comment">// This function generates one Inverse Gaussian random number with mu (mean) and lambda (shape).</span></div>
-<div class="foldopen" id="foldopen00325" data-start="{" data-end="}">
-<div class="line"><a id="l00325" name="l00325"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#aebaafb66c81b30da5c6e5e168ad8f311">  325</a></span><span class="keyword">inline</span> <span class="keywordtype">double</span> <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#aebaafb66c81b30da5c6e5e168ad8f311">sim_invgauss</a>(<span class="keywordtype">double</span> mean, <span class="keywordtype">double</span> shape, <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
-<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>  <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6">cut_param</a>(mean);</div>
-<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>  <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6">cut_param</a>(shape);</div>
-<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>  <a class="code hl_class" href="classboost_1_1random_1_1inverse__gaussian__distribution.html">boost::random::inverse_gaussian_distribution&lt;&gt;</a> rdist(mean, shape);</div>
-<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>  <span class="keywordflow">return</span> rdist(rng);</div>
-<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>}</div>
+<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span> </div>
+<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span><span class="comment">// Generate Inverse Gaussian Distribution</span></div>
+<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span><span class="comment">// This function generates one Inverse Gaussian random number with mu (mean) and lambda (shape).</span></div>
+<div class="foldopen" id="foldopen00339" data-start="{" data-end="}">
+<div class="line"><a id="l00339" name="l00339"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#aebaafb66c81b30da5c6e5e168ad8f311">  339</a></span><span class="keyword">inline</span> <span class="keywordtype">double</span> <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#aebaafb66c81b30da5c6e5e168ad8f311">sim_invgauss</a>(<span class="keywordtype">double</span> mean, <span class="keywordtype">double</span> shape, <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
+<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>  <span class="keywordflow">if</span> (shape &lt; BVHAR_DBL_TOL || mean &gt; <a class="code hl_define" href="commondefs_8h.html#a8e4a9517198518a9d4aff1bc419d6c6b">BVHAR_DBL_MAX</a>) {</div>
+<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>    <span class="keywordflow">return</span> 1 / gamma_rand(.5, 2 / shape, rng);</div>
+<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>  }</div>
+<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>  <span class="keywordflow">if</span> (shape &gt; <a class="code hl_define" href="commondefs_8h.html#a8e4a9517198518a9d4aff1bc419d6c6b">BVHAR_DBL_MAX</a>) {</div>
+<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>    <span class="keywordtype">double</span> sd = <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::pow</a>(mean, 3 / 2) / sqrt(shape);</div>
+<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>    <span class="keywordflow">return</span> mean + sd * normal_rand(rng);</div>
+<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>  }</div>
+<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>  cut_positive_param(mean);</div>
+<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>  cut_positive_param(shape);</div>
+<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>  <a class="code hl_class" href="classboost_1_1random_1_1inverse__gaussian__distribution.html">boost::random::inverse_gaussian_distribution&lt;&gt;</a> rdist(mean, shape);</div>
+<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>  <span class="keywordflow">return</span> rdist(rng);</div>
+<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>}</div>
 </div>
-<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span> </div>
-<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>} <span class="comment">//namespace bvhar</span></div>
-<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>} <span class="comment">// namespace baecon</span></div>
-<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span> </div>
-<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span><span class="preprocessor">#endif </span><span class="comment">// BVHAR_MATH_RANDOM_H</span></div>
+<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span> </div>
+<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>} <span class="comment">//namespace bvhar</span></div>
+<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>} <span class="comment">// namespace baecon</span></div>
+<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span> </div>
+<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span><span class="preprocessor">#endif </span><span class="comment">// BVHAR_MATH_RANDOM_H</span></div>
 <div class="ttc" id="aclassboost_1_1random_1_1inverse__gaussian__distribution_html"><div class="ttname"><a href="classboost_1_1random_1_1inverse__gaussian__distribution.html">boost::random::inverse_gaussian_distribution</a></div><div class="ttdoc">boost.Random's inverse_gaussian generator Will be included in the boost/random in the next release (1...</div><div class="ttdef"><b>Definition</b> common.h:59</div></div>
 <div class="ttc" id="acommon_8h_html_a6cf9f648a944e66c2478fa29468b7ac0"><div class="ttname"><a href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a></div><div class="ttdeci">#define BVHAR_BHRNG</div><div class="ttdef"><b>Definition</b> common.h:34</div></div>
-<div class="ttc" id="acommondefs_8h_html_abc2ee0187a6d5ca2c32fe4873f941159"><div class="ttname"><a href="commondefs_8h.html#abc2ee0187a6d5ca2c32fe4873f941159">BVHAR_STOP</a></div><div class="ttdeci">#define BVHAR_STOP(...)</div><div class="ttdef"><b>Definition</b> commondefs.h:133</div></div>
+<div class="ttc" id="acommondefs_8h_html_a8e4a9517198518a9d4aff1bc419d6c6b"><div class="ttname"><a href="commondefs_8h.html#a8e4a9517198518a9d4aff1bc419d6c6b">BVHAR_DBL_MAX</a></div><div class="ttdeci">#define BVHAR_DBL_MAX</div><div class="ttdef"><b>Definition</b> commondefs.h:20</div></div>
+<div class="ttc" id="acommondefs_8h_html_abc2ee0187a6d5ca2c32fe4873f941159"><div class="ttname"><a href="commondefs_8h.html#abc2ee0187a6d5ca2c32fe4873f941159">BVHAR_STOP</a></div><div class="ttdeci">#define BVHAR_STOP(...)</div><div class="ttdef"><b>Definition</b> commondefs.h:138</div></div>
+<div class="ttc" id="acommondefs_8h_html_ad1a8dcfa01b68407083e32d0682994dd"><div class="ttname"><a href="commondefs_8h.html#ad1a8dcfa01b68407083e32d0682994dd">BVHAR_DBL_TOL</a></div><div class="ttdeci">#define BVHAR_DBL_TOL</div><div class="ttdef"><b>Definition</b> commondefs.h:19</div></div>
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_a031baf5a82e342e09d41b24ddb320634"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a031baf5a82e342e09d41b24ddb320634">baecon::bvhar::sim_mgaussian_eigen</a></div><div class="ttdeci">Eigen::MatrixXd sim_mgaussian_eigen(int num_sim, const Eigen::VectorXd &amp;mu, const Eigen::MatrixXd &amp;sig, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> random.h:10</div></div>
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_a043ed4f77dda2336628f9870a0ce25be"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a043ed4f77dda2336628f9870a0ce25be">baecon::bvhar::sim_wishart</a></div><div class="ttdeci">Eigen::MatrixXd sim_wishart(Eigen::MatrixXd mat_scale, double shape, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> random.h:264</div></div>
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_a16d4f9e5bca1191579f91d2077b434ab"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a16d4f9e5bca1191579f91d2077b434ab">baecon::bvhar::sim_wishart_tri</a></div><div class="ttdeci">Eigen::MatrixXd sim_wishart_tri(Eigen::Ref&lt; Eigen::MatrixXd &gt; mat_scale, double shape, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> random.h:251</div></div>
@@ -467,12 +490,11 @@ $(document).ready(function(){initNavTree('random_8h_source.html',''); initResiza
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_a66c938f7812a159b80ed2e9e3910fe26"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a66c938f7812a159b80ed2e9e3910fe26">baecon::bvhar::sim_mn_iw</a></div><div class="ttdeci">std::vector&lt; Eigen::MatrixXd &gt; sim_mn_iw(const Eigen::MatrixXd &amp;mat_mean, const Eigen::MatrixXd &amp;mat_scale_u, const Eigen::MatrixXd &amp;mat_scale, double shape, bool prec, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> random.h:299</div></div>
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_a7d7fef395053d7e0a5dc90c257c3e4c1"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a7d7fef395053d7e0a5dc90c257c3e4c1">baecon::bvhar::sim_mstudent_eigen</a></div><div class="ttdeci">Eigen::MatrixXd sim_mstudent_eigen(int num_sim, double df, const Eigen::VectorXd &amp;mu, const Eigen::MatrixXd &amp;sig, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> random.h:39</div></div>
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_a9134fb4cff9daaecfac6b649593a233c"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a9134fb4cff9daaecfac6b649593a233c">baecon::bvhar::sim_mstudent_chol</a></div><div class="ttdeci">Eigen::MatrixXd sim_mstudent_chol(int num_sim, double df, const Eigen::VectorXd &amp;mu, const Eigen::MatrixXd &amp;sig, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> random.h:49</div></div>
-<div class="ttc" id="anamespacebaecon_1_1bvhar_html_ac9248c352d5f64ac9b9595197784a9e6"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6">baecon::bvhar::cut_param</a></div><div class="ttdeci">void cut_param(Eigen::Ref&lt; Eigen::VectorXd &gt; param)</div><div class="ttdef"><b>Definition</b> helper.h:36</div></div>
-<div class="ttc" id="anamespacebaecon_1_1bvhar_html_aebaafb66c81b30da5c6e5e168ad8f311"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#aebaafb66c81b30da5c6e5e168ad8f311">baecon::bvhar::sim_invgauss</a></div><div class="ttdeci">double sim_invgauss(double mean, double shape, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> random.h:325</div></div>
+<div class="ttc" id="anamespacebaecon_1_1bvhar_html_aebaafb66c81b30da5c6e5e168ad8f311"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#aebaafb66c81b30da5c6e5e168ad8f311">baecon::bvhar::sim_invgauss</a></div><div class="ttdeci">double sim_invgauss(double mean, double shape, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> random.h:339</div></div>
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_aebce33ac530c9797ba69e64e2df98f38"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#aebce33ac530c9797ba69e64e2df98f38">baecon::bvhar::sim_mn</a></div><div class="ttdeci">Eigen::MatrixXd sim_mn(const Eigen::MatrixXd &amp;mat_mean, const Eigen::MatrixXd &amp;mat_scale_u, const Eigen::MatrixXd &amp;mat_scale_v, bool prec, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> random.h:232</div></div>
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_af7bc4252ab994b7a89c6924961f852cc"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#af7bc4252ab994b7a89c6924961f852cc">baecon::bvhar::sim_gig</a></div><div class="ttdeci">double sim_gig(double lambda, double psi, double chi, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> random.h:316</div></div>
 <div class="ttc" id="anamespacebaecon_html"><div class="ttname"><a href="namespacebaecon.html">baecon</a></div><div class="ttdef"><b>Definition</b> bayes.h:16</div></div>
-<div class="ttc" id="anamespacestd_html_a03d5ca705e3360c607bf2586e9a9de3b"><div class="ttname"><a href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::make_unique</a></div><div class="ttdeci">unique_ptr&lt; T &gt; make_unique(Args &amp;&amp;... args)</div><div class="ttdef"><b>Definition</b> commondefs.h:165</div></div>
+<div class="ttc" id="anamespacestd_html_a03d5ca705e3360c607bf2586e9a9de3b"><div class="ttname"><a href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::make_unique</a></div><div class="ttdeci">unique_ptr&lt; T &gt; make_unique(Args &amp;&amp;... args)</div><div class="ttdef"><b>Definition</b> commondefs.h:170</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

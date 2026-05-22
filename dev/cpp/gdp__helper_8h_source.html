@@ -26,7 +26,7 @@
  <tr id="projectrow">
   <td id="projectlogo"><img alt="Logo" src="apple-touch-icon.png"/></td>
   <td id="projectalign">
-   <div id="projectname">bvhar<span id="projectnumber">&#160;2.4.0.9005</span>
+   <div id="projectname">bvhar<span id="projectnumber">&#160;2.4.0.9006</span>
    </div>
    <div id="projectbrief">C++ headers by bvhar package</div>
   </td>
@@ -117,7 +117,7 @@ $(document).ready(function(){initNavTree('gdp__helper_8h_source.html',''); initR
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#a28893d8a459c5b6e1d536557527a4170">   15</a></span><span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a28893d8a459c5b6e1d536557527a4170">gdp_local_sparsity</a>(Eigen::Ref&lt;Eigen::VectorXd&gt; local_param, Eigen::Ref&lt;const Eigen::VectorXd&gt; local_shape,</div>
 <div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>                               Eigen::Ref&lt;Eigen::VectorXd&gt; coef, <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; local_param.size(); ++i) {</div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>    local_param[i] = 1 / <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#aebaafb66c81b30da5c6e5e168ad8f311">sim_invgauss</a>(abs(local_shape[i] / coef[i]), local_shape[i] * local_shape[i], rng);</div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>    local_param[i] = <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#aebaafb66c81b30da5c6e5e168ad8f311">sim_invgauss</a>(abs(local_shape[i] / coef[i]), local_shape[i] * local_shape[i], rng);</div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>    <span class="comment">// local_param[i] = 1 / (local_shape[i] * sim_invgauss(1 / abs(coef[i]), local_shape[i], rng));</span></div>
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>  }</div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>}</div>
@@ -156,7 +156,7 @@ $(document).ready(function(){initNavTree('gdp__helper_8h_source.html',''); initR
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    Eigen::VectorXd mn_local(mn_size);</div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j = 0, k = 0; j &lt; num_coef; ++j) {</div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>      <span class="keywordflow">if</span> (group_id[j]) {</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>        mn_local[k++] = coef[j];</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>        mn_local[k++] = abs(coef[j]);</div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>      }</div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    }</div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    group_rate[i] = gamma_rand(prior_shape + mn_size, 1 / (prior_rate + mn_local.lpNorm&lt;1&gt;()), rng);</div>
@@ -172,14 +172,14 @@ $(document).ready(function(){initNavTree('gdp__helper_8h_source.html',''); initR
 <div class="foldopen" id="foldopen00065" data-start="{" data-end="}">
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#ac11bfbc02e10c6728147a4f4908920dc">   65</a></span><span class="keyword">inline</span> <span class="keywordtype">double</span> <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#ac11bfbc02e10c6728147a4f4908920dc">gdp_logdens_shape</a>(<span class="keywordtype">double</span> cand, Eigen::Ref&lt;Eigen::VectorXd&gt; coef, <span class="keywordtype">double</span> rate) {</div>
 <div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>  <span class="keywordtype">int</span> num_coef = coef.size();</div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>  <span class="keywordflow">return</span> num_coef * (log(1 - cand) - log(cand)) - (coef.array() / rate).log1p().sum() / cand;</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>  <span class="keywordflow">return</span> num_coef * (log(1 - cand) - log(cand)) - (coef.cwiseAbs().array() / rate).log1p().sum() / cand;</div>
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>}</div>
 </div>
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span> </div>
 <div class="foldopen" id="foldopen00070" data-start="{" data-end="}">
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#a853b197d0556235bb712d4304fa66d07">   70</a></span><span class="keyword">inline</span> <span class="keywordtype">double</span> <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a853b197d0556235bb712d4304fa66d07">gdp_logdens_rate</a>(<span class="keywordtype">double</span> cand, Eigen::Ref&lt;Eigen::VectorXd&gt; coef, <span class="keywordtype">double</span> shape) {</div>
 <div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>  <span class="keywordtype">int</span> num_coef = coef.size();</div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>  <span class="keywordflow">return</span> num_coef * (log(cand) - log(1 - cand)) - (shape + 1) * (coef.array() * cand / (1 - cand)).log1p().sum();</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>  <span class="keywordflow">return</span> num_coef * (log(cand) - log(1 - cand)) - (shape + 1) * (coef.cwiseAbs().array() * cand / (1 - cand)).log1p().sum();</div>
 <div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>}</div>
 </div>
 <div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span> </div>
@@ -227,7 +227,7 @@ $(document).ready(function(){initNavTree('gdp__helper_8h_source.html',''); initR
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_a853b197d0556235bb712d4304fa66d07"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a853b197d0556235bb712d4304fa66d07">baecon::bvhar::gdp_logdens_rate</a></div><div class="ttdeci">double gdp_logdens_rate(double cand, Eigen::Ref&lt; Eigen::VectorXd &gt; coef, double shape)</div><div class="ttdef"><b>Definition</b> gdp_helper.h:70</div></div>
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_ac11bfbc02e10c6728147a4f4908920dc"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#ac11bfbc02e10c6728147a4f4908920dc">baecon::bvhar::gdp_logdens_shape</a></div><div class="ttdeci">double gdp_logdens_shape(double cand, Eigen::Ref&lt; Eigen::VectorXd &gt; coef, double rate)</div><div class="ttdef"><b>Definition</b> gdp_helper.h:65</div></div>
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_acdc98eae88e50eb749d14243ba9fa051"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#acdc98eae88e50eb749d14243ba9fa051">baecon::bvhar::gdp_exp_rate</a></div><div class="ttdeci">void gdp_exp_rate(Eigen::Ref&lt; Eigen::VectorXd &gt; rate_hyper, double prior_shape, double prior_rate, Eigen::Ref&lt; Eigen::VectorXd &gt; coef, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> gdp_helper.h:28</div></div>
-<div class="ttc" id="anamespacebaecon_1_1bvhar_html_aebaafb66c81b30da5c6e5e168ad8f311"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#aebaafb66c81b30da5c6e5e168ad8f311">baecon::bvhar::sim_invgauss</a></div><div class="ttdeci">double sim_invgauss(double mean, double shape, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> random.h:325</div></div>
+<div class="ttc" id="anamespacebaecon_1_1bvhar_html_aebaafb66c81b30da5c6e5e168ad8f311"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#aebaafb66c81b30da5c6e5e168ad8f311">baecon::bvhar::sim_invgauss</a></div><div class="ttdeci">double sim_invgauss(double mean, double shape, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> random.h:339</div></div>
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_af13bd1e0cce3b2e289218972145165d5"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#af13bd1e0cce3b2e289218972145165d5">baecon::bvhar::gdp_rate_griddy</a></div><div class="ttdeci">void gdp_rate_griddy(double &amp;rate_hyper, double shape_hyper, int grid_size, Eigen::Ref&lt; Eigen::VectorXd &gt; coef, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> gdp_helper.h:93</div></div>
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_af785cee8c9aaa613db8156bf56995a45"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#af785cee8c9aaa613db8156bf56995a45">baecon::bvhar::gdp_shape_griddy</a></div><div class="ttdeci">void gdp_shape_griddy(double &amp;shape_hyper, double rate_hyper, int grid_size, Eigen::Ref&lt; Eigen::VectorXd &gt; coef, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> gdp_helper.h:81</div></div>
 <div class="ttc" id="anamespacebaecon_html"><div class="ttname"><a href="namespacebaecon.html">baecon</a></div><div class="ttdef"><b>Definition</b> bayes.h:16</div></div>

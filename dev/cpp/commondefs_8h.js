@@ -1,5 +1,7 @@
 var commondefs_8h =
 [
+    [ "BVHAR_DBL_TOL", "commondefs_8h.html#ad1a8dcfa01b68407083e32d0682994dd", null ],
+    [ "BVHAR_DBL_MAX", "commondefs_8h.html#a8e4a9517198518a9d4aff1bc419d6c6b", null ],
     [ "BVHAR_LIST", "commondefs_8h.html#ac66f23a4818bd454ba9e7847a2bdb2cb", null ],
     [ "BVHAR_LIST_OF_LIST", "commondefs_8h.html#a293837e81aa14759d76f6223b447290b", null ],
     [ "BVHAR_PY_LIST", "commondefs_8h.html#a27b16144b3c4b4a7bc90aa53bc5a8a8a", null ],
