@@ -325,7 +325,7 @@ struct RegRecords {
 		for (int i = 0; i < dim; ++i) {
 			standard_normal[i] = normal_rand(rng);
 		}
-		standard_normal.array() *= (sv_update / 2).array().exp(); // D^(1/2) Z ~ N(0, D)
+		standard_normal.array() *= sv_update.array(); // D^(1/2) Z ~ N(0, D)
 	}
 
 	/**
