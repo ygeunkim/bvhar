@@ -420,12 +420,12 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test,
   num_draw <- nrow(object$param) # concatenate multiple chains
   # num_draw <- nrow(object$param) / num_chains
   if (lpl) {
-    # lpl_val <- res_mat$lpl
-    if (med) {
-      lpl_val <- apply(res_mat$lpl, 2, median)
-    } else {
-      lpl_val <- colMeans(res_mat$lpl)
-    }
+    lpl_val <- res_mat$lpl
+    # if (med) {
+    #   lpl_val <- apply(res_mat$lpl, 2, median)
+    # } else {
+    #   lpl_val <- colMeans(res_mat$lpl)
+    # }
     res_mat$lpl <- NULL
   }
   # If path, res_mat$forecast = list(windows) -> list(chains) -> matrix(n_ahead, dim * draws)
@@ -658,12 +658,12 @@ forecast_roll.svmod <- function(object, n_ahead, y_test,
   num_draw <- nrow(object$param) # concatenate multiple chains
   # num_draw <- nrow(object$param) / num_chains
   if (lpl) {
-    # lpl_val <- res_mat$lpl
-    if (med) {
-      lpl_val <- apply(res_mat$lpl, 2, median)
-    } else {
-      lpl_val <- colMeans(res_mat$lpl)
-    }
+    lpl_val <- res_mat$lpl
+    # if (med) {
+    #   lpl_val <- apply(res_mat$lpl, 2, median)
+    # } else {
+    #   lpl_val <- colMeans(res_mat$lpl)
+    # }
     res_mat$lpl <- NULL
   }
   y_distn <- process_forecast_draws(
@@ -1058,12 +1058,12 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test,
   num_draw <- nrow(object$param) # concatenate multiple chains
   # num_draw <- nrow(object$param) / num_chains
   if (lpl) {
-    # lpl_val <- res_mat$lpl
-    if (med) {
-      lpl_val <- apply(res_mat$lpl, 2, median)
-    } else {
-      lpl_val <- colMeans(res_mat$lpl)
-    }
+    lpl_val <- res_mat$lpl
+    # if (med) {
+    #   lpl_val <- apply(res_mat$lpl, 2, median)
+    # } else {
+    #   lpl_val <- colMeans(res_mat$lpl)
+    # }
     res_mat$lpl <- NULL
   }
   y_distn <- process_forecast_draws(
@@ -1283,12 +1283,12 @@ forecast_expand.svmod <- function(object, n_ahead, y_test,
   num_draw <- nrow(object$param) # concatenate multiple chains
   # num_draw <- nrow(object$param) / num_chains
   if (lpl) {
-    # lpl_val <- res_mat$lpl
-    if (med) {
-      lpl_val <- apply(res_mat$lpl, 2, median)
-    } else {
-      lpl_val <- colMeans(res_mat$lpl)
-    }
+    lpl_val <- res_mat$lpl
+    # if (med) {
+    #   lpl_val <- apply(res_mat$lpl, 2, median)
+    # } else {
+    #   lpl_val <- colMeans(res_mat$lpl)
+    # }
     res_mat$lpl <- NULL
   }
   y_distn <- process_forecast_draws(
