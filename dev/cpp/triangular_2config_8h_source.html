@@ -26,7 +26,7 @@
  <tr id="projectrow">
   <td id="projectlogo"><img alt="Logo" src="apple-touch-icon.png"/></td>
   <td id="projectalign">
-   <div id="projectname">bvhar<span id="projectnumber">&#160;2.4.0.9006</span>
+   <div id="projectname">bvhar<span id="projectnumber">&#160;2.4.0.9007</span>
    </div>
    <div id="projectbrief">C++ headers by bvhar package</div>
   </td>
@@ -406,7 +406,7 @@ $(document).ready(function(){initNavTree('triangular_2config_8h_source.html','')
 <div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; dim; ++i) {</div>
 <div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>      standard_normal[i] = normal_rand(rng);</div>
 <div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>    }</div>
-<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>    standard_normal.array() *= (sv_update / 2).array().exp(); <span class="comment">// D^(1/2) Z ~ N(0, D)</span></div>
+<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>    standard_normal.array() *= sv_update.array(); <span class="comment">// D^(1/2) Z ~ N(0, D)</span></div>
 <div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>  }</div>
 </div>
 <div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span> </div>

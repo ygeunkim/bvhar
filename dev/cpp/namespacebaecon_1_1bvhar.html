@@ -26,7 +26,7 @@
  <tr id="projectrow">
   <td id="projectlogo"><img alt="Logo" src="apple-touch-icon.png"/></td>
   <td id="projectalign">
-   <div id="projectname">bvhar<span id="projectnumber">&#160;2.4.0.9006</span>
+   <div id="projectname">bvhar<span id="projectnumber">&#160;2.4.0.9007</span>
    </div>
    <div id="projectbrief">C++ headers by bvhar package</div>
   </td>
@@ -530,8 +530,8 @@ Functions</h2></td></tr>
 <tr class="separator:af2552d83a6dd4952ebf4bcd1fd315d74"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac9248c352d5f64ac9b9595197784a9e6" id="r_ac9248c352d5f64ac9b9595197784a9e6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6">cut_param</a> (Eigen::Ref&lt; Eigen::VectorXd &gt; param)</td></tr>
 <tr class="separator:ac9248c352d5f64ac9b9595197784a9e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1e40393471c836d8f4554afbc096bfda" id="r_a1e40393471c836d8f4554afbc096bfda"><td class="memItemLeft" align="right" valign="top">Eigen::MatrixXd&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebaecon_1_1bvhar.html#a1e40393471c836d8f4554afbc096bfda">build_inv_lower</a> (int dim, Eigen::VectorXd lower_vec)</td></tr>
-<tr class="separator:a1e40393471c836d8f4554afbc096bfda"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abde3fd1276bbc8e8e023c2c6f20413f1" id="r_abde3fd1276bbc8e8e023c2c6f20413f1"><td class="memItemLeft" align="right" valign="top">Eigen::MatrixXd&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebaecon_1_1bvhar.html#abde3fd1276bbc8e8e023c2c6f20413f1">build_inv_lower</a> (int dim, Eigen::Ref&lt; const Eigen::VectorXd &gt; lower_vec)</td></tr>
+<tr class="separator:abde3fd1276bbc8e8e023c2c6f20413f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a33007008c2898151a5a21e940de369f5" id="r_a33007008c2898151a5a21e940de369f5"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebaecon_1_1bvhar.html#a33007008c2898151a5a21e940de369f5">horseshoe_global_sparsity</a> (double global_latent, Eigen::Ref&lt; const Eigen::VectorXd &gt; local_hyperparam, Eigen::Ref&lt; Eigen::VectorXd &gt; coef_vec, const double &amp;prior_var, boost::random::mixmax &amp;rng)</td></tr>
 <tr class="separator:a33007008c2898151a5a21e940de369f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a49b255d34c10532f5bf08fe0a74970e0" id="r_a49b255d34c10532f5bf08fe0a74970e0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebaecon_1_1bvhar.html#a49b255d34c10532f5bf08fe0a74970e0">horseshoe_mn_global_sparsity</a> (Eigen::VectorXd &amp;global_lev, Eigen::VectorXi &amp;grp_vec, Eigen::VectorXi &amp;grp_id, Eigen::VectorXd &amp;global_latent, Eigen::VectorXd &amp;local_hyperparam, Eigen::Ref&lt; Eigen::VectorXd &gt; coef_vec, const double &amp;prior_var, boost::random::mixmax &amp;rng)</td></tr>
@@ -2123,8 +2123,8 @@ Here is the call graph for this function:</div>
 
 </div>
 </div>
-<a id="a1e40393471c836d8f4554afbc096bfda" name="a1e40393471c836d8f4554afbc096bfda"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1e40393471c836d8f4554afbc096bfda">&#9670;&#160;</a></span>build_inv_lower()</h2>
+<a id="abde3fd1276bbc8e8e023c2c6f20413f1" name="abde3fd1276bbc8e8e023c2c6f20413f1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abde3fd1276bbc8e8e023c2c6f20413f1">&#9670;&#160;</a></span>build_inv_lower()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -2141,7 +2141,7 @@ Here is the call graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">Eigen::VectorXd&#160;</td>
+          <td class="paramtype">Eigen::Ref&lt; const Eigen::VectorXd &gt;&#160;</td>
           <td class="paramname"><em>lower_vec</em>&#160;</td>
         </tr>
         <tr>

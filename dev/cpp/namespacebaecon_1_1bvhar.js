@@ -177,7 +177,7 @@ var namespacebaecon_1_1bvhar =
     [ "gdp_rate_griddy", "namespacebaecon_1_1bvhar.html#af13bd1e0cce3b2e289218972145165d5", null ],
     [ "set_grp_id", "namespacebaecon_1_1bvhar.html#af2552d83a6dd4952ebf4bcd1fd315d74", null ],
     [ "cut_param", "namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6", null ],
-    [ "build_inv_lower", "namespacebaecon_1_1bvhar.html#a1e40393471c836d8f4554afbc096bfda", null ],
+    [ "build_inv_lower", "namespacebaecon_1_1bvhar.html#abde3fd1276bbc8e8e023c2c6f20413f1", null ],
     [ "horseshoe_global_sparsity", "namespacebaecon_1_1bvhar.html#a33007008c2898151a5a21e940de369f5", null ],
     [ "horseshoe_mn_global_sparsity", "namespacebaecon_1_1bvhar.html#a49b255d34c10532f5bf08fe0a74970e0", null ],
     [ "horseshoe_mn_sparsity", "namespacebaecon_1_1bvhar.html#ab6303980b223a7c8fd339c52de3a14cf", null ],

@@ -26,7 +26,7 @@
  <tr id="projectrow">
   <td id="projectlogo"><img alt="Logo" src="apple-touch-icon.png"/></td>
   <td id="projectalign">
-   <div id="projectname">bvhar<span id="projectnumber">&#160;2.4.0.9006</span>
+   <div id="projectname">bvhar<span id="projectnumber">&#160;2.4.0.9007</span>
    </div>
    <div id="projectbrief">C++ headers by bvhar package</div>
   </td>
@@ -156,7 +156,7 @@ $(document).ready(function(){initNavTree('helper_8h_source.html',''); initResiza
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span><span class="comment">// @param dim Dimension (dim x dim) of L</span></div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span><span class="comment">// @param lower_vec Vector a</span></div>
 <div class="foldopen" id="foldopen00053" data-start="{" data-end="}">
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#a1e40393471c836d8f4554afbc096bfda">   53</a></span><span class="keyword">inline</span> Eigen::MatrixXd <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a1e40393471c836d8f4554afbc096bfda">build_inv_lower</a>(<span class="keywordtype">int</span> dim, Eigen::VectorXd lower_vec) {</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#abde3fd1276bbc8e8e023c2c6f20413f1">   53</a></span><span class="keyword">inline</span> Eigen::MatrixXd <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#abde3fd1276bbc8e8e023c2c6f20413f1">build_inv_lower</a>(<span class="keywordtype">int</span> dim, Eigen::Ref&lt;const Eigen::VectorXd&gt; lower_vec) {</div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>  Eigen::MatrixXd res = Eigen::MatrixXd::Identity(dim, dim);</div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>  <span class="keywordtype">int</span> <span class="keywordtype">id</span> = 0;</div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 1; i &lt; dim; i++) {</div>
@@ -171,7 +171,7 @@ $(document).ready(function(){initNavTree('helper_8h_source.html',''); initResiza
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>} <span class="comment">// namespace baecon</span></div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span> </div>
 <div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span><span class="preprocessor">#endif </span><span class="comment">// BVHAR_BAYES_MISC_HELPER_H_H</span></div>
-<div class="ttc" id="anamespacebaecon_1_1bvhar_html_a1e40393471c836d8f4554afbc096bfda"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a1e40393471c836d8f4554afbc096bfda">baecon::bvhar::build_inv_lower</a></div><div class="ttdeci">Eigen::MatrixXd build_inv_lower(int dim, Eigen::VectorXd lower_vec)</div><div class="ttdef"><b>Definition</b> helper.h:53</div></div>
+<div class="ttc" id="anamespacebaecon_1_1bvhar_html_abde3fd1276bbc8e8e023c2c6f20413f1"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#abde3fd1276bbc8e8e023c2c6f20413f1">baecon::bvhar::build_inv_lower</a></div><div class="ttdeci">Eigen::MatrixXd build_inv_lower(int dim, Eigen::Ref&lt; const Eigen::VectorXd &gt; lower_vec)</div><div class="ttdef"><b>Definition</b> helper.h:53</div></div>
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_ac9248c352d5f64ac9b9595197784a9e6"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6">baecon::bvhar::cut_param</a></div><div class="ttdeci">void cut_param(Eigen::Ref&lt; Eigen::VectorXd &gt; param)</div><div class="ttdef"><b>Definition</b> helper.h:36</div></div>
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_af2552d83a6dd4952ebf4bcd1fd315d74"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#af2552d83a6dd4952ebf4bcd1fd315d74">baecon::bvhar::set_grp_id</a></div><div class="ttdeci">void set_grp_id(std::set&lt; int &gt; &amp;own_id, std::set&lt; int &gt; cross_id, const Eigen::VectorXi &amp;grp_own, const Eigen::VectorXi &amp;grp_cross)</div><div class="ttdef"><b>Definition</b> helper.h:12</div></div>
 <div class="ttc" id="anamespacebaecon_html"><div class="ttname"><a href="namespacebaecon.html">baecon</a></div><div class="ttdef"><b>Definition</b> bayes.h:16</div></div>
