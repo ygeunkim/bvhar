@@ -164,18 +164,25 @@ split_chain <- function(x, chain = 1, varname = "alpha") {
       # split.data.frame(t(x), gl(num_var, 1, ncol(x))) |>
       # lapply(t) |>
       split.data.frame(x, gl(chain, num_row)) |>
-      unlist() |>
-      array(
-        # dim = c(nrow(x), chain, num_var),
-        dim = c(num_row, chain, ncol(x)),
-        dimnames = list(
-          # iteration = seq_len(nrow(x)),
-          iteration = seq_len(num_row),
-          chain = seq_len(chain),
-          # variable = paste0(varname, "[", seq_len(num_var), "]")
-          variable = paste0(varname, "[", seq_len(ncol(x)), "]")
-        )
-      )
+      # unlist() |>
+      # array(
+      #   # dim = c(nrow(x), chain, num_var),
+      #   dim = c(num_row, chain, ncol(x)),
+      #   dimnames = list(
+      #     # iteration = seq_len(nrow(x)),
+      #     iteration = seq_len(num_row),
+      #     chain = seq_len(chain),
+      #     # variable = paste0(varname, "[", seq_len(num_var), "]")
+      #     variable = paste0(varname, "[", seq_len(ncol(x)), "]")
+      #   )
+      # )
+      simplify2array() |>
+      aperm(c(1, 3, 2))
+    dimnames(res) <- list(
+      iteration = seq_len(num_row),
+      chain = seq_len(chain),
+      variable = paste0(varname, "[", seq_len(ncol(x)), "]")
+    )
   }
   res
 }
