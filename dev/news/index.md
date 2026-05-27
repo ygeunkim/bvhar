@@ -9,6 +9,9 @@
 
 ### R
 
+- Fixed wrong post-processing of MCMC posterior draws. This can change
+  the results of post-analysis of the old code.
+
 ### Python
 
 - `-DBVHAR_USE_PYBIND11` macro is required to use the header with
