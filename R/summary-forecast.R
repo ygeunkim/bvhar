@@ -1644,10 +1644,7 @@ alpl <- function(x, ...) {
 #' @rdname alpl
 #' @export 
 alpl.bvharcv <- function(x, ...) {
-  if (x$med) {
-    return(median(x$lpl))
-  }
-  mean(x$lpl)
+  colMeans(x$lpl)
 }
 
 #' Evaluate the Model Based on RelMAE (Relative MAE)
