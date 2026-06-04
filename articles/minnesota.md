@@ -1,6 +1,7 @@
 # Minnesota Prior
 
 ``` r
+
 library(bvhar)
 ```
 
@@ -10,21 +11,22 @@ We provide functions to generate matrix-variate Normal and
 inverse-Wishart.
 
 - `sim_mnormal(num_sim, mu, sig)`: `num_sim` of
-  $\mathbf{X}_{i}\overset{iid}{\sim}N({\mathbf{μ}},\Sigma)$.
+  $`\mathbf{X}_i \stackrel{iid}{\sim} N(\boldsymbol{\mu}, \Sigma)`$.
 - `sim_matgaussian(mat_mean, mat_scale_u, mat_scale_v)`: One
-  $X_{m \times n} \sim MN\left( M_{m \times n},U_{m \times m},V_{n \times n} \right)$
-  which means that $vec(X) \sim N\left( vec(M),V \otimes U \right)$.
-- `sim_iw(mat_scale, shape)`: One $\Sigma \sim IW(\Psi,\nu)$.
+  $`X_{m \times n} \sim MN(M_{m \times n}, U_{m \times m}, V_{n \times n})`$
+  which means that $`vec(X) \sim N(vec(M), V \otimes U)`$.
+- `sim_iw(mat_scale, shape)`: One $`\Sigma \sim IW(\Psi, \nu)`$.
 - `sim_mniw(num_sim, mat_mean, mat_scale_u, mat_scale, shape)`:
   `num_sim` of
-  $\left( X_{i},\Sigma_{i} \right)\overset{iid}{\sim}MNIW(M,U,V,\nu)$.
+  $`(X_i, \Sigma_i) \stackrel{iid}{\sim} MNIW(M, U, V, \nu)`$.
 
 Multivariate Normal generation gives `num_sim` x dim matrix. For
 example, generating 3 vector from
-Normal(${\mathbf{μ}} = \mathbf{0}_{2}$,
-$\Sigma = diag\left( \mathbf{1}_{2} \right)$):
+Normal($`\boldsymbol{\mu} = \mathbf{0}_2`$,
+$`\Sigma = diag(\mathbf{1}_2)`$):
 
 ``` r
+
 sim_mnormal(3, rep(0, 2), diag(2))
 #>        [,1]   [,2]
 #> [1,] -0.626  0.184
@@ -36,6 +38,7 @@ The output of [`sim_matgaussian()`](../reference/sim_matgaussian.md) is
 a matrix.
 
 ``` r
+
 sim_matgaussian(matrix(1:20, nrow = 4), diag(4), diag(5), FALSE)
 #>      [,1] [,2]  [,3] [,4] [,5]
 #> [1,] 1.49 5.74  9.58 12.7 18.5
@@ -44,12 +47,13 @@ sim_matgaussian(matrix(1:20, nrow = 4), diag(4), diag(5), FALSE)
 #> [4,] 4.78 8.07 10.01 16.6 19.9
 ```
 
-When generating IW, violating $\nu > dim - 1$ gives error. But we ignore
-$\nu > dim + 1$ (condition for mean existence) in this function.
-Nonetheless, we recommend you to keep $\nu > dim + 1$ condition. As
-mentioned, it guarantees the existence of the mean.
+When generating IW, violating $`\nu > dim - 1`$ gives error. But we
+ignore $`\nu > dim + 1`$ (condition for mean existence) in this
+function. Nonetheless, we recommend you to keep $`\nu > dim + 1`$
+condition. As mentioned, it guarantees the existence of the mean.
 
 ``` r
+
 sim_iw(diag(5), 7)
 #>        [,1]   [,2]   [,3]   [,4]   [,5]
 #> [1,]  0.588  0.428  0.219  0.364 -0.562
@@ -64,6 +68,7 @@ with `mn` (stacked MN matrices) and `iw` (stacked IW matrices). Each
 `mn` and `iw` has draw lists.
 
 ``` r
+
 sim_mniw(2, matrix(1:20, nrow = 4), diag(4), diag(5), 7, FALSE)
 #> $mn
 #> $mn[[1]]
@@ -107,37 +112,42 @@ This function has been defined for the next simulation functions.
 
 Consider BVAR Minnesota prior setting,
 
-$$A \sim MN\left( A_{0},\Omega_{0},\Sigma_{e} \right)$$
+``` math
+A \sim MN(A_0, \Omega_0, \Sigma_e)
+```
 
-$$\Sigma_{e} \sim IW\left( S_{0},\alpha_{0} \right)$$
+``` math
+\Sigma_e \sim IW(S_0, \alpha_0)
+```
 
 - From Litterman (1986) and Bańbura et al. (2010)
-- Each $A_{0},\Omega_{0},S_{0},\alpha_{0}$ is defined by adding dummy
+- Each $`A_0, \Omega_0, S_0, \alpha_0`$ is defined by adding dummy
   observations
   - `build_xdummy()`
   - `build_ydummy()`
-- `sigma`: Vector $\sigma_{1},\ldots,\sigma_{m}$
-  - $\Sigma_{e} = diag\left( \sigma_{1}^{2},\ldots,\sigma_{m}^{2} \right)$
-  - $\sigma_{i}^{2}/\sigma_{j}^{2}$: different scale and variability of
-    the data
+- `sigma`: Vector $`\sigma_1, \ldots, \sigma_m`$
+  - $`\Sigma_e = diag(\sigma_1^2, \ldots, \sigma_m^2)`$
+  - $`\sigma_i^2 / \sigma_j^2`$: different scale and variability of the
+    data
 - `lambda`
   - Controls the overall tightness of the prior distribution around the
     RW or WN
   - Governs the relative importance of the prior beliefs w.r.t. the
     information contained in the data
-    - If $\lambda = 0$, then posterior = prior and the data do not
+    - If $`\lambda = 0`$, then posterior = prior and the data do not
       influence the estimates.
-    - If $\lambda = \infty$, then posterior expectations = OLS.
+    - If $`\lambda = \infty`$, then posterior expectations = OLS.
   - Choose in relation to the size of the system (Bańbura et al. (2010))
-    - As `m` increases, $\lambda$ should be smaller to avoid overfitting
-      (De Mol et al. (2008))
+    - As `m` increases, $`\lambda`$ should be smaller to avoid
+      overfitting (De Mol et al. (2008))
 - `delta`: Persistence
-  - Litterman (1986) originally sets high persistence $\delta_{i} = 1$
-  - For Non-stationary variables: random walk prior $\delta_{i} = 1$
-  - For stationary variables: white noise prior $\delta_{i} = 0$
+  - Litterman (1986) originally sets high persistence $`\delta_i = 1`$
+  - For Non-stationary variables: random walk prior $`\delta_i = 1`$
+  - For stationary variables: white noise prior $`\delta_i = 0`$
 - `eps`: Very small number to make matrix invertible
 
 ``` r
+
 bvar_lag <- 5
 (spec_to_sim <- set_bvar(
   sigma = c(3.25, 11.1, 2.2, 6.8), # sigma vector
@@ -167,14 +177,15 @@ bvar_lag <- 5
 #> [1]  FALSE
 ```
 
-- `sim_mncoef(p, bayes_spec, full = TRUE)` can generate both $A$ and
-  $\Sigma$ matrices.
+- `sim_mncoef(p, bayes_spec, full = TRUE)` can generate both $`A`$ and
+  $`\Sigma`$ matrices.
 - In `bayes_spec`, only [`set_bvar()`](../reference/set_bvar.md) works.
-- If `full = FALSE`, $\Sigma$ is not random. It is same as `diag(sigma)`
-  from the `bayes_spec`.
+- If `full = FALSE`, $`\Sigma`$ is not random. It is same as
+  `diag(sigma)` from the `bayes_spec`.
 - `full = TRUE` is the default.
 
 ``` r
+
 (sim_mncoef(bvar_lag, spec_to_sim))
 #> $coefficients
 #>           [,1]     [,2]      [,3]    [,4]
@@ -212,9 +223,13 @@ bvar_lag <- 5
 `sim_mnvhar_coef(bayes_spec, full = TRUE)` generates BVHAR model
 setting:
 
-$$\Phi \mid \Sigma_{e} \sim MN\left( M_{0},\Omega_{0},\Sigma_{e} \right)$$
+``` math
+\Phi \mid \Sigma_e \sim MN(M_0, \Omega_0, \Sigma_e)
+```
 
-$$\Sigma_{e} \sim IW\left( \Psi_{0},\nu_{0} \right)$$
+``` math
+\Sigma_e \sim IW(\Psi_0, \nu_0)
+```
 
 - similar to BVAR, `bayes_spec` option wants `bvharspec`. But
   - [`set_bvhar()`](../reference/set_bvar.md)
@@ -224,6 +239,7 @@ $$\Sigma_{e} \sim IW\left( \Psi_{0},\nu_{0} \right)$$
 #### BVHAR-S
 
 ``` r
+
 (bvhar_var_spec <- set_bvhar(
   sigma = c(1.2, 2.3), # sigma vector
   lambda = .2, # lambda
@@ -253,6 +269,7 @@ $$\Sigma_{e} \sim IW\left( \Psi_{0},\nu_{0} \right)$$
 ```
 
 ``` r
+
 (sim_mnvhar_coef(bvhar_var_spec))
 #> $coefficients
 #>         [,1]      [,2]
@@ -272,6 +289,7 @@ $$\Sigma_{e} \sim IW\left( \Psi_{0},\nu_{0} \right)$$
 #### BVHAR-L
 
 ``` r
+
 (bvhar_vhar_spec <- set_weight_bvhar(
   sigma = c(1.2, 2.3), # sigma vector
   lambda = .2, # lambda
@@ -309,6 +327,7 @@ $$\Sigma_{e} \sim IW\left( \Psi_{0},\nu_{0} \right)$$
 ```
 
 ``` r
+
 (sim_mnvhar_coef(bvhar_vhar_spec))
 #> $coefficients
 #>          [,1]    [,2]

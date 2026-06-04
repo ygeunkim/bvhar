@@ -12,8 +12,8 @@
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Noto_Sans-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Noto_Sans-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/Anonymous_Pro-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">bvhar</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -87,7 +87,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Minnesota Prior</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/ygeunkim/bvhar/blob/master/vignettes/minnesota.Rmd" class="external-link"><code>vignettes/minnesota.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ygeunkim/bvhar/blob/release/v2.4.1/vignettes/minnesota.Rmd" class="external-link"><code>vignettes/minnesota.Rmd</code></a></small>
       <div class="d-none name"><code>minnesota.Rmd</code></div>
     </div>
 
@@ -103,25 +103,25 @@ inverse-Wishart.</p>
 <ul>
 <li>
 <code>sim_mnormal(num_sim, mu, sig)</code>: <code>num_sim</code> of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝐗</mi><mi>i</mi></msub><mover><mo>∼</mo><mrow><mi>i</mi><mi>i</mi><mi>d</mi></mrow></mover><mi>N</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝛍</mi><mo>,</mo><mi>Σ</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathbf{X}_i \stackrel{iid}{\sim} N(\boldsymbol{\mu}, \Sigma)</annotation></semantics></math>.</li>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝐗</mi><mi>i</mi></msub><mover><mo>∼</mo><mrow><mi>i</mi><mi>i</mi><mi>d</mi></mrow></mover><mi>N</mi><mo stretchy="false" form="prefix">(</mo><mi>𝛍</mi><mo>,</mo><mi mathvariant="normal">Σ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathbf{X}_i \stackrel{iid}{\sim} N(\boldsymbol{\mu}, \Sigma)</annotation></semantics></math>.</li>
 <li>
 <code>sim_matgaussian(mat_mean, mat_scale_u, mat_scale_v)</code>:
 One
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>X</mi><mrow><mi>m</mi><mo>×</mo><mi>n</mi></mrow></msub><mo>∼</mo><mi>M</mi><mi>N</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>M</mi><mrow><mi>m</mi><mo>×</mo><mi>n</mi></mrow></msub><mo>,</mo><msub><mi>U</mi><mrow><mi>m</mi><mo>×</mo><mi>m</mi></mrow></msub><mo>,</mo><msub><mi>V</mi><mrow><mi>n</mi><mo>×</mo><mi>n</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">X_{m \times n} \sim MN(M_{m \times n}, U_{m \times m}, V_{n \times n})</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>X</mi><mrow><mi>m</mi><mo>×</mo><mi>n</mi></mrow></msub><mo>∼</mo><mi>M</mi><mi>N</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>M</mi><mrow><mi>m</mi><mo>×</mo><mi>n</mi></mrow></msub><mo>,</mo><msub><mi>U</mi><mrow><mi>m</mi><mo>×</mo><mi>m</mi></mrow></msub><mo>,</mo><msub><mi>V</mi><mrow><mi>n</mi><mo>×</mo><mi>n</mi></mrow></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">X_{m \times n} \sim MN(M_{m \times n}, U_{m \times m}, V_{n \times n})</annotation></semantics></math>
 which means that
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mi>e</mi><mi>c</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>X</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>∼</mo><mi>N</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>v</mi><mi>e</mi><mi>c</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>M</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mi>V</mi><mo>⊗</mo><mi>U</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">vec(X) \sim N(vec(M), V \otimes U)</annotation></semantics></math>.</li>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mi>e</mi><mi>c</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo><mo>∼</mo><mi>N</mi><mo stretchy="false" form="prefix">(</mo><mi>v</mi><mi>e</mi><mi>c</mi><mo stretchy="false" form="prefix">(</mo><mi>M</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mi>V</mi><mo>⊗</mo><mi>U</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">vec(X) \sim N(vec(M), V \otimes U)</annotation></semantics></math>.</li>
 <li>
 <code>sim_iw(mat_scale, shape)</code>: One
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Σ</mi><mo>∼</mo><mi>I</mi><mi>W</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>Ψ</mi><mo>,</mo><mi>ν</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\Sigma \sim IW(\Psi, \nu)</annotation></semantics></math>.</li>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Σ</mi><mo>∼</mo><mi>I</mi><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="normal">Ψ</mi><mo>,</mo><mi>ν</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Sigma \sim IW(\Psi, \nu)</annotation></semantics></math>.</li>
 <li>
 <code>sim_mniw(num_sim, mat_mean, mat_scale_u, mat_scale, shape)</code>:
 <code>num_sim</code> of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo>,</mo><msub><mi>Σ</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mover><mo>∼</mo><mrow><mi>i</mi><mi>i</mi><mi>d</mi></mrow></mover><mi>M</mi><mi>N</mi><mi>I</mi><mi>W</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>M</mi><mo>,</mo><mi>U</mi><mo>,</mo><mi>V</mi><mo>,</mo><mi>ν</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">(X_i, \Sigma_i) \stackrel{iid}{\sim} MNIW(M, U, V, \nu)</annotation></semantics></math>.</li>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo>,</mo><msub><mi mathvariant="normal">Σ</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mover><mo>∼</mo><mrow><mi>i</mi><mi>i</mi><mi>d</mi></mrow></mover><mi>M</mi><mi>N</mi><mi>I</mi><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi>M</mi><mo>,</mo><mi>U</mi><mo>,</mo><mi>V</mi><mo>,</mo><mi>ν</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(X_i, \Sigma_i) \stackrel{iid}{\sim} MNIW(M, U, V, \nu)</annotation></semantics></math>.</li>
 </ul>
 <p>Multivariate Normal generation gives <code>num_sim</code> x dim
 matrix. For example, generating 3 vector from
 Normal(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝛍</mi><mo>=</mo><msub><mn>𝟎</mn><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">\boldsymbol{\mu} = \mathbf{0}_2</annotation></semantics></math>,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Σ</mi><mo>=</mo><mi>d</mi><mi>i</mi><mi>a</mi><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mn>𝟏</mn><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\Sigma = diag(\mathbf{1}_2)</annotation></semantics></math>):</p>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Σ</mi><mo>=</mo><mi>d</mi><mi>i</mi><mi>a</mi><mi>g</mi><mo stretchy="false" form="prefix">(</mo><msub><mn>𝟏</mn><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Sigma = diag(\mathbf{1}_2)</annotation></semantics></math>):</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/sim_mnormal.html">sim_mnormal</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;        [,1]   [,2]</span></span>
@@ -199,12 +199,12 @@ matrices). Each <code>mn</code> and <code>iw</code> has draw lists.</p>
 <h3 id="bvar">BVAR<a class="anchor" aria-label="anchor" href="#bvar"></a>
 </h3>
 <p>Consider BVAR Minnesota prior setting,</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mo>∼</mo><mi>M</mi><mi>N</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>A</mi><mn>0</mn></msub><mo>,</mo><msub><mi>Ω</mi><mn>0</mn></msub><mo>,</mo><msub><mi>Σ</mi><mi>e</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">A \sim MN(A_0, \Omega_0, \Sigma_e)</annotation></semantics></math></p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Σ</mi><mi>e</mi></msub><mo>∼</mo><mi>I</mi><mi>W</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>S</mi><mn>0</mn></msub><mo>,</mo><msub><mi>α</mi><mn>0</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\Sigma_e \sim IW(S_0, \alpha_0)</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mo>∼</mo><mi>M</mi><mi>N</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>A</mi><mn>0</mn></msub><mo>,</mo><msub><mi mathvariant="normal">Ω</mi><mn>0</mn></msub><mo>,</mo><msub><mi mathvariant="normal">Σ</mi><mi>e</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">A \sim MN(A_0, \Omega_0, \Sigma_e)</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="normal">Σ</mi><mi>e</mi></msub><mo>∼</mo><mi>I</mi><mi>W</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>S</mi><mn>0</mn></msub><mo>,</mo><msub><mi>α</mi><mn>0</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Sigma_e \sim IW(S_0, \alpha_0)</annotation></semantics></math></p>
 <ul>
 <li>From Litterman (1986) and Bańbura et al. (2010)</li>
 <li>Each
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>A</mi><mn>0</mn></msub><mo>,</mo><msub><mi>Ω</mi><mn>0</mn></msub><mo>,</mo><msub><mi>S</mi><mn>0</mn></msub><mo>,</mo><msub><mi>α</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">A_0, \Omega_0, S_0, \alpha_0</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>A</mi><mn>0</mn></msub><mo>,</mo><msub><mi mathvariant="normal">Ω</mi><mn>0</mn></msub><mo>,</mo><msub><mi>S</mi><mn>0</mn></msub><mo>,</mo><msub><mi>α</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">A_0, \Omega_0, S_0, \alpha_0</annotation></semantics></math>
 is defined by adding dummy observations
 <ul>
 <li><code>build_xdummy()</code></li>
@@ -214,7 +214,7 @@ is defined by adding dummy observations
 <li>
 <code>sigma</code>: Vector
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>σ</mi><mn>1</mn></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>σ</mi><mi>m</mi></msub></mrow><annotation encoding="application/x-tex">\sigma_1, \ldots, \sigma_m</annotation></semantics></math><ul>
-<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Σ</mi><mi>e</mi></msub><mo>=</mo><mi>d</mi><mi>i</mi><mi>a</mi><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>σ</mi><mn>1</mn><mn>2</mn></msubsup><mo>,</mo><mi>…</mi><mo>,</mo><msubsup><mi>σ</mi><mi>m</mi><mn>2</mn></msubsup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\Sigma_e = diag(\sigma_1^2, \ldots, \sigma_m^2)</annotation></semantics></math></li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="normal">Σ</mi><mi>e</mi></msub><mo>=</mo><mi>d</mi><mi>i</mi><mi>a</mi><mi>g</mi><mo stretchy="false" form="prefix">(</mo><msubsup><mi>σ</mi><mn>1</mn><mn>2</mn></msubsup><mo>,</mo><mi>…</mi><mo>,</mo><msubsup><mi>σ</mi><mi>m</mi><mn>2</mn></msubsup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Sigma_e = diag(\sigma_1^2, \ldots, \sigma_m^2)</annotation></semantics></math></li>
 <li>
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>σ</mi><mi>i</mi><mn>2</mn></msubsup><mi>/</mi><msubsup><mi>σ</mi><mi>j</mi><mn>2</mn></msubsup></mrow><annotation encoding="application/x-tex">\sigma_i^2 / \sigma_j^2</annotation></semantics></math>:
 different scale and variability of the data</li>
@@ -296,11 +296,11 @@ should be smaller to avoid overfitting (De Mol et al. (2008))</li>
 both
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>
 and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Σ</mi><annotation encoding="application/x-tex">\Sigma</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">Σ</mi><annotation encoding="application/x-tex">\Sigma</annotation></semantics></math>
 matrices.</li>
 <li>In <code>bayes_spec</code>, only <code><a href="../reference/set_bvar.html">set_bvar()</a></code> works.</li>
 <li>If <code>full = FALSE</code>,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Σ</mi><annotation encoding="application/x-tex">\Sigma</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">Σ</mi><annotation encoding="application/x-tex">\Sigma</annotation></semantics></math>
 is not random. It is same as <code>diag(sigma)</code> from the
 <code>bayes_spec</code>.</li>
 <li>
@@ -343,8 +343,8 @@ is not random. It is same as <code>diag(sigma)</code> from the
 </h3>
 <p><code>sim_mnvhar_coef(bayes_spec, full = TRUE)</code> generates BVHAR
 model setting:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Φ</mi><mo>∣</mo><msub><mi>Σ</mi><mi>e</mi></msub><mo>∼</mo><mi>M</mi><mi>N</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>M</mi><mn>0</mn></msub><mo>,</mo><msub><mi>Ω</mi><mn>0</mn></msub><mo>,</mo><msub><mi>Σ</mi><mi>e</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\Phi \mid \Sigma_e \sim MN(M_0, \Omega_0, \Sigma_e)</annotation></semantics></math></p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Σ</mi><mi>e</mi></msub><mo>∼</mo><mi>I</mi><mi>W</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>Ψ</mi><mn>0</mn></msub><mo>,</mo><msub><mi>ν</mi><mn>0</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\Sigma_e \sim IW(\Psi_0, \nu_0)</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Φ</mi><mo>∣</mo><msub><mi mathvariant="normal">Σ</mi><mi>e</mi></msub><mo>∼</mo><mi>M</mi><mi>N</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>M</mi><mn>0</mn></msub><mo>,</mo><msub><mi mathvariant="normal">Ω</mi><mn>0</mn></msub><mo>,</mo><msub><mi mathvariant="normal">Σ</mi><mi>e</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Phi \mid \Sigma_e \sim MN(M_0, \Omega_0, \Sigma_e)</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="normal">Σ</mi><mi>e</mi></msub><mo>∼</mo><mi>I</mi><mi>W</mi><mo stretchy="false" form="prefix">(</mo><msub><mi mathvariant="normal">Ψ</mi><mn>0</mn></msub><mo>,</mo><msub><mi>ν</mi><mn>0</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Sigma_e \sim IW(\Psi_0, \nu_0)</annotation></semantics></math></p>
 <ul>
 <li>similar to BVAR, <code>bayes_spec</code> option wants
 <code>bvharspec</code>. But

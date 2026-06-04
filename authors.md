@@ -10,19 +10,19 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/ygeunkim/bvhar/blob/master/inst/CITATION)
+[`inst/CITATION`](https://github.com/ygeunkim/bvhar/blob/release/v2.4.1/inst/CITATION)
 
 Kim Y, Baek C (2023). *bvhar: Bayesian Vector Heterogeneous
 Autoregressive Modeling*.
-[doi:10.32614/CRAN.package.bvhar](https://doi.org/10.32614/CRAN.package.bvhar),
-R package version 2.4.0, <https://cran.r-project.org/package=bvhar>.
+[doi:10.32614/CRAN.package.bvhar](https://doi.org/10.32614/CRAN.package.bvhar).
+R package version 2.4.1, <https://cran.r-project.org/package=bvhar>.
 
     @Manual{,
       title = {{bvhar}: Bayesian Vector Heterogeneous Autoregressive Modeling},
       author = {Young Geun Kim and Changryong Baek},
       year = {2023},
       doi = {10.32614/CRAN.package.bvhar},
-      note = {R package version 2.4.0},
+      note = {R package version 2.4.1},
       url = {https://cran.r-project.org/package=bvhar},
     }
 

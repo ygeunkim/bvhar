@@ -12,8 +12,8 @@
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Noto_Sans-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Noto_Sans-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/Anonymous_Pro-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">bvhar</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -87,7 +87,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Introduction to bvhar</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/ygeunkim/bvhar/blob/master/vignettes/bvhar.Rmd" class="external-link"><code>vignettes/bvhar.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ygeunkim/bvhar/blob/release/v2.4.1/vignettes/bvhar.Rmd" class="external-link"><code>vignettes/bvhar.Rmd</code></a></small>
       <div class="d-none name"><code>bvhar.Rmd</code></div>
     </div>
 
@@ -161,7 +161,7 @@ forecasting.</p>
 <p>This package indentifies VAR(p) model by</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝐘</mi><mi>t</mi></msub><mo>=</mo><mi>𝐜</mi><mo>+</mo><msub><mi>𝛃</mi><mn>1</mn></msub><msub><mi>𝐘</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>+</mo><mi>…</mi><mo>+</mo><msub><mi>𝛃</mi><mi>p</mi></msub><mo>+</mo><msub><mi>𝐘</mi><mrow><mi>t</mi><mo>−</mo><mi>p</mi></mrow></msub><mo>+</mo><msub><mi>𝛜</mi><mi>t</mi></msub></mrow><annotation encoding="application/x-tex">\mathbf{Y}_t = \mathbf{c}+ \boldsymbol\beta_1 \mathbf{Y}_{t - 1} + \ldots + \boldsymbol\beta_p +\mathbf{Y}_{t - p} + \boldsymbol\epsilon_t</annotation></semantics></math></p>
 <p>where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝛜</mi><mi>t</mi></msub><mo>∼</mo><mi>N</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mn>𝟎</mn><mi>k</mi></msub><mo>,</mo><msub><mi>Σ</mi><mi>e</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\boldsymbol\epsilon_t \sim N(\mathbf{0}_k, \Sigma_e)</annotation></semantics></math></p>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝛜</mi><mi>t</mi></msub><mo>∼</mo><mi>N</mi><mo stretchy="false" form="prefix">(</mo><msub><mn>𝟎</mn><mi>k</mi></msub><mo>,</mo><msub><mi mathvariant="normal">Σ</mi><mi>e</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\boldsymbol\epsilon_t \sim N(\mathbf{0}_k, \Sigma_e)</annotation></semantics></math></p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">var_lag</span> <span class="op">&lt;-</span> <span class="fl">5</span></span></code></pre></div>
 <p>The package perform VAR(p = 5) based on</p>
@@ -273,18 +273,18 @@ A = \begin{bmatrix}
 <h3 id="vhar">VHAR<a class="anchor" aria-label="anchor" href="#vhar"></a>
 </h3>
 <p>Consider Vector HAR (VHAR) model.</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝐘</mi><mi>t</mi></msub><mo>=</mo><mi>𝐜</mi><mo>+</mo><msup><mi>Φ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>d</mi><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>+</mo><msub><mi>𝐘</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>+</mo><msup><mi>Φ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>w</mi><mo stretchy="true" form="postfix">)</mo></mrow></msup><msubsup><mi>𝐘</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>w</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>+</mo><msup><mi>Φ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo stretchy="true" form="postfix">)</mo></mrow></msup><msubsup><mi>𝐘</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>+</mo><msub><mi>𝛜</mi><mi>t</mi></msub></mrow><annotation encoding="application/x-tex">\mathbf{Y}_t = \mathbf{c}+ \Phi^{(d)} + \mathbf{Y}_{t - 1} + \Phi^{(w)} \mathbf{Y}_{t - 1}^{(w)} + \Phi^{(m)} \mathbf{Y}_{t - 1}^{(m)} + \boldsymbol\epsilon_t</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝐘</mi><mi>t</mi></msub><mo>=</mo><mi>𝐜</mi><mo>+</mo><msup><mi mathvariant="normal">Φ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>d</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>+</mo><msub><mi>𝐘</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>+</mo><msup><mi mathvariant="normal">Φ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>w</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><msubsup><mi>𝐘</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mi>w</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>+</mo><msup><mi mathvariant="normal">Φ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><msubsup><mi>𝐘</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>+</mo><msub><mi>𝛜</mi><mi>t</mi></msub></mrow><annotation encoding="application/x-tex">\mathbf{Y}_t = \mathbf{c}+ \Phi^{(d)} + \mathbf{Y}_{t - 1} + \Phi^{(w)} \mathbf{Y}_{t - 1}^{(w)} + \Phi^{(m)} \mathbf{Y}_{t - 1}^{(m)} + \boldsymbol\epsilon_t</annotation></semantics></math></p>
 <p>where
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝐘</mi><mi>t</mi></msub><annotation encoding="application/x-tex">\mathbf{Y}_t</annotation></semantics></math>
 is daily RV and</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>𝐘</mi><mi>t</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>w</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>=</mo><mfrac><mn>1</mn><mn>5</mn></mfrac><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>𝐘</mi><mi>t</mi></msub><mo>+</mo><mi>⋯</mi><mo>+</mo><msub><mi>𝐘</mi><mrow><mi>t</mi><mo>−</mo><mn>4</mn></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathbf{Y}_t^{(w)} = \frac{1}{5} \left( \mathbf{Y}_t + \cdots + \mathbf{Y}_{t - 4} \right)</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>𝐘</mi><mi>t</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>w</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>=</mo><mfrac><mn>1</mn><mn>5</mn></mfrac><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>𝐘</mi><mi>t</mi></msub><mo>+</mo><mi>⋯</mi><mo>+</mo><msub><mi>𝐘</mi><mrow><mi>t</mi><mo>−</mo><mn>4</mn></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathbf{Y}_t^{(w)} = \frac{1}{5} \left( \mathbf{Y}_t + \cdots + \mathbf{Y}_{t - 4} \right)</annotation></semantics></math></p>
 <p>is weekly RV</p>
 <p>and</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>𝐘</mi><mi>t</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>=</mo><mfrac><mn>1</mn><mn>22</mn></mfrac><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>𝐘</mi><mi>t</mi></msub><mo>+</mo><mi>⋯</mi><mo>+</mo><msub><mi>𝐘</mi><mrow><mi>t</mi><mo>−</mo><mn>21</mn></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathbf{Y}_t^{(m)} = \frac{1}{22} \left( \mathbf{Y}_t + \cdots + \mathbf{Y}_{t - 21} \right)</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>𝐘</mi><mi>t</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>=</mo><mfrac><mn>1</mn><mn>22</mn></mfrac><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>𝐘</mi><mi>t</mi></msub><mo>+</mo><mi>⋯</mi><mo>+</mo><msub><mi>𝐘</mi><mrow><mi>t</mi><mo>−</mo><mn>21</mn></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathbf{Y}_t^{(m)} = \frac{1}{22} \left( \mathbf{Y}_t + \cdots + \mathbf{Y}_{t - 21} \right)</annotation></semantics></math></p>
 <p>is monthly RV. This model can be expressed by</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Y</mi><mn>0</mn></msub><mo>=</mo><msub><mi>X</mi><mn>1</mn></msub><mi>Φ</mi><mo>+</mo><mi>Z</mi></mrow><annotation encoding="application/x-tex">Y_0 = X_1 \Phi + Z</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Y</mi><mn>0</mn></msub><mo>=</mo><msub><mi>X</mi><mn>1</mn></msub><mi mathvariant="normal">Φ</mi><mo>+</mo><mi>Z</mi></mrow><annotation encoding="application/x-tex">Y_0 = X_1 \Phi + Z</annotation></semantics></math></p>
 <p>where</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Φ</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msup><mi>Φ</mi><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>d</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>T</mi></mrow></msup></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msup><mi>Φ</mi><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>w</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>T</mi></mrow></msup></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msup><mi>Φ</mi><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>T</mi></mrow></msup></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msup><mi>𝐜</mi><mi>T</mi></msup></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow><mo>∈</mo><msup><mi>ℝ</mi><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>3</mn><mi>m</mi><mo>+</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>×</mo><mi>m</mi></mrow></msup></mrow><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Φ</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msup><mi mathvariant="normal">Φ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>d</mi><mo stretchy="false" form="postfix">)</mo><mi>T</mi></mrow></msup></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msup><mi mathvariant="normal">Φ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>w</mi><mo stretchy="false" form="postfix">)</mo><mi>T</mi></mrow></msup></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msup><mi mathvariant="normal">Φ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo><mi>T</mi></mrow></msup></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msup><mi>𝐜</mi><mi>T</mi></msup></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow><mo>∈</mo><msup><mi>ℝ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>3</mn><mi>m</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>×</mo><mi>m</mi></mrow></msup></mrow><annotation encoding="application/x-tex">
 \Phi = \begin{bmatrix}
   \Phi^{(d)T} \\
   \Phi^{(w)T} \\
@@ -305,7 +305,7 @@ be</p>
 <p>and let
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ℂ</mi><mrow><mi>H</mi><mi>A</mi><mi>R</mi></mrow></msub><annotation encoding="application/x-tex">\mathbb{C}_{HAR}</annotation></semantics></math>
 be</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>ℂ</mi><mrow><mi>H</mi><mi>A</mi><mi>R</mi></mrow></msub><mo>:</mo><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mi>T</mi></mtd><mtd columnalign="center" style="text-align: center"><msub><mn>𝟎</mn><mrow><mn>3</mn><mi>m</mi></mrow></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msubsup><mn>𝟎</mn><mrow><mn>3</mn><mi>m</mi></mrow><mi>T</mi></msubsup></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow><mo>∈</mo><msup><mi>ℝ</mi><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>3</mn><mi>m</mi><mo>+</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>×</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>22</mn><mi>m</mi><mo>+</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow></msup></mrow><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>ℂ</mi><mrow><mi>H</mi><mi>A</mi><mi>R</mi></mrow></msub><mo>:</mo><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mi>T</mi></mtd><mtd columnalign="center" style="text-align: center"><msub><mn>𝟎</mn><mrow><mn>3</mn><mi>m</mi></mrow></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msubsup><mn>𝟎</mn><mrow><mn>3</mn><mi>m</mi></mrow><mi>T</mi></msubsup></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow><mo>∈</mo><msup><mi>ℝ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>3</mn><mi>m</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>×</mo><mo stretchy="false" form="prefix">(</mo><mn>22</mn><mi>m</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">
 \mathbb{C}_{HAR} \mathpunct{:}=\left[\begin{array}{c|c}
   T &amp; \mathbf{0}_{3m} \\ \hline
   \mathbf{0}_{3m}^T &amp; 1
@@ -314,7 +314,7 @@ be</p>
 <p>Then for
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>X</mi><mn>0</mn></msub><annotation encoding="application/x-tex">X_0</annotation></semantics></math>
 in VAR(p),</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>X</mi><mn>1</mn></msub><mo>=</mo><msub><mi>X</mi><mn>0</mn></msub><msubsup><mi>ℂ</mi><mrow><mi>H</mi><mi>A</mi><mi>R</mi></mrow><mi>T</mi></msubsup><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msubsup><mi>𝐲</mi><mn>22</mn><mi>T</mi></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>𝐲</mi><mn>22</mn><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>w</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>T</mi></mrow></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>𝐲</mi><mn>22</mn><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>T</mi></mrow></msubsup></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msubsup><mi>𝐲</mi><mn>23</mn><mi>T</mi></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>𝐲</mi><mn>23</mn><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>w</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>T</mi></mrow></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>𝐲</mi><mn>23</mn><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>T</mi></mrow></msubsup></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>⋮</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>⋮</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>⋮</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>⋮</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msubsup><mi>𝐲</mi><mrow><mi>T</mi><mo>−</mo><mn>1</mn></mrow><mi>T</mi></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>𝐲</mi><mrow><mi>T</mi><mo>−</mo><mn>1</mn></mrow><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>w</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>T</mi></mrow></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>𝐲</mi><mrow><mi>T</mi><mo>−</mo><mn>1</mn></mrow><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>T</mi></mrow></msubsup></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow><mo>∈</mo><msup><mi>ℝ</mi><mrow><mi>s</mi><mo>×</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>3</mn><mi>m</mi><mo>+</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow></msup></mrow><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>X</mi><mn>1</mn></msub><mo>=</mo><msub><mi>X</mi><mn>0</mn></msub><msubsup><mi>ℂ</mi><mrow><mi>H</mi><mi>A</mi><mi>R</mi></mrow><mi>T</mi></msubsup><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msubsup><mi>𝐲</mi><mn>22</mn><mi>T</mi></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>𝐲</mi><mn>22</mn><mrow><mo stretchy="false" form="prefix">(</mo><mi>w</mi><mo stretchy="false" form="postfix">)</mo><mi>T</mi></mrow></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>𝐲</mi><mn>22</mn><mrow><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo><mi>T</mi></mrow></msubsup></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msubsup><mi>𝐲</mi><mn>23</mn><mi>T</mi></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>𝐲</mi><mn>23</mn><mrow><mo stretchy="false" form="prefix">(</mo><mi>w</mi><mo stretchy="false" form="postfix">)</mo><mi>T</mi></mrow></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>𝐲</mi><mn>23</mn><mrow><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo><mi>T</mi></mrow></msubsup></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>⋮</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>⋮</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>⋮</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>⋮</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msubsup><mi>𝐲</mi><mrow><mi>T</mi><mo>−</mo><mn>1</mn></mrow><mi>T</mi></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>𝐲</mi><mrow><mi>T</mi><mo>−</mo><mn>1</mn></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mi>w</mi><mo stretchy="false" form="postfix">)</mo><mi>T</mi></mrow></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>𝐲</mi><mrow><mi>T</mi><mo>−</mo><mn>1</mn></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo><mi>T</mi></mrow></msubsup></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow><mo>∈</mo><msup><mi>ℝ</mi><mrow><mi>s</mi><mo>×</mo><mo stretchy="false" form="prefix">(</mo><mn>3</mn><mi>m</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">
 X_1 = X_0 \mathbb{C}_{HAR}^T = \begin{bmatrix}
   \mathbf{y}_{22}^T &amp; \mathbf{y}_{22}^{(w)T} &amp; \mathbf{y}_{22}^{(m)T} &amp; 1 \\
   \mathbf{y}_{23}^T &amp; \mathbf{y}_{23}^{(w)T} &amp; \mathbf{y}_{23}^{(m)T} &amp; 1 \\
@@ -462,47 +462,47 @@ constant term in the model.</li>
 <span><span class="co">#&gt; ====================================================</span></span>
 <span><span class="co">#&gt; Matrix Normal Mean for A1 part:</span></span>
 <span><span class="co">#&gt;           GVZCLS_1  OVXCLS_1  EVZCLS_1  VXFXICLS_1</span></span>
-<span><span class="co">#&gt; GVZCLS      2.8015   -0.0161   -0.0165     -0.0310</span></span>
-<span><span class="co">#&gt; OVXCLS      0.0121    0.1716    0.0566      0.0244</span></span>
-<span><span class="co">#&gt; EVZCLS     -0.0105   -0.0463    2.8382     -0.0230</span></span>
-<span><span class="co">#&gt; VXFXICLS    0.0159    0.0168    0.0192      0.0456</span></span>
+<span><span class="co">#&gt; GVZCLS     2.15956   -0.0079   -0.0135     -0.0228</span></span>
+<span><span class="co">#&gt; OVXCLS     0.01361    0.1972    0.0697      0.0272</span></span>
+<span><span class="co">#&gt; EVZCLS    -0.00802   -0.0227    2.1845     -0.0173</span></span>
+<span><span class="co">#&gt; VXFXICLS   0.01551    0.0107    0.0206      0.1882</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Matrix Normal Mean for A2 part:</span></span>
 <span><span class="co">#&gt;           GVZCLS_2  OVXCLS_2  EVZCLS_2  VXFXICLS_2</span></span>
-<span><span class="co">#&gt; GVZCLS    -0.01743  -0.00373  -0.00404    -0.00753</span></span>
-<span><span class="co">#&gt; OVXCLS     0.00305   0.04000   0.01405     0.00597</span></span>
-<span><span class="co">#&gt; EVZCLS    -0.00257  -0.01163  -0.00893    -0.00567</span></span>
-<span><span class="co">#&gt; VXFXICLS   0.00391   0.00411   0.00475     0.00855</span></span>
+<span><span class="co">#&gt; GVZCLS    -0.01319  -0.00184  -0.00330    -0.00555</span></span>
+<span><span class="co">#&gt; OVXCLS     0.00344   0.02810   0.01732     0.00666</span></span>
+<span><span class="co">#&gt; EVZCLS    -0.00197  -0.00569  -0.00744    -0.00426</span></span>
+<span><span class="co">#&gt; VXFXICLS   0.00383   0.00261   0.00510     0.00825</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Matrix Normal Mean for A3 part:</span></span>
-<span><span class="co">#&gt;           GVZCLS_3  OVXCLS_3  EVZCLS_3  VXFXICLS_3</span></span>
-<span><span class="co">#&gt; GVZCLS    -0.00739  -0.00149  -0.00175    -0.00329</span></span>
-<span><span class="co">#&gt; OVXCLS     0.00135   0.01762   0.00620     0.00262</span></span>
-<span><span class="co">#&gt; EVZCLS    -0.00112  -0.00518  -0.00389    -0.00246</span></span>
-<span><span class="co">#&gt; VXFXICLS   0.00169   0.00175   0.00208     0.00364</span></span>
+<span><span class="co">#&gt;            GVZCLS_3  OVXCLS_3  EVZCLS_3  VXFXICLS_3</span></span>
+<span><span class="co">#&gt; GVZCLS    -0.005576  -0.00074  -0.00143    -0.00242</span></span>
+<span><span class="co">#&gt; OVXCLS     0.001522   0.01238   0.00764     0.00292</span></span>
+<span><span class="co">#&gt; EVZCLS    -0.000857  -0.00253  -0.00324    -0.00184</span></span>
+<span><span class="co">#&gt; VXFXICLS   0.001648   0.00112   0.00224     0.00351</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Matrix Normal Mean for A4 part:</span></span>
 <span><span class="co">#&gt;            GVZCLS_4   OVXCLS_4   EVZCLS_4  VXFXICLS_4</span></span>
-<span><span class="co">#&gt; GVZCLS    -0.003992  -0.000745  -0.000955    -0.00180</span></span>
-<span><span class="co">#&gt; OVXCLS     0.000761   0.009842   0.003465     0.00148</span></span>
-<span><span class="co">#&gt; EVZCLS    -0.000620  -0.002920  -0.002158    -0.00136</span></span>
-<span><span class="co">#&gt; VXFXICLS   0.000918   0.000947   0.001158     0.00196</span></span>
+<span><span class="co">#&gt; GVZCLS    -0.003009  -0.000373  -0.000784    -0.00133</span></span>
+<span><span class="co">#&gt; OVXCLS     0.000861   0.006914   0.004272     0.00165</span></span>
+<span><span class="co">#&gt; EVZCLS    -0.000475  -0.001428  -0.001798    -0.00102</span></span>
+<span><span class="co">#&gt; VXFXICLS   0.000896   0.000603   0.001245     0.00189</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Matrix Normal Mean for A5 part:</span></span>
 <span><span class="co">#&gt;            GVZCLS_5   OVXCLS_5   EVZCLS_5  VXFXICLS_5</span></span>
-<span><span class="co">#&gt; GVZCLS    -0.002473  -0.000429  -0.000595   -0.001143</span></span>
-<span><span class="co">#&gt; OVXCLS     0.000493   0.006267   0.002204    0.000955</span></span>
-<span><span class="co">#&gt; EVZCLS    -0.000388  -0.001868  -0.001362   -0.000859</span></span>
-<span><span class="co">#&gt; VXFXICLS   0.000570   0.000591   0.000734    0.001213</span></span>
+<span><span class="co">#&gt; GVZCLS    -0.001862  -0.000217  -0.000489   -0.000841</span></span>
+<span><span class="co">#&gt; OVXCLS     0.000559   0.004403   0.002717    0.001066</span></span>
+<span><span class="co">#&gt; EVZCLS    -0.000298  -0.000913  -0.001135   -0.000643</span></span>
+<span><span class="co">#&gt; VXFXICLS   0.000557   0.000378   0.000789    0.001172</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Matrix Normal Mean for constant part:</span></span>
 <span><span class="co">#&gt;   GVZCLS    OVXCLS    EVZCLS  VXFXICLS  </span></span>
-<span><span class="co">#&gt;    -30.5      19.6     -13.4      21.9  </span></span>
+<span><span class="co">#&gt;   -19.52     19.15     -8.82     18.59  </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; dim(Matrix Normal precision matrix):</span></span>
@@ -513,10 +513,10 @@ constant term in the model.</li>
 <span><span class="co">#&gt; ====================================================</span></span>
 <span><span class="co">#&gt; IW scale matrix:</span></span>
 <span><span class="co">#&gt;           GVZCLS  OVXCLS  EVZCLS  VXFXICLS</span></span>
-<span><span class="co">#&gt; GVZCLS     43755   -6838    6225     -8936</span></span>
-<span><span class="co">#&gt; OVXCLS     -6838   73066  -20402      7750</span></span>
-<span><span class="co">#&gt; EVZCLS      6225  -20402   13423     -6910</span></span>
-<span><span class="co">#&gt; VXFXICLS   -8936    7750   -6910     11428</span></span>
+<span><span class="co">#&gt; GVZCLS     19232   -4244    2725     -4772</span></span>
+<span><span class="co">#&gt; OVXCLS     -4244   67041  -12978      6495</span></span>
+<span><span class="co">#&gt; EVZCLS      2725  -12978    5898     -3815</span></span>
+<span><span class="co">#&gt; VXFXICLS   -4772    6495   -3815      8451</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; IW degrees of freedom:</span></span>
 <span><span class="co">#&gt; [1] 887</span></span>
@@ -664,7 +664,7 @@ i.e. non-informative. Use <code>set_bvar_flat(U)</code>.</p>
 <h3 id="bvhar">BVHAR<a class="anchor" aria-label="anchor" href="#bvhar"></a>
 </h3>
 <p>Consider the VAR(22) form of VHAR.</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>𝐘</mi><mi>t</mi></msub><mo>=</mo><mi>𝐜</mi></mtd><mtd columnalign="left" style="text-align: left"><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>Φ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>d</mi><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>+</mo><mfrac><mn>1</mn><mn>5</mn></mfrac><msup><mi>Φ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>w</mi><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>+</mo><mfrac><mn>1</mn><mn>22</mn></mfrac><msup><mi>Φ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow><msub><mi>𝐘</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"></mtd><mtd columnalign="left" style="text-align: left"><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mn>1</mn><mn>5</mn></mfrac><msup><mi>Φ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>w</mi><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>+</mo><mfrac><mn>1</mn><mn>22</mn></mfrac><msup><mi>Φ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow><msub><mi>𝐘</mi><mrow><mi>t</mi><mo>−</mo><mn>2</mn></mrow></msub><mo>+</mo><mi>⋯</mi><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mn>1</mn><mn>5</mn></mfrac><msup><mi>Φ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>w</mi><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>+</mo><mfrac><mn>1</mn><mn>22</mn></mfrac><msup><mi>Φ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow><msub><mi>𝐘</mi><mrow><mi>t</mi><mo>−</mo><mn>5</mn></mrow></msub></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"></mtd><mtd columnalign="left" style="text-align: left"><mo>+</mo><mfrac><mn>1</mn><mn>22</mn></mfrac><msup><mi>Φ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo stretchy="true" form="postfix">)</mo></mrow></msup><msub><mi>𝐘</mi><mrow><mi>t</mi><mo>−</mo><mn>6</mn></mrow></msub><mo>+</mo><mi>⋯</mi><mo>+</mo><mfrac><mn>1</mn><mn>22</mn></mfrac><msup><mi>Φ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo stretchy="true" form="postfix">)</mo></mrow></msup><msub><mi>𝐘</mi><mrow><mi>t</mi><mo>−</mo><mn>22</mn></mrow></msub></mtd></mtr></mtable><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>𝐘</mi><mi>t</mi></msub><mo>=</mo><mi>𝐜</mi></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mi>+</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi mathvariant="normal">Φ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>d</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>+</mo><mfrac><mn>1</mn><mn>5</mn></mfrac><msup><mi mathvariant="normal">Φ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>w</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>+</mo><mfrac><mn>1</mn><mn>22</mn></mfrac><msup><mi mathvariant="normal">Φ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow><msub><mi>𝐘</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mi>+</mi><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mn>1</mn><mn>5</mn></mfrac><msup><mi mathvariant="normal">Φ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>w</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>+</mo><mfrac><mn>1</mn><mn>22</mn></mfrac><msup><mi mathvariant="normal">Φ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow><msub><mi>𝐘</mi><mrow><mi>t</mi><mo>−</mo><mn>2</mn></mrow></msub><mo>+</mo><mi>⋯</mi><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mn>1</mn><mn>5</mn></mfrac><msup><mi mathvariant="normal">Φ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>w</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>+</mo><mfrac><mn>1</mn><mn>22</mn></mfrac><msup><mi mathvariant="normal">Φ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow><msub><mi>𝐘</mi><mrow><mi>t</mi><mo>−</mo><mn>5</mn></mrow></msub></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mi>+</mi><mfrac><mn>1</mn><mn>22</mn></mfrac><msup><mi mathvariant="normal">Φ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><msub><mi>𝐘</mi><mrow><mi>t</mi><mo>−</mo><mn>6</mn></mrow></msub><mo>+</mo><mi>⋯</mi><mo>+</mo><mfrac><mn>1</mn><mn>22</mn></mfrac><msup><mi mathvariant="normal">Φ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><msub><mi>𝐘</mi><mrow><mi>t</mi><mo>−</mo><mn>22</mn></mrow></msub></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
   \mathbf{Y}_t = \mathbf{c}&amp; + \left( \Phi^{(d)} + \frac{1}{5} \Phi^{(w)} + \frac{1}{22} \Phi^{(m)} \right) \mathbf{Y}_{t - 1} \\
   &amp; + \left( \frac{1}{5} \Phi^{(w)} + \frac{1}{22} \Phi^{(m)} \right) \mathbf{Y}_{t - 2} + \cdots \left( \frac{1}{5} \Phi^{(w)} + \frac{1}{22} \Phi^{(m)} \right) \mathbf{Y}_{t - 5} \\
@@ -674,16 +674,16 @@ i.e. non-informative. Use <code>set_bvar_flat(U)</code>.</p>
 <p>What does Minnesota prior mean in VHAR model?</p>
 <ul>
 <li>All the equations are centered around
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝐘</mi><mi>t</mi></msub><mo>+</mo><mi>𝐜</mi><mo>+</mo><msup><mi>Φ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>d</mi><mo stretchy="true" form="postfix">)</mo></mrow></msup><msub><mi>𝐘</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>+</mo><msub><mi>𝛜</mi><mi>t</mi></msub></mrow><annotation encoding="application/x-tex">\mathbf{Y}_t + \mathbf{c}+ \Phi^{(d)} \mathbf{Y}_{t - 1} + \boldsymbol\epsilon_t</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝐘</mi><mi>t</mi></msub><mo>+</mo><mi>𝐜</mi><mo>+</mo><msup><mi mathvariant="normal">Φ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>d</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><msub><mi>𝐘</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>+</mo><msub><mi>𝛜</mi><mi>t</mi></msub></mrow><annotation encoding="application/x-tex">\mathbf{Y}_t + \mathbf{c}+ \Phi^{(d)} \mathbf{Y}_{t - 1} + \boldsymbol\epsilon_t</annotation></semantics></math>
 </li>
 <li>RW form: shrink diagonal elements of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>Φ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>d</mi><mo stretchy="true" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">\Phi^{(d)}</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi mathvariant="normal">Φ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>d</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">\Phi^{(d)}</annotation></semantics></math>
 toward one
 <ul>
 <li>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>Φ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>w</mi><mo stretchy="true" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">\Phi^{(w)}</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi mathvariant="normal">Φ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>w</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">\Phi^{(w)}</annotation></semantics></math>
 and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>Φ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo stretchy="true" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">\Phi^{(m)}</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi mathvariant="normal">Φ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">\Phi^{(m)}</annotation></semantics></math>
 to zero</li>
 </ul>
 </li>
@@ -692,9 +692,9 @@ to zero</li>
 </li>
 </ul>
 <p>For more simplicity, write coefficient matrices by
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>Φ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>Φ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>Φ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>3</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">\Phi^{(1)}, \Phi^{(2)}, \Phi^{(3)}</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi mathvariant="normal">Φ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi mathvariant="normal">Φ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi mathvariant="normal">Φ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>3</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">\Phi^{(1)}, \Phi^{(2)}, \Phi^{(3)}</annotation></semantics></math>.
 If we apply the prior in the same way, Minnesota moment becomes</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mrow><mo stretchy="true" form="prefix">[</mo><msub><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>Φ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>l</mi><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><msub><mi>δ</mi><mi>i</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mi>j</mi><mo>=</mo><mi>i</mi><mo>,</mo><mspace width="0.278em"></mspace><mi>l</mi><mo>=</mo><mn>1</mn></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mn>0</mn></mtd><mtd columnalign="left" style="text-align: left"><mi>o</mi><mi>/</mi><mi>w</mi></mtd></mtr></mtable></mrow><mspace width="1.0em"></mspace><mrow><mi mathvariant="normal">V</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">[</mo><msub><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>Φ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>l</mi><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><mfrac><msup><mi>λ</mi><mn>2</mn></msup><msup><mi>l</mi><mn>2</mn></msup></mfrac></mtd><mtd columnalign="left" style="text-align: left"><mi>j</mi><mo>=</mo><mi>i</mi></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mi>ν</mi><mfrac><msup><mi>λ</mi><mn>2</mn></msup><msup><mi>l</mi><mn>2</mn></msup></mfrac><mfrac><msubsup><mi>σ</mi><mi>i</mi><mn>2</mn></msubsup><msubsup><mi>σ</mi><mi>j</mi><mn>2</mn></msubsup></mfrac></mtd><mtd columnalign="left" style="text-align: left"><mi>o</mi><mi>/</mi><mi>w</mi></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mrow><mo stretchy="true" form="prefix">[</mo><mo stretchy="false" form="prefix">(</mo><msup><mi mathvariant="normal">Φ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>l</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><msub><mo stretchy="false" form="postfix">)</mo><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><msub><mi>δ</mi><mi>i</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mi>j</mi><mo>=</mo><mi>i</mi><mo>,</mo><mspace width="0.278em"></mspace><mi>l</mi><mo>=</mo><mn>1</mn></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mn>0</mn></mtd><mtd columnalign="left" style="text-align: left"><mi>o</mi><mi>/</mi><mi>w</mi></mtd></mtr></mtable></mrow><mspace width="1.0em"></mspace><mrow><mi mathvariant="normal">V</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">[</mo><mo stretchy="false" form="prefix">(</mo><msup><mi mathvariant="normal">Φ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>l</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><msub><mo stretchy="false" form="postfix">)</mo><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><mfrac><msup><mi>λ</mi><mn>2</mn></msup><msup><mi>l</mi><mn>2</mn></msup></mfrac></mtd><mtd columnalign="left" style="text-align: left"><mi>j</mi><mo>=</mo><mi>i</mi></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mi>ν</mi><mfrac><msup><mi>λ</mi><mn>2</mn></msup><msup><mi>l</mi><mn>2</mn></msup></mfrac><mfrac><msubsup><mi>σ</mi><mi>i</mi><mn>2</mn></msubsup><msubsup><mi>σ</mi><mi>j</mi><mn>2</mn></msubsup></mfrac></mtd><mtd columnalign="left" style="text-align: left"><mi>o</mi><mi>/</mi><mi>w</mi></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">
 E \left[ (\Phi^{(l)})_{ij} \right] = \begin{cases}
   \delta_i &amp; j = i, \; l = 1 \\
   0 &amp; o/w
@@ -748,31 +748,31 @@ Similar to above functions, this function will be also integrated into
 <span><span class="co">#&gt; ====================================================</span></span>
 <span><span class="co">#&gt; Matrix Normal Mean for day:</span></span>
 <span><span class="co">#&gt;           GVZCLS_day  OVXCLS_day  EVZCLS_day  VXFXICLS_day</span></span>
-<span><span class="co">#&gt; GVZCLS       2.37826     -0.0078     -0.0464       -0.0243</span></span>
-<span><span class="co">#&gt; OVXCLS       0.01260      0.1194      0.2368        0.0253</span></span>
-<span><span class="co">#&gt; EVZCLS      -0.00761     -0.0228      2.3318       -0.0171</span></span>
-<span><span class="co">#&gt; VXFXICLS     0.01618      0.0104      0.0721        0.0466</span></span>
+<span><span class="co">#&gt; GVZCLS       3.53516    -0.01145     -0.0371       -0.0314</span></span>
+<span><span class="co">#&gt; OVXCLS       0.00992     0.09391      0.1055        0.0201</span></span>
+<span><span class="co">#&gt; EVZCLS      -0.01028    -0.03293      3.5254       -0.0231</span></span>
+<span><span class="co">#&gt; VXFXICLS     0.01157     0.00864      0.0316        0.0359</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Matrix Normal Mean for week:</span></span>
 <span><span class="co">#&gt;           GVZCLS_week  OVXCLS_week  EVZCLS_week  VXFXICLS_week</span></span>
-<span><span class="co">#&gt; GVZCLS       -0.01356     -0.00161      -0.0110       -0.00581</span></span>
-<span><span class="co">#&gt; OVXCLS        0.00319      0.02687       0.0584        0.00620</span></span>
-<span><span class="co">#&gt; EVZCLS       -0.00182     -0.00571      -0.0255       -0.00412</span></span>
-<span><span class="co">#&gt; VXFXICLS      0.00385      0.00242       0.0176        0.00842</span></span>
+<span><span class="co">#&gt; GVZCLS       -0.01688     -0.00241     -0.00880       -0.00752</span></span>
+<span><span class="co">#&gt; OVXCLS        0.00251      0.02063      0.02603        0.00491</span></span>
+<span><span class="co">#&gt; EVZCLS       -0.00247     -0.00823     -0.02012       -0.00556</span></span>
+<span><span class="co">#&gt; VXFXICLS      0.00276      0.00203      0.00772        0.00598</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Matrix Normal Mean for month:</span></span>
 <span><span class="co">#&gt;           GVZCLS_month  OVXCLS_month  EVZCLS_month  VXFXICLS_month</span></span>
-<span><span class="co">#&gt; GVZCLS       -0.004923     -0.000263      -0.00406        -0.00225</span></span>
-<span><span class="co">#&gt; OVXCLS        0.001643      0.011331       0.02430         0.00263</span></span>
-<span><span class="co">#&gt; EVZCLS       -0.000715     -0.002595      -0.01040        -0.00161</span></span>
-<span><span class="co">#&gt; VXFXICLS      0.001482      0.000953       0.00732         0.00278</span></span>
+<span><span class="co">#&gt; GVZCLS       -0.006168     -0.000488      -0.00330        -0.00291</span></span>
+<span><span class="co">#&gt; OVXCLS        0.001263      0.008723       0.01082         0.00206</span></span>
+<span><span class="co">#&gt; EVZCLS       -0.000978     -0.003732      -0.00823        -0.00217</span></span>
+<span><span class="co">#&gt; VXFXICLS      0.001063      0.000811       0.00321         0.00198</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Matrix Normal Mean for constant part:</span></span>
 <span><span class="co">#&gt;   GVZCLS    OVXCLS    EVZCLS  VXFXICLS  </span></span>
-<span><span class="co">#&gt;    -23.2      19.9     -10.0      21.6  </span></span>
+<span><span class="co">#&gt;    -44.0      22.7     -20.1      22.6  </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; dim(Matrix Normal precision matrix):</span></span>
@@ -783,10 +783,10 @@ Similar to above functions, this function will be also integrated into
 <span><span class="co">#&gt; ====================================================</span></span>
 <span><span class="co">#&gt; IW scale matrix:</span></span>
 <span><span class="co">#&gt;           GVZCLS  OVXCLS  EVZCLS  VXFXICLS</span></span>
-<span><span class="co">#&gt; GVZCLS     26236   -5151    3330     -6550</span></span>
-<span><span class="co">#&gt; OVXCLS     -5151   78010  -15862      7578</span></span>
-<span><span class="co">#&gt; EVZCLS      3330  -15862    7343     -4818</span></span>
-<span><span class="co">#&gt; VXFXICLS   -6550    7578   -4818     11097</span></span></code></pre></div>
+<span><span class="co">#&gt; GVZCLS     83916  -10987   11676    -12719</span></span>
+<span><span class="co">#&gt; OVXCLS    -10987   84070  -32287      8789</span></span>
+<span><span class="co">#&gt; EVZCLS     11676  -32287   25832     -9663</span></span>
+<span><span class="co">#&gt; VXFXICLS  -12719    8789   -9663     11559</span></span></code></pre></div>
 <p>This model is <code>bvharmn</code> class.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># class---------------</span></span>
@@ -813,7 +813,7 @@ Similar to above functions, this function will be also integrated into
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>δ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\delta_i</annotation></semantics></math>
 for weekly and monthly coefficient matrices in above Minnesota
 moments:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mrow><mo stretchy="true" form="prefix">[</mo><msub><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>Φ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>l</mi><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><msub><mi>d</mi><mi>i</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mi>j</mi><mo>=</mo><mi>i</mi><mo>,</mo><mspace width="0.278em"></mspace><mi>l</mi><mo>=</mo><mn>1</mn></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><msub><mi>w</mi><mi>i</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mi>j</mi><mo>=</mo><mi>i</mi><mo>,</mo><mspace width="0.278em"></mspace><mi>l</mi><mo>=</mo><mn>2</mn></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><msub><mi>m</mi><mi>i</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mi>j</mi><mo>=</mo><mi>i</mi><mo>,</mo><mspace width="0.278em"></mspace><mi>l</mi><mo>=</mo><mn>3</mn></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mrow><mo stretchy="true" form="prefix">[</mo><mo stretchy="false" form="prefix">(</mo><msup><mi mathvariant="normal">Φ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>l</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><msub><mo stretchy="false" form="postfix">)</mo><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><msub><mi>d</mi><mi>i</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mi>j</mi><mo>=</mo><mi>i</mi><mo>,</mo><mspace width="0.278em"></mspace><mi>l</mi><mo>=</mo><mn>1</mn></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><msub><mi>w</mi><mi>i</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mi>j</mi><mo>=</mo><mi>i</mi><mo>,</mo><mspace width="0.278em"></mspace><mi>l</mi><mo>=</mo><mn>2</mn></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><msub><mi>m</mi><mi>i</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mi>j</mi><mo>=</mo><mi>i</mi><mo>,</mo><mspace width="0.278em"></mspace><mi>l</mi><mo>=</mo><mn>3</mn></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">
 E \left[ (\Phi^{(l)})_{ij} \right] = \begin{cases}
   d_i &amp; j = i, \; l = 1 \\
   w_i &amp; j = i, \; l = 2 \\
@@ -880,31 +880,31 @@ this value, so you can use this prior intuitively.</p>
 <span><span class="co">#&gt; ====================================================</span></span>
 <span><span class="co">#&gt; Matrix Normal Mean for day:</span></span>
 <span><span class="co">#&gt;           GVZCLS_day  OVXCLS_day  EVZCLS_day  VXFXICLS_day</span></span>
-<span><span class="co">#&gt; GVZCLS       5.48085     -0.0767      -0.631       -1.0097</span></span>
-<span><span class="co">#&gt; OVXCLS       0.00250      0.3153       0.467        0.0710</span></span>
-<span><span class="co">#&gt; EVZCLS       0.00108      0.0256       0.264        0.0492</span></span>
-<span><span class="co">#&gt; VXFXICLS     0.00479      0.0102       0.137        0.3060</span></span>
+<span><span class="co">#&gt; GVZCLS       2.98029     -0.0172     -0.1202       -0.1976</span></span>
+<span><span class="co">#&gt; OVXCLS       0.00679      0.1592      0.1921        0.0621</span></span>
+<span><span class="co">#&gt; EVZCLS       0.00225      0.0090      0.1805        0.0249</span></span>
+<span><span class="co">#&gt; VXFXICLS     0.00784      0.0059      0.0524        0.1841</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Matrix Normal Mean for week:</span></span>
 <span><span class="co">#&gt;           GVZCLS_week  OVXCLS_week  EVZCLS_week  VXFXICLS_week</span></span>
-<span><span class="co">#&gt; GVZCLS       2.787280     -0.01435       -0.157        -0.2563</span></span>
-<span><span class="co">#&gt; OVXCLS       0.000620      0.10243        0.115         0.0175</span></span>
-<span><span class="co">#&gt; EVZCLS       0.000241      0.00640        0.089         0.0117</span></span>
-<span><span class="co">#&gt; VXFXICLS     0.001109      0.00205        0.033         0.0959</span></span>
+<span><span class="co">#&gt; GVZCLS       1.299244     -0.00384      -0.0299       -0.04933</span></span>
+<span><span class="co">#&gt; OVXCLS       0.001707      0.06217       0.0474        0.01518</span></span>
+<span><span class="co">#&gt; EVZCLS       0.000527      0.00224       0.0770        0.00596</span></span>
+<span><span class="co">#&gt; VXFXICLS     0.001845      0.00136       0.0127        0.06911</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Matrix Normal Mean for month:</span></span>
 <span><span class="co">#&gt;           GVZCLS_month  OVXCLS_month  EVZCLS_month  VXFXICLS_month</span></span>
-<span><span class="co">#&gt; GVZCLS        1.87e+00      0.002672       -0.0589        -0.11244</span></span>
-<span><span class="co">#&gt; OVXCLS        3.62e-04      0.055063        0.0475         0.00824</span></span>
-<span><span class="co">#&gt; EVZCLS        9.22e-05      0.003051        0.0492         0.00470</span></span>
-<span><span class="co">#&gt; VXFXICLS      4.18e-04      0.000649        0.0136         0.04754</span></span>
+<span><span class="co">#&gt; GVZCLS        1.060163     -0.000836      -0.01193        -0.02063</span></span>
+<span><span class="co">#&gt; OVXCLS        0.000880      0.037323       0.01966         0.00652</span></span>
+<span><span class="co">#&gt; EVZCLS        0.000212      0.001023       0.04815         0.00234</span></span>
+<span><span class="co">#&gt; VXFXICLS      0.000705      0.000537       0.00525         0.03951</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Matrix Normal Mean for constant part:</span></span>
 <span><span class="co">#&gt;   GVZCLS    OVXCLS    EVZCLS  VXFXICLS  </span></span>
-<span><span class="co">#&gt;  -123.14      6.89      2.73     11.45  </span></span>
+<span><span class="co">#&gt;   -70.76     16.52      5.01     16.40  </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; dim(Matrix Normal precision matrix):</span></span>
@@ -915,10 +915,10 @@ this value, so you can use this prior intuitively.</p>
 <span><span class="co">#&gt; ====================================================</span></span>
 <span><span class="co">#&gt; IW scale matrix:</span></span>
 <span><span class="co">#&gt;           GVZCLS  OVXCLS  EVZCLS  VXFXICLS</span></span>
-<span><span class="co">#&gt; GVZCLS    866118  -12914   -4833    -21983</span></span>
-<span><span class="co">#&gt; OVXCLS    -12914   35374    4110      1968</span></span>
-<span><span class="co">#&gt; EVZCLS     -4833    4110    1485      1250</span></span>
-<span><span class="co">#&gt; VXFXICLS  -21983    1968    1250      5469</span></span></code></pre></div>
+<span><span class="co">#&gt; GVZCLS    208287  -14435   -4299    -14930</span></span>
+<span><span class="co">#&gt; OVXCLS    -14435   58294    7543      5236</span></span>
+<span><span class="co">#&gt; EVZCLS     -4299    7543    2074      2091</span></span>
+<span><span class="co">#&gt; VXFXICLS  -14930    5236    2091      7410</span></span></code></pre></div>
 </div>
 </div>
 </div>

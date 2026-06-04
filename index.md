@@ -15,6 +15,7 @@ Basically, the package focuses on the research with forecasting.
 ## Installation
 
 ``` r
+
 install.packages("bvhar")
 ```
 
@@ -24,6 +25,7 @@ You can install the development version from [develop
 branch](https://github.com/ygeunkim/bvhar/tree/develop).
 
 ``` r
+
 # install.packages("remotes")
 remotes::install_github("ygeunkim/bvhar@develop")
 ```
@@ -36,6 +38,7 @@ We started to develop a Python version in python directory.
 ## Models
 
 ``` r
+
 library(bvhar) # this package
 library(dplyr)
 ```
@@ -43,14 +46,14 @@ library(dplyr)
 Repeatedly, `bvhar` is a research tool to analyze multivariate time
 series model above
 
-| Model |                      function                       |                               prior                                |
-|:-----:|:---------------------------------------------------:|:------------------------------------------------------------------:|
-|  VAR  |          [`var_lm()`](reference/var_lm.md)          |                                                                    |
-| VHAR  |         [`vhar_lm()`](reference/vhar_lm.md)         |                                                                    |
-| BVAR  |  [`bvar_minnesota()`](reference/bvar_minnesota.md)  |  Minnesota (will move to [`var_bayes()`](reference/var_bayes.md))  |
+| Model | function | prior |
+|:--:|:--:|:--:|
+| VAR | [`var_lm()`](reference/var_lm.md) |  |
+| VHAR | [`vhar_lm()`](reference/vhar_lm.md) |  |
+| BVAR | [`bvar_minnesota()`](reference/bvar_minnesota.md) | Minnesota (will move to [`var_bayes()`](reference/var_bayes.md)) |
 | BVHAR | [`bvhar_minnesota()`](reference/bvhar_minnesota.md) | Minnesota (will move to [`vhar_bayes()`](reference/vhar_bayes.md)) |
-| BVAR  |       [`var_bayes()`](reference/var_bayes.md)       |              SSVS, Horseshoe, Minnesota, NG, DL, GDP               |
-| BVHAR |      [`vhar_bayes()`](reference/vhar_bayes.md)      |              SSVS, Horseshoe, Minnesota, NG, DL, GDP               |
+| BVAR | [`var_bayes()`](reference/var_bayes.md) | SSVS, Horseshoe, Minnesota, NG, DL, GDP |
+| BVHAR | [`vhar_bayes()`](reference/vhar_bayes.md) | SSVS, Horseshoe, Minnesota, NG, DL, GDP |
 
 This readme document shows forecasting procedure briefly. Details about
 each function are in vignettes and help documents. Details will be
@@ -60,6 +63,7 @@ remove Bayesian model sections here.
 h-step ahead forecasting:
 
 ``` r
+
 h <- 19
 etf_split <- divide_ts(etf_vix, h) # Try ?divide_ts
 etf_tr <- etf_split$train
@@ -71,18 +75,21 @@ etf_te <- etf_split$test
 VAR(5):
 
 ``` r
+
 mod_var <- var_lm(y = etf_tr, p = 5)
 ```
 
 Forecasting:
 
 ``` r
+
 forecast_var <- predict(mod_var, h)
 ```
 
 MSE:
 
 ``` r
+
 (msevar <- mse(forecast_var, etf_te))
 #>   GVZCLS   OVXCLS VXFXICLS VXEEMCLS VXSLVCLS   EVZCLS VXXLECLS VXGDXCLS 
 #>    5.381   14.689    2.838    9.451   10.078    0.654   22.436    9.992 
@@ -93,12 +100,14 @@ MSE:
 ### VHAR
 
 ``` r
+
 mod_vhar <- vhar_lm(y = etf_tr)
 ```
 
 MSE:
 
 ``` r
+
 forecast_vhar <- predict(mod_vhar, h)
 (msevhar <- mse(forecast_vhar, etf_te))
 #>   GVZCLS   OVXCLS VXFXICLS VXEEMCLS VXSLVCLS   EVZCLS VXXLECLS VXGDXCLS 
@@ -121,7 +130,7 @@ Please cite this package with following BibTeX:
   author = {Young Geun Kim and Changryong Baek},
   year = {2023},
   doi = {10.32614/CRAN.package.bvhar},
-  note = {R package version 2.4.0},
+  note = {R package version 2.4.1},
   url = {https://cran.r-project.org/package=bvhar},
 }
 

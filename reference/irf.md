@@ -6,10 +6,52 @@ Computes responses to impulses or orthogonal impulses
 
 ``` r
 # S3 method for class 'varlse'
-irf(object, lag_max = 10, orthogonal = TRUE, impulse_var, response_var, ...)
+irf(
+  object,
+  lag_max = 10,
+  orthogonal = TRUE,
+  impulse_var = NULL,
+  response_var = NULL,
+  ...
+)
 
 # S3 method for class 'vharlse'
-irf(object, lag_max = 10, orthogonal = TRUE, impulse_var, response_var, ...)
+irf(
+  object,
+  lag_max = 10,
+  orthogonal = TRUE,
+  impulse_var = NULL,
+  response_var = NULL,
+  ...
+)
+
+# S3 method for class 'bvarldlt'
+irf(
+  object,
+  lag_max = 10,
+  orthogonal = TRUE,
+  impulse_var = NULL,
+  response_var = NULL,
+  level = 0.05,
+  num_thread = 1,
+  sparse = FALSE,
+  med = FALSE,
+  ...
+)
+
+# S3 method for class 'bvharldlt'
+irf(
+  object,
+  lag_max = 10,
+  orthogonal = TRUE,
+  impulse_var = NULL,
+  response_var = NULL,
+  level = 0.05,
+  num_thread = 1,
+  sparse = FALSE,
+  med = FALSE,
+  ...
+)
 
 # S3 method for class 'bvharirf'
 print(x, digits = max(3L, getOption("digits") - 3L), ...)
@@ -50,6 +92,26 @@ knit_print(x, ...)
 
   not used
 
+- level:
+
+  Specify alpha of confidence interval level 100(1 - alpha) percentage.
+  By default, .05.
+
+- num_thread:
+
+  Number of threads
+
+- sparse:
+
+  **\[experimental\]** Apply restriction. By default, `FALSE`. Give CI
+  level (e.g. `.05`) instead of `TRUE` to use credible interval across
+  MCMC for restriction.
+
+- med:
+
+  **\[experimental\]** If `TRUE`, use median of forecast draws instead
+  of mean (default).
+
 - x:
 
   Any object
@@ -81,9 +143,3 @@ P\$\$ and \\v_t = P^{-1} \epsilon_t\\ are orthogonal.
 
 Lütkepohl, H. (2007). *New Introduction to Multiple Time Series
 Analysis*. Springer Publishing.
-
-## See also
-
-[`VARtoVMA()`](VARtoVMA.md)
-
-[`VHARtoVMA()`](VHARtoVMA.md)
