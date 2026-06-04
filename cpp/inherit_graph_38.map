@@ -1,7 +1,7 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$classbaecon_1_1bvhar_1_1OlsInterface.html" title=" " alt="" coords="5,31,207,56"/>
-<area shape="rect" id="Node000001" href="$classbaecon_1_1bvhar_1_1OlsVar.html" title=" " alt="" coords="259,5,423,31"/>
-<area shape="poly" id="edge56_Node000000_Node000001" title=" " alt="" coords="220,28,259,24,260,29,221,34"/>
-<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1OlsVhar.html" title=" " alt="" coords="255,55,428,80"/>
-<area shape="poly" id="edge57_Node000000_Node000002" title=" " alt="" coords="220,52,255,56,254,61,220,58"/>
+<area shape="rect" id="Node000000" href="$structbaecon_1_1bvhar_1_1RegInits.html" title="MCMC initial values for McmcTriangular" alt="" coords="5,31,180,56"/>
+<area shape="rect" id="Node000001" href="$structbaecon_1_1bvhar_1_1LdltInits.html" title="MCMC initial values for McmcReg" alt="" coords="228,5,403,31"/>
+<area shape="poly" id="edge86_Node000000_Node000001" title=" " alt="" coords="193,29,228,25,228,31,194,35"/>
+<area shape="rect" id="Node000002" href="$structbaecon_1_1bvhar_1_1SvInits.html" title="MCMC initial values for McmcSv" alt="" coords="232,55,399,80"/>
+<area shape="poly" id="edge87_Node000000_Node000002" title=" " alt="" coords="194,52,232,56,232,61,193,57"/>
 </map>

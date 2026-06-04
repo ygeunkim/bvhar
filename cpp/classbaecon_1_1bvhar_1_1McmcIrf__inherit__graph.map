@@ -1,0 +1,15 @@
+<map id="baecon::bvhar::McmcIrf" name="baecon::bvhar::McmcIrf">
+<area shape="rect" id="Node000001" title="IRF class for MCMC." alt="" coords="291,106,465,131"/>
+<area shape="rect" id="Node000003" href="$classbaecon_1_1bvhar_1_1CtaIrf.html" title=" " alt="" coords="518,77,677,102"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="479,103,517,97,518,103,479,108"/>
+<area shape="rect" id="Node000006" href="$classbaecon_1_1bvhar_1_1MinnIrf.html" title=" " alt="" coords="513,130,681,155"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="479,127,514,131,513,136,479,132"/>
+<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1ImpulseResponse.html" title="Base class for impulse response function." alt="" coords="5,106,243,131"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="256,116,290,116,290,121,256,121"/>
+<area shape="rect" id="Node000004" href="$classbaecon_1_1bvhar_1_1CtaVarIrf.html" title=" " alt="" coords="739,5,918,45"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="657,70,755,43,756,48,658,75"/>
+<area shape="rect" id="Node000005" href="$classbaecon_1_1bvhar_1_1CtaVharIrf.html" title=" " alt="" coords="735,69,923,109"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="690,87,735,87,735,92,690,92"/>
+<area shape="rect" id="Node000007" href="$classbaecon_1_1bvhar_1_1MinnVharIrf.html" title=" " alt="" coords="729,134,928,159"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="695,142,729,142,729,148,695,147"/>
+</map>

@@ -26,7 +26,7 @@
  <tr id="projectrow">
   <td id="projectlogo"><img alt="Logo" src="apple-touch-icon.png"/></td>
   <td id="projectalign">
-   <div id="projectname">bvhar<span id="projectnumber">&#160;2.4.0</span>
+   <div id="projectname">bvhar<span id="projectnumber">&#160;2.4.1</span>
    </div>
    <div id="projectbrief">C++ headers by bvhar package</div>
   </td>
@@ -110,15 +110,20 @@ $(document).ready(function(){initNavTree('eigen_8h_source.html',''); initResizab
 <div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">  if (!(x)) { BVHAR_STOP(&quot;Eigen assertion failed: &quot; #x); }</span></div>
 </div>
 <div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span> </div>
-<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#ifdef BVHAR_USE_RCPP</span></div>
-<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">  #include &lt;RcppEigen.h&gt;</span></div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="preprocessor">#else</span></div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="preprocessor">  #include &lt;Eigen/Eigen&gt;</span></div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="preprocessor">  #include &lt;unsupported/Eigen/KroneckerProduct&gt;</span></div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="preprocessor">  #include &lt;pybind11/eigen.h&gt;</span></div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span> </div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="preprocessor">#endif </span><span class="comment">// BVHAR_CORE_EIGEN_H</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="comment">// Add a method to Eigen&#39;s MatrixBase</span></div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno"><a class="line" href="eigen_8h.html#afc792de073c9a00a2f3739a451be4312">   11</a></span><span class="preprocessor">#define EIGEN_MATRIXBASE_PLUGIN &quot;bvhar/src/core/eigen_plugins.h&quot;</span></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span> </div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="preprocessor">#ifdef BVHAR_USE_RCPP</span></div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="preprocessor">  #include &lt;RcppEigen.h&gt;</span></div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="preprocessor">#else</span></div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="preprocessor">  #include &lt;Eigen/Eigen&gt;</span></div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="preprocessor">  #include &lt;unsupported/Eigen/KroneckerProduct&gt;</span></div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="preprocessor">  #ifdef BVHAR_USE_PYBIND11</span></div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="preprocessor">    #include &lt;pybind11/eigen.h&gt;</span></div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">  #endif</span></div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span> </div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="preprocessor">#endif </span><span class="comment">// BVHAR_CORE_EIGEN_H</span></div>
 <div class="ttc" id="acommondefs_8h_html"><div class="ttname"><a href="commondefs_8h.html">commondefs.h</a></div><div class="ttdoc">Common header.</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->

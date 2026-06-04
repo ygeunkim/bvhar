@@ -2,7 +2,7 @@ var classbaecon_1_1bvhar_1_1MinnBvhar =
 [
     [ "MinnBvhar", "classbaecon_1_1bvhar_1_1MinnBvhar.html#a7a542c11e21b32cd42bb16d105d7b503", null ],
     [ "~MinnBvhar", "classbaecon_1_1bvhar_1_1MinnBvhar.html#a21bb6c99813eebcf5a233aac6d186d98", null ],
-    [ "returnMinnRes", "classbaecon_1_1bvhar_1_1MinnBvhar.html#ab6aba73d1f1e8fdfc2faca944c6f750a", null ],
+    [ "returnMinnRes", "classbaecon_1_1bvhar_1_1MinnBvhar.html#ad300e563deee8389124b44f593816b88", null ],
     [ "returnMinnFit", "classbaecon_1_1bvhar_1_1MinnBvhar.html#a079bc44567e8a0062585b986049193b2", null ],
     [ "week", "classbaecon_1_1bvhar_1_1MinnBvhar.html#a47d6d0de07326da1d46f12dde9307429", null ],
     [ "month", "classbaecon_1_1bvhar_1_1MinnBvhar.html#adc281b44f5bd57045e083453267e9773", null ],

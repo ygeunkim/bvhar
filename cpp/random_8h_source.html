@@ -26,7 +26,7 @@
  <tr id="projectrow">
   <td id="projectlogo"><img alt="Logo" src="apple-touch-icon.png"/></td>
   <td id="projectalign">
-   <div id="projectname">bvhar<span id="projectnumber">&#160;2.4.0</span>
+   <div id="projectname">bvhar<span id="projectnumber">&#160;2.4.1</span>
    </div>
    <div id="projectbrief">C++ headers by bvhar package</div>
   </td>
@@ -167,8 +167,7 @@ $(document).ready(function(){initNavTree('random_8h_source.html',''); initResiza
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span> </div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span><span class="preprocessor">#ifdef BVHAR_USE_RCPP</span></div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span> </div>
-<div class="foldopen" id="foldopen00061" data-start="{" data-end="}">
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#a6527f3d6af6045ff95f6ca75003eddd2">   61</a></span><span class="keyword">inline</span> Eigen::MatrixXd <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a031baf5a82e342e09d41b24ddb320634">sim_mgaussian_eigen</a>(<span class="keywordtype">int</span> num_sim, <span class="keyword">const</span> Eigen::VectorXd&amp; mu, <span class="keyword">const</span> Eigen::MatrixXd&amp; sig) {</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span><span class="keyword">inline</span> Eigen::MatrixXd <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a031baf5a82e342e09d41b24ddb320634">sim_mgaussian_eigen</a>(<span class="keywordtype">int</span> num_sim, <span class="keyword">const</span> Eigen::VectorXd&amp; mu, <span class="keyword">const</span> Eigen::MatrixXd&amp; sig) {</div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>  <span class="keywordtype">int</span> dim = sig.cols();</div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>  Eigen::MatrixXd standard_normal(num_sim, dim);</div>
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>  Eigen::MatrixXd res(num_sim, dim); <span class="comment">// result: each column indicates variable</span></div>
@@ -182,10 +181,8 @@ $(document).ready(function(){initNavTree('random_8h_source.html',''); initResiza
 <div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>  res.rowwise() += mu.transpose();</div>
 <div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>  <span class="keywordflow">return</span> res;</div>
 <div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>}</div>
-</div>
 <div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span> </div>
-<div class="foldopen" id="foldopen00076" data-start="{" data-end="}">
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#aaba3bb31bb3d0f997289c55aa0fcb52f">   76</a></span><span class="keyword">inline</span> Eigen::MatrixXd <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a624afb813c4c6db9077a5f9ba4b47426">sim_mgaussian_chol</a>(<span class="keywordtype">int</span> num_sim, <span class="keyword">const</span> Eigen::VectorXd&amp; mu, <span class="keyword">const</span> Eigen::MatrixXd&amp; sig) {</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span><span class="keyword">inline</span> Eigen::MatrixXd <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a624afb813c4c6db9077a5f9ba4b47426">sim_mgaussian_chol</a>(<span class="keywordtype">int</span> num_sim, <span class="keyword">const</span> Eigen::VectorXd&amp; mu, <span class="keyword">const</span> Eigen::MatrixXd&amp; sig) {</div>
 <div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>  <span class="keywordtype">int</span> dim = sig.cols();</div>
 <div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>  Eigen::MatrixXd standard_normal(num_sim, dim);</div>
 <div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>  Eigen::MatrixXd res(num_sim, dim); <span class="comment">// result: each column indicates variable</span></div>
@@ -200,10 +197,8 @@ $(document).ready(function(){initNavTree('random_8h_source.html',''); initResiza
 <div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>  res.rowwise() += mu.transpose();</div>
 <div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>  <span class="keywordflow">return</span> res;</div>
 <div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>}</div>
-</div>
 <div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span> </div>
-<div class="foldopen" id="foldopen00092" data-start="{" data-end="}">
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#a344ab934ea21ee723a916d07afa1f299">   92</a></span><span class="keyword">inline</span> Eigen::MatrixXd <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a7d7fef395053d7e0a5dc90c257c3e4c1">sim_mstudent_eigen</a>(<span class="keywordtype">int</span> num_sim, <span class="keywordtype">double</span> df, <span class="keyword">const</span> Eigen::VectorXd&amp; mu, <span class="keyword">const</span> Eigen::MatrixXd&amp; sig) {</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span><span class="keyword">inline</span> Eigen::MatrixXd <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a7d7fef395053d7e0a5dc90c257c3e4c1">sim_mstudent_eigen</a>(<span class="keywordtype">int</span> num_sim, <span class="keywordtype">double</span> df, <span class="keyword">const</span> Eigen::VectorXd&amp; mu, <span class="keyword">const</span> Eigen::MatrixXd&amp; sig) {</div>
 <div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>  <span class="keywordtype">int</span> dim = sig.cols();</div>
 <div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>  Eigen::MatrixXd res = <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a031baf5a82e342e09d41b24ddb320634">sim_mgaussian_eigen</a>(num_sim, Eigen::VectorXd::Zero(dim), sig);</div>
 <div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; num_sim; ++i) {</div>
@@ -212,10 +207,8 @@ $(document).ready(function(){initNavTree('random_8h_source.html',''); initResiza
 <div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>  res.rowwise() += mu.transpose();</div>
 <div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>  <span class="keywordflow">return</span> res;</div>
 <div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>}</div>
-</div>
 <div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span> </div>
-<div class="foldopen" id="foldopen00102" data-start="{" data-end="}">
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#aee5eb3f8420b10a1bbf0db9e9cb3d92b">  102</a></span><span class="keyword">inline</span> Eigen::MatrixXd <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a9134fb4cff9daaecfac6b649593a233c">sim_mstudent_chol</a>(<span class="keywordtype">int</span> num_sim, <span class="keywordtype">double</span> df, <span class="keyword">const</span> Eigen::VectorXd&amp; mu, <span class="keyword">const</span> Eigen::MatrixXd&amp; sig) {</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span><span class="keyword">inline</span> Eigen::MatrixXd <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a9134fb4cff9daaecfac6b649593a233c">sim_mstudent_chol</a>(<span class="keywordtype">int</span> num_sim, <span class="keywordtype">double</span> df, <span class="keyword">const</span> Eigen::VectorXd&amp; mu, <span class="keyword">const</span> Eigen::MatrixXd&amp; sig) {</div>
 <div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>  <span class="keywordtype">int</span> dim = sig.cols();</div>
 <div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>  Eigen::MatrixXd res = <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a624afb813c4c6db9077a5f9ba4b47426">sim_mgaussian_chol</a>(num_sim, Eigen::VectorXd::Zero(dim), sig);</div>
 <div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; num_sim; ++i) {</div>
@@ -224,15 +217,13 @@ $(document).ready(function(){initNavTree('random_8h_source.html',''); initResiza
 <div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>  res.rowwise() += mu.transpose();</div>
 <div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>  <span class="keywordflow">return</span> res;</div>
 <div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>}</div>
-</div>
 <div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span> </div>
 <div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span><span class="comment">// Generate MN(M, U, V)</span></div>
 <div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span><span class="comment">// @param mat_mean Mean matrix M</span></div>
 <div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span><span class="comment">// @param mat_scale_u First scale matrix U</span></div>
 <div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span><span class="comment">// @param mat_scale_v Second scale matrix V</span></div>
 <div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span><span class="comment">// @param prec If true, use mat_scale_u as inverse of U.</span></div>
-<div class="foldopen" id="foldopen00117" data-start="{" data-end="}">
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#a8b82269a6b1da2c7127281f29e777bb2">  117</a></span><span class="keyword">inline</span> Eigen::MatrixXd <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a8b82269a6b1da2c7127281f29e777bb2">sim_mn</a>(<span class="keyword">const</span> Eigen::MatrixXd&amp; mat_mean, <span class="keyword">const</span> Eigen::MatrixXd&amp; mat_scale_u, <span class="keyword">const</span> Eigen::MatrixXd&amp; mat_scale_v,</div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span><span class="keyword">inline</span> Eigen::MatrixXd <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#aebce33ac530c9797ba69e64e2df98f38">sim_mn</a>(<span class="keyword">const</span> Eigen::MatrixXd&amp; mat_mean, <span class="keyword">const</span> Eigen::MatrixXd&amp; mat_scale_u, <span class="keyword">const</span> Eigen::MatrixXd&amp; mat_scale_v,</div>
 <div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>                              <span class="keywordtype">bool</span> prec) {</div>
 <div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>  <span class="keywordtype">int</span> num_rows = mat_mean.rows();</div>
 <div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>  <span class="keywordtype">int</span> num_cols = mat_mean.cols();</div>
@@ -250,7 +241,6 @@ $(document).ready(function(){initNavTree('random_8h_source.html',''); initResiza
 <div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>  Eigen::MatrixXd chol_scale_u = mat_scale_u.llt().matrixL(); <span class="comment">// U = LLT</span></div>
 <div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>  <span class="keywordflow">return</span> mat_mean + chol_scale_u * mat_norm * chol_scale_v; <span class="comment">// M + L X U_v ~ MN(M, LLT = U, U_vT U_v = V)</span></div>
 <div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>}</div>
-</div>
 <div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span> </div>
 <div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span><span class="comment">// Generate Lower Triangular Matrix of Wishart</span></div>
 <div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span><span class="comment">// </span></div>
@@ -260,8 +250,7 @@ $(document).ready(function(){initNavTree('random_8h_source.html',''); initResiza
 <div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span><span class="comment">// @param shape Shape of Wishart</span></div>
 <div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span><span class="comment">// @details</span></div>
 <div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span><span class="comment">// This function generates Wishart random matrix.</span></div>
-<div class="foldopen" id="foldopen00144" data-start="{" data-end="}">
-<div class="line"><a id="l00144" name="l00144"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#a631a15a3aad5472e74eb0a473dc929ce">  144</a></span><span class="keyword">inline</span> Eigen::MatrixXd <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a631a15a3aad5472e74eb0a473dc929ce">sim_wishart_tri</a>(Eigen::Ref&lt;Eigen::MatrixXd&gt; mat_scale, <span class="keywordtype">double</span> shape) {</div>
+<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span><span class="keyword">inline</span> Eigen::MatrixXd <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a16d4f9e5bca1191579f91d2077b434ab">sim_wishart_tri</a>(Eigen::Ref&lt;Eigen::MatrixXd&gt; mat_scale, <span class="keywordtype">double</span> shape) {</div>
 <div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>  <span class="keywordtype">int</span> dim = mat_scale.cols();</div>
 <div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>  <span class="keywordflow">if</span> (shape &lt;= dim - 1) {</div>
 <div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>    <a class="code hl_define" href="commondefs_8h.html#abc2ee0187a6d5ca2c32fe4873f941159">BVHAR_STOP</a>(<span class="stringliteral">&quot;Wrong &#39;shape&#39;. shape &gt; dim - 1 must be satisfied.&quot;</span>);</div>
@@ -282,14 +271,11 @@ $(document).ready(function(){initNavTree('random_8h_source.html',''); initResiza
 <div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>  Eigen::MatrixXd chol_scale = mat_scale.llt().matrixL();</div>
 <div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>  <span class="keywordflow">return</span> chol_scale * mat_bartlett;</div>
 <div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>}</div>
-</div>
 <div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span> </div>
-<div class="foldopen" id="foldopen00166" data-start="{" data-end="}">
-<div class="line"><a id="l00166" name="l00166"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#a9814dfd99a3c743f8862348586760807">  166</a></span><span class="keyword">inline</span> Eigen::MatrixXd <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a9814dfd99a3c743f8862348586760807">sim_wishart</a>(Eigen::MatrixXd mat_scale, <span class="keywordtype">double</span> shape) {</div>
-<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>  Eigen::MatrixXd chol_res = <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a631a15a3aad5472e74eb0a473dc929ce">sim_wishart_tri</a>(mat_scale, shape);</div>
+<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span><span class="keyword">inline</span> Eigen::MatrixXd <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a043ed4f77dda2336628f9870a0ce25be">sim_wishart</a>(Eigen::MatrixXd mat_scale, <span class="keywordtype">double</span> shape) {</div>
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>  Eigen::MatrixXd chol_res = <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a16d4f9e5bca1191579f91d2077b434ab">sim_wishart_tri</a>(mat_scale, shape);</div>
 <div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>  <span class="keywordflow">return</span> chol_res * chol_res.transpose();</div>
 <div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>}</div>
-</div>
 <div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span> </div>
 <div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span><span class="comment">// Generate Lower Triangular Matrix of IW</span></div>
 <div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span><span class="comment">// </span></div>
@@ -299,8 +285,7 @@ $(document).ready(function(){initNavTree('random_8h_source.html',''); initResiza
 <div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span><span class="comment">// @param shape Shape of IW</span></div>
 <div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span><span class="comment">// @details</span></div>
 <div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span><span class="comment">// This function is the internal function for IW sampling and MNIW sampling functions.</span></div>
-<div class="foldopen" id="foldopen00179" data-start="{" data-end="}">
-<div class="line"><a id="l00179" name="l00179"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#a9619a7634bc3e85f8f3f4471bf590087">  179</a></span><span class="keyword">inline</span> Eigen::MatrixXd <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a9619a7634bc3e85f8f3f4471bf590087">sim_iw_tri</a>(Eigen::MatrixXd mat_scale, <span class="keywordtype">double</span> shape) {</div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span><span class="keyword">inline</span> Eigen::MatrixXd <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a6052c79c6294228f52323e1dc6577eac">sim_iw_tri</a>(Eigen::MatrixXd mat_scale, <span class="keywordtype">double</span> shape) {</div>
 <div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>  <span class="keywordtype">int</span> dim = mat_scale.cols();</div>
 <div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>  <span class="keywordflow">if</span> (shape &lt;= dim - 1) {</div>
 <div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>    <a class="code hl_define" href="commondefs_8h.html#abc2ee0187a6d5ca2c32fe4873f941159">BVHAR_STOP</a>(<span class="stringliteral">&quot;Wrong &#39;shape&#39;. shape &gt; dim - 1 must be satisfied.&quot;</span>);</div>
@@ -327,15 +312,12 @@ $(document).ready(function(){initNavTree('random_8h_source.html',''); initResiza
 <div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>  Eigen::MatrixXd chol_scale = mat_scale.llt().matrixL();</div>
 <div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>  <span class="keywordflow">return</span> mat_bartlett.transpose().triangularView&lt;Eigen::Lower&gt;().solve&lt;Eigen::OnTheRight&gt;(chol_scale);</div>
 <div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>}</div>
-</div>
 <div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span> </div>
-<div class="foldopen" id="foldopen00207" data-start="{" data-end="}">
-<div class="line"><a id="l00207" name="l00207"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#aab5c835975dd6e62362bf0b08923a5b3">  207</a></span><span class="keyword">inline</span> Eigen::MatrixXd <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#aab5c835975dd6e62362bf0b08923a5b3">sim_inv_wishart</a>(<span class="keyword">const</span> Eigen::MatrixXd&amp; mat_scale, <span class="keywordtype">double</span> shape) {</div>
-<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>  Eigen::MatrixXd chol_res = <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a9619a7634bc3e85f8f3f4471bf590087">sim_iw_tri</a>(mat_scale, shape);</div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span><span class="keyword">inline</span> Eigen::MatrixXd sim_inv_wishart(<span class="keyword">const</span> Eigen::MatrixXd&amp; mat_scale, <span class="keywordtype">double</span> shape) {</div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>  Eigen::MatrixXd chol_res = <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a6052c79c6294228f52323e1dc6577eac">sim_iw_tri</a>(mat_scale, shape);</div>
 <div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>  <span class="keywordflow">return</span> chol_res * chol_res.transpose();</div>
 <div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>  <span class="comment">// return sim_wishart(mat_scale.inverse(), shape).inverse();</span></div>
 <div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>}</div>
-</div>
 <div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span> </div>
 <div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span><span class="comment">// Generate MNIW(M, U, Psi, nu)</span></div>
 <div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span><span class="comment">// </span></div>
@@ -344,22 +326,20 @@ $(document).ready(function(){initNavTree('random_8h_source.html',''); initResiza
 <div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span><span class="comment">// @param mat_scale Inverse wishart scale matrix Psi</span></div>
 <div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span><span class="comment">// @param shape Inverse wishart shape</span></div>
 <div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span><span class="comment">// @param prec If true, use mat_scale_u as \eqn{U^{-1}}</span></div>
-<div class="foldopen" id="foldopen00220" data-start="{" data-end="}">
-<div class="line"><a id="l00220" name="l00220"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#af0ab9ef99e89f975907446f7225e2d2c">  220</a></span><span class="keyword">inline</span> <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector&lt;Eigen::MatrixXd&gt;</a> <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#af0ab9ef99e89f975907446f7225e2d2c">sim_mn_iw</a>(<span class="keyword">const</span> Eigen::MatrixXd&amp; mat_mean, <span class="keyword">const</span> Eigen::MatrixXd&amp; mat_scale_u,</div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span><span class="keyword">inline</span> <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector&lt;Eigen::MatrixXd&gt;</a> <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a66c938f7812a159b80ed2e9e3910fe26">sim_mn_iw</a>(<span class="keyword">const</span> Eigen::MatrixXd&amp; mat_mean, <span class="keyword">const</span> Eigen::MatrixXd&amp; mat_scale_u,</div>
 <div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>                                              <span class="keyword">const</span> Eigen::MatrixXd&amp; mat_scale, <span class="keywordtype">double</span> shape, <span class="keywordtype">bool</span> prec) {</div>
-<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>  Eigen::MatrixXd chol_res = <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a9619a7634bc3e85f8f3f4471bf590087">sim_iw_tri</a>(mat_scale, shape);</div>
+<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>  Eigen::MatrixXd chol_res = <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a6052c79c6294228f52323e1dc6577eac">sim_iw_tri</a>(mat_scale, shape);</div>
 <div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>  Eigen::MatrixXd mat_scale_v = chol_res * chol_res.transpose();</div>
 <div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>  <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector&lt;Eigen::MatrixXd&gt;</a> res(2);</div>
-<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>  res[0] = <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a8b82269a6b1da2c7127281f29e777bb2">sim_mn</a>(mat_mean, mat_scale_u, mat_scale_v, prec);</div>
+<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>  res[0] = <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#aebce33ac530c9797ba69e64e2df98f38">sim_mn</a>(mat_mean, mat_scale_u, mat_scale_v, prec);</div>
 <div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>  res[1] = mat_scale_v;</div>
 <div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>  <span class="keywordflow">return</span> res;</div>
 <div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>}</div>
-</div>
 <div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span><span class="preprocessor">#endif</span></div>
 <div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span> </div>
 <div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span><span class="comment">// Generate MN(M, U, V)</span></div>
 <div class="foldopen" id="foldopen00232" data-start="{" data-end="}">
-<div class="line"><a id="l00232" name="l00232"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#aebce33ac530c9797ba69e64e2df98f38">  232</a></span><span class="keyword">inline</span> Eigen::MatrixXd <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a8b82269a6b1da2c7127281f29e777bb2">sim_mn</a>(<span class="keyword">const</span> Eigen::MatrixXd&amp; mat_mean, <span class="keyword">const</span> Eigen::MatrixXd&amp; mat_scale_u, <span class="keyword">const</span> Eigen::MatrixXd&amp; mat_scale_v,</div>
+<div class="line"><a id="l00232" name="l00232"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#aebce33ac530c9797ba69e64e2df98f38">  232</a></span><span class="keyword">inline</span> Eigen::MatrixXd <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#aebce33ac530c9797ba69e64e2df98f38">sim_mn</a>(<span class="keyword">const</span> Eigen::MatrixXd&amp; mat_mean, <span class="keyword">const</span> Eigen::MatrixXd&amp; mat_scale_u, <span class="keyword">const</span> Eigen::MatrixXd&amp; mat_scale_v,</div>
 <div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>                              <span class="keywordtype">bool</span> prec, <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
 <div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>  <span class="keywordtype">int</span> num_rows = mat_mean.rows();</div>
 <div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>  <span class="keywordtype">int</span> num_cols = mat_mean.cols();</div>
@@ -380,7 +360,7 @@ $(document).ready(function(){initNavTree('random_8h_source.html',''); initResiza
 <div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span> </div>
 <div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span><span class="comment">// Generate lower triangular of Wishart</span></div>
 <div class="foldopen" id="foldopen00251" data-start="{" data-end="}">
-<div class="line"><a id="l00251" name="l00251"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#a16d4f9e5bca1191579f91d2077b434ab">  251</a></span><span class="keyword">inline</span> Eigen::MatrixXd <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a631a15a3aad5472e74eb0a473dc929ce">sim_wishart_tri</a>(Eigen::Ref&lt;Eigen::MatrixXd&gt; mat_scale, <span class="keywordtype">double</span> shape, <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
+<div class="line"><a id="l00251" name="l00251"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#a16d4f9e5bca1191579f91d2077b434ab">  251</a></span><span class="keyword">inline</span> Eigen::MatrixXd <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a16d4f9e5bca1191579f91d2077b434ab">sim_wishart_tri</a>(Eigen::Ref&lt;Eigen::MatrixXd&gt; mat_scale, <span class="keywordtype">double</span> shape, <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
 <div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>  <span class="keywordtype">int</span> dim = mat_scale.cols();</div>
 <div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>  Eigen::MatrixXd mat_bartlett = Eigen::MatrixXd::Zero(dim, dim);</div>
 <div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; dim; ++i) {</div>
@@ -395,15 +375,15 @@ $(document).ready(function(){initNavTree('random_8h_source.html',''); initResiza
 </div>
 <div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span> </div>
 <div class="foldopen" id="foldopen00264" data-start="{" data-end="}">
-<div class="line"><a id="l00264" name="l00264"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#a043ed4f77dda2336628f9870a0ce25be">  264</a></span><span class="keyword">inline</span> Eigen::MatrixXd <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a9814dfd99a3c743f8862348586760807">sim_wishart</a>(Eigen::MatrixXd mat_scale, <span class="keywordtype">double</span> shape, <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
-<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>  Eigen::MatrixXd chol_res = <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a631a15a3aad5472e74eb0a473dc929ce">sim_wishart_tri</a>(mat_scale, shape, rng);</div>
+<div class="line"><a id="l00264" name="l00264"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#a043ed4f77dda2336628f9870a0ce25be">  264</a></span><span class="keyword">inline</span> Eigen::MatrixXd <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a043ed4f77dda2336628f9870a0ce25be">sim_wishart</a>(Eigen::MatrixXd mat_scale, <span class="keywordtype">double</span> shape, <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
+<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>  Eigen::MatrixXd chol_res = <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a16d4f9e5bca1191579f91d2077b434ab">sim_wishart_tri</a>(mat_scale, shape, rng);</div>
 <div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>  <span class="keywordflow">return</span> chol_res * chol_res.transpose();</div>
 <div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>}</div>
 </div>
 <div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span> </div>
 <div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span><span class="comment">// Generate Lower Triangular Matrix of IW</span></div>
 <div class="foldopen" id="foldopen00270" data-start="{" data-end="}">
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#a6052c79c6294228f52323e1dc6577eac">  270</a></span><span class="keyword">inline</span> Eigen::MatrixXd <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a9619a7634bc3e85f8f3f4471bf590087">sim_iw_tri</a>(<span class="keyword">const</span> Eigen::MatrixXd&amp; mat_scale, <span class="keywordtype">double</span> shape, <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#a6052c79c6294228f52323e1dc6577eac">  270</a></span><span class="keyword">inline</span> Eigen::MatrixXd <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a6052c79c6294228f52323e1dc6577eac">sim_iw_tri</a>(<span class="keyword">const</span> Eigen::MatrixXd&amp; mat_scale, <span class="keywordtype">double</span> shape, <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
 <div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>  <span class="keywordtype">int</span> dim = mat_scale.cols();</div>
 <div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>  Eigen::MatrixXd mat_bartlett = Eigen::MatrixXd::Zero(dim, dim); <span class="comment">// upper triangular bartlett decomposition</span></div>
 <div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>  <span class="comment">// // generate in row direction</span></div>
@@ -434,12 +414,12 @@ $(document).ready(function(){initNavTree('random_8h_source.html',''); initResiza
 <div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span> </div>
 <div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span><span class="comment">// Generate MNIW(M, U, Psi, nu)</span></div>
 <div class="foldopen" id="foldopen00299" data-start="{" data-end="}">
-<div class="line"><a id="l00299" name="l00299"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#a66c938f7812a159b80ed2e9e3910fe26">  299</a></span><span class="keyword">inline</span> <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector&lt;Eigen::MatrixXd&gt;</a> <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#af0ab9ef99e89f975907446f7225e2d2c">sim_mn_iw</a>(<span class="keyword">const</span> Eigen::MatrixXd&amp; mat_mean, <span class="keyword">const</span> Eigen::MatrixXd&amp; mat_scale_u,</div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#a66c938f7812a159b80ed2e9e3910fe26">  299</a></span><span class="keyword">inline</span> <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector&lt;Eigen::MatrixXd&gt;</a> <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a66c938f7812a159b80ed2e9e3910fe26">sim_mn_iw</a>(<span class="keyword">const</span> Eigen::MatrixXd&amp; mat_mean, <span class="keyword">const</span> Eigen::MatrixXd&amp; mat_scale_u,</div>
 <div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>                                              <span class="keyword">const</span> Eigen::MatrixXd&amp; mat_scale, <span class="keywordtype">double</span> shape, <span class="keywordtype">bool</span> prec, <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
-<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>  Eigen::MatrixXd chol_res = <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a9619a7634bc3e85f8f3f4471bf590087">sim_iw_tri</a>(mat_scale, shape, rng);</div>
+<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>  Eigen::MatrixXd chol_res = <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a6052c79c6294228f52323e1dc6577eac">sim_iw_tri</a>(mat_scale, shape, rng);</div>
 <div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>  Eigen::MatrixXd mat_scale_v = chol_res * chol_res.transpose();</div>
 <div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>  <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector&lt;Eigen::MatrixXd&gt;</a> res(2);</div>
-<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>  res[0] = <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a8b82269a6b1da2c7127281f29e777bb2">sim_mn</a>(mat_mean, mat_scale_u, mat_scale_v, prec, rng);</div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>  res[0] = <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#aebce33ac530c9797ba69e64e2df98f38">sim_mn</a>(mat_mean, mat_scale_u, mat_scale_v, prec, rng);</div>
 <div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>  res[1] = mat_scale_v;</div>
 <div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>  <span class="keywordflow">return</span> res;</div>
 <div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>}</div>
@@ -454,46 +434,67 @@ $(document).ready(function(){initNavTree('random_8h_source.html',''); initResiza
 <div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span><span class="comment">// @param chi Third parameter of GIG</span></div>
 <div class="foldopen" id="foldopen00316" data-start="{" data-end="}">
 <div class="line"><a id="l00316" name="l00316"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#af7bc4252ab994b7a89c6924961f852cc">  316</a></span><span class="keyword">inline</span> <span class="keywordtype">double</span> <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#af7bc4252ab994b7a89c6924961f852cc">sim_gig</a>(<span class="keywordtype">double</span> lambda, <span class="keywordtype">double</span> psi, <span class="keywordtype">double</span> chi, <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
-<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>  <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6">cut_param</a>(psi);</div>
-<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>  <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6">cut_param</a>(chi);</div>
-<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>  boost::random::generalized_inverse_gaussian_distribution&lt;&gt; rdist(lambda, psi, chi);</div>
-<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>  <span class="keywordflow">return</span> rdist(rng);</div>
-<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>}</div>
+<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>  <span class="keywordflow">if</span> (chi &lt; <a class="code hl_define" href="commondefs_8h.html#ad1a8dcfa01b68407083e32d0682994dd">BVHAR_DBL_TOL</a> || <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::isnan</a>(chi)) {</div>
+<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>    <span class="keywordflow">if</span> (lambda &gt; 0) {</div>
+<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>      <span class="keywordflow">return</span> gamma_rand(lambda, 2 / psi, rng);</div>
+<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (lambda &lt; 0) {</div>
+<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>      <span class="keywordflow">return</span> 1 / gamma_rand(-lambda, 2 / chi, rng);</div>
+<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>    }</div>
+<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>  }</div>
+<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>  <span class="keywordflow">if</span> (psi &lt; <a class="code hl_define" href="commondefs_8h.html#ad1a8dcfa01b68407083e32d0682994dd">BVHAR_DBL_TOL</a> || <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::isnan</a>(psi)) {</div>
+<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>    <span class="keywordflow">if</span> (lambda &lt; 0) {</div>
+<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>      <span class="keywordflow">return</span> 1 / gamma_rand(-lambda, 2 / chi, rng);</div>
+<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (lambda &gt; 0) {</div>
+<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>      <span class="keywordflow">return</span> gamma_rand(lambda, 2 / psi, rng);</div>
+<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>    }</div>
+<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>  }</div>
+<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>  cut_positive_param(psi);</div>
+<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>  cut_positive_param(chi);</div>
+<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>  boost::random::generalized_inverse_gaussian_distribution&lt;&gt; rdist(lambda, psi, chi);</div>
+<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>  <span class="keywordflow">return</span> rdist(rng);</div>
+<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>}</div>
 </div>
-<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span> </div>
-<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span><span class="comment">// Generate Inverse Gaussian Distribution</span></div>
-<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span><span class="comment">// This function generates one Inverse Gaussian random number with mu (mean) and lambda (shape).</span></div>
-<div class="foldopen" id="foldopen00325" data-start="{" data-end="}">
-<div class="line"><a id="l00325" name="l00325"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#aebaafb66c81b30da5c6e5e168ad8f311">  325</a></span><span class="keyword">inline</span> <span class="keywordtype">double</span> <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#aebaafb66c81b30da5c6e5e168ad8f311">sim_invgauss</a>(<span class="keywordtype">double</span> mean, <span class="keywordtype">double</span> shape, <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
-<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>  <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6">cut_param</a>(mean);</div>
-<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>  <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6">cut_param</a>(shape);</div>
-<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>  <a class="code hl_class" href="classboost_1_1random_1_1inverse__gaussian__distribution.html">boost::random::inverse_gaussian_distribution&lt;&gt;</a> rdist(mean, shape);</div>
-<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>  <span class="keywordflow">return</span> rdist(rng);</div>
-<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>}</div>
+<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span> </div>
+<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span><span class="comment">// Generate Inverse Gaussian Distribution</span></div>
+<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span><span class="comment">// This function generates one Inverse Gaussian random number with mu (mean) and lambda (shape).</span></div>
+<div class="foldopen" id="foldopen00339" data-start="{" data-end="}">
+<div class="line"><a id="l00339" name="l00339"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#aebaafb66c81b30da5c6e5e168ad8f311">  339</a></span><span class="keyword">inline</span> <span class="keywordtype">double</span> <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#aebaafb66c81b30da5c6e5e168ad8f311">sim_invgauss</a>(<span class="keywordtype">double</span> mean, <span class="keywordtype">double</span> shape, <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
+<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>  <span class="keywordflow">if</span> (shape &lt; BVHAR_DBL_TOL || mean &gt; <a class="code hl_define" href="commondefs_8h.html#a8e4a9517198518a9d4aff1bc419d6c6b">BVHAR_DBL_MAX</a>) {</div>
+<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>    <span class="keywordflow">return</span> 1 / gamma_rand(.5, 2 / shape, rng);</div>
+<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>  }</div>
+<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>  <span class="keywordflow">if</span> (shape &gt; <a class="code hl_define" href="commondefs_8h.html#a8e4a9517198518a9d4aff1bc419d6c6b">BVHAR_DBL_MAX</a>) {</div>
+<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>    <span class="keywordtype">double</span> sd = <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::pow</a>(mean, 3 / 2) / sqrt(shape);</div>
+<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>    <span class="keywordflow">return</span> mean + sd * normal_rand(rng);</div>
+<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>  }</div>
+<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>  cut_positive_param(mean);</div>
+<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>  cut_positive_param(shape);</div>
+<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>  <a class="code hl_class" href="classboost_1_1random_1_1inverse__gaussian__distribution.html">boost::random::inverse_gaussian_distribution&lt;&gt;</a> rdist(mean, shape);</div>
+<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>  <span class="keywordflow">return</span> rdist(rng);</div>
+<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>}</div>
 </div>
-<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span> </div>
-<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>} <span class="comment">//namespace bvhar</span></div>
-<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>} <span class="comment">// namespace baecon</span></div>
-<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span> </div>
-<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span><span class="preprocessor">#endif </span><span class="comment">// BVHAR_MATH_RANDOM_H</span></div>
+<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span> </div>
+<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>} <span class="comment">//namespace bvhar</span></div>
+<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>} <span class="comment">// namespace baecon</span></div>
+<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span> </div>
+<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span><span class="preprocessor">#endif </span><span class="comment">// BVHAR_MATH_RANDOM_H</span></div>
 <div class="ttc" id="aclassboost_1_1random_1_1inverse__gaussian__distribution_html"><div class="ttname"><a href="classboost_1_1random_1_1inverse__gaussian__distribution.html">boost::random::inverse_gaussian_distribution</a></div><div class="ttdoc">boost.Random's inverse_gaussian generator Will be included in the boost/random in the next release (1...</div><div class="ttdef"><b>Definition</b> common.h:59</div></div>
 <div class="ttc" id="acommon_8h_html_a6cf9f648a944e66c2478fa29468b7ac0"><div class="ttname"><a href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a></div><div class="ttdeci">#define BVHAR_BHRNG</div><div class="ttdef"><b>Definition</b> common.h:34</div></div>
-<div class="ttc" id="acommondefs_8h_html_abc2ee0187a6d5ca2c32fe4873f941159"><div class="ttname"><a href="commondefs_8h.html#abc2ee0187a6d5ca2c32fe4873f941159">BVHAR_STOP</a></div><div class="ttdeci">#define BVHAR_STOP(...)</div><div class="ttdef"><b>Definition</b> commondefs.h:19</div></div>
+<div class="ttc" id="acommondefs_8h_html_a8e4a9517198518a9d4aff1bc419d6c6b"><div class="ttname"><a href="commondefs_8h.html#a8e4a9517198518a9d4aff1bc419d6c6b">BVHAR_DBL_MAX</a></div><div class="ttdeci">#define BVHAR_DBL_MAX</div><div class="ttdef"><b>Definition</b> commondefs.h:20</div></div>
+<div class="ttc" id="acommondefs_8h_html_abc2ee0187a6d5ca2c32fe4873f941159"><div class="ttname"><a href="commondefs_8h.html#abc2ee0187a6d5ca2c32fe4873f941159">BVHAR_STOP</a></div><div class="ttdeci">#define BVHAR_STOP(...)</div><div class="ttdef"><b>Definition</b> commondefs.h:138</div></div>
+<div class="ttc" id="acommondefs_8h_html_ad1a8dcfa01b68407083e32d0682994dd"><div class="ttname"><a href="commondefs_8h.html#ad1a8dcfa01b68407083e32d0682994dd">BVHAR_DBL_TOL</a></div><div class="ttdeci">#define BVHAR_DBL_TOL</div><div class="ttdef"><b>Definition</b> commondefs.h:19</div></div>
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_a031baf5a82e342e09d41b24ddb320634"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a031baf5a82e342e09d41b24ddb320634">baecon::bvhar::sim_mgaussian_eigen</a></div><div class="ttdeci">Eigen::MatrixXd sim_mgaussian_eigen(int num_sim, const Eigen::VectorXd &amp;mu, const Eigen::MatrixXd &amp;sig, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> random.h:10</div></div>
+<div class="ttc" id="anamespacebaecon_1_1bvhar_html_a043ed4f77dda2336628f9870a0ce25be"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a043ed4f77dda2336628f9870a0ce25be">baecon::bvhar::sim_wishart</a></div><div class="ttdeci">Eigen::MatrixXd sim_wishart(Eigen::MatrixXd mat_scale, double shape, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> random.h:264</div></div>
+<div class="ttc" id="anamespacebaecon_1_1bvhar_html_a16d4f9e5bca1191579f91d2077b434ab"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a16d4f9e5bca1191579f91d2077b434ab">baecon::bvhar::sim_wishart_tri</a></div><div class="ttdeci">Eigen::MatrixXd sim_wishart_tri(Eigen::Ref&lt; Eigen::MatrixXd &gt; mat_scale, double shape, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> random.h:251</div></div>
+<div class="ttc" id="anamespacebaecon_1_1bvhar_html_a6052c79c6294228f52323e1dc6577eac"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a6052c79c6294228f52323e1dc6577eac">baecon::bvhar::sim_iw_tri</a></div><div class="ttdeci">Eigen::MatrixXd sim_iw_tri(const Eigen::MatrixXd &amp;mat_scale, double shape, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> random.h:270</div></div>
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_a624afb813c4c6db9077a5f9ba4b47426"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a624afb813c4c6db9077a5f9ba4b47426">baecon::bvhar::sim_mgaussian_chol</a></div><div class="ttdeci">Eigen::MatrixXd sim_mgaussian_chol(int num_sim, const Eigen::VectorXd &amp;mu, const Eigen::MatrixXd &amp;sig, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> random.h:25</div></div>
-<div class="ttc" id="anamespacebaecon_1_1bvhar_html_a631a15a3aad5472e74eb0a473dc929ce"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a631a15a3aad5472e74eb0a473dc929ce">baecon::bvhar::sim_wishart_tri</a></div><div class="ttdeci">Eigen::MatrixXd sim_wishart_tri(Eigen::Ref&lt; Eigen::MatrixXd &gt; mat_scale, double shape)</div><div class="ttdef"><b>Definition</b> random.h:144</div></div>
+<div class="ttc" id="anamespacebaecon_1_1bvhar_html_a66c938f7812a159b80ed2e9e3910fe26"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a66c938f7812a159b80ed2e9e3910fe26">baecon::bvhar::sim_mn_iw</a></div><div class="ttdeci">std::vector&lt; Eigen::MatrixXd &gt; sim_mn_iw(const Eigen::MatrixXd &amp;mat_mean, const Eigen::MatrixXd &amp;mat_scale_u, const Eigen::MatrixXd &amp;mat_scale, double shape, bool prec, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> random.h:299</div></div>
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_a7d7fef395053d7e0a5dc90c257c3e4c1"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a7d7fef395053d7e0a5dc90c257c3e4c1">baecon::bvhar::sim_mstudent_eigen</a></div><div class="ttdeci">Eigen::MatrixXd sim_mstudent_eigen(int num_sim, double df, const Eigen::VectorXd &amp;mu, const Eigen::MatrixXd &amp;sig, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> random.h:39</div></div>
-<div class="ttc" id="anamespacebaecon_1_1bvhar_html_a8b82269a6b1da2c7127281f29e777bb2"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a8b82269a6b1da2c7127281f29e777bb2">baecon::bvhar::sim_mn</a></div><div class="ttdeci">Eigen::MatrixXd sim_mn(const Eigen::MatrixXd &amp;mat_mean, const Eigen::MatrixXd &amp;mat_scale_u, const Eigen::MatrixXd &amp;mat_scale_v, bool prec)</div><div class="ttdef"><b>Definition</b> random.h:117</div></div>
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_a9134fb4cff9daaecfac6b649593a233c"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a9134fb4cff9daaecfac6b649593a233c">baecon::bvhar::sim_mstudent_chol</a></div><div class="ttdeci">Eigen::MatrixXd sim_mstudent_chol(int num_sim, double df, const Eigen::VectorXd &amp;mu, const Eigen::MatrixXd &amp;sig, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> random.h:49</div></div>
-<div class="ttc" id="anamespacebaecon_1_1bvhar_html_a9619a7634bc3e85f8f3f4471bf590087"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a9619a7634bc3e85f8f3f4471bf590087">baecon::bvhar::sim_iw_tri</a></div><div class="ttdeci">Eigen::MatrixXd sim_iw_tri(Eigen::MatrixXd mat_scale, double shape)</div><div class="ttdef"><b>Definition</b> random.h:179</div></div>
-<div class="ttc" id="anamespacebaecon_1_1bvhar_html_a9814dfd99a3c743f8862348586760807"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a9814dfd99a3c743f8862348586760807">baecon::bvhar::sim_wishart</a></div><div class="ttdeci">Eigen::MatrixXd sim_wishart(Eigen::MatrixXd mat_scale, double shape)</div><div class="ttdef"><b>Definition</b> random.h:166</div></div>
-<div class="ttc" id="anamespacebaecon_1_1bvhar_html_aab5c835975dd6e62362bf0b08923a5b3"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#aab5c835975dd6e62362bf0b08923a5b3">baecon::bvhar::sim_inv_wishart</a></div><div class="ttdeci">Eigen::MatrixXd sim_inv_wishart(const Eigen::MatrixXd &amp;mat_scale, double shape)</div><div class="ttdef"><b>Definition</b> random.h:207</div></div>
-<div class="ttc" id="anamespacebaecon_1_1bvhar_html_ac9248c352d5f64ac9b9595197784a9e6"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6">baecon::bvhar::cut_param</a></div><div class="ttdeci">void cut_param(Eigen::Ref&lt; Eigen::VectorXd &gt; param)</div><div class="ttdef"><b>Definition</b> helper.h:37</div></div>
-<div class="ttc" id="anamespacebaecon_1_1bvhar_html_aebaafb66c81b30da5c6e5e168ad8f311"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#aebaafb66c81b30da5c6e5e168ad8f311">baecon::bvhar::sim_invgauss</a></div><div class="ttdeci">double sim_invgauss(double mean, double shape, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> random.h:325</div></div>
-<div class="ttc" id="anamespacebaecon_1_1bvhar_html_af0ab9ef99e89f975907446f7225e2d2c"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#af0ab9ef99e89f975907446f7225e2d2c">baecon::bvhar::sim_mn_iw</a></div><div class="ttdeci">std::vector&lt; Eigen::MatrixXd &gt; sim_mn_iw(const Eigen::MatrixXd &amp;mat_mean, const Eigen::MatrixXd &amp;mat_scale_u, const Eigen::MatrixXd &amp;mat_scale, double shape, bool prec)</div><div class="ttdef"><b>Definition</b> random.h:220</div></div>
+<div class="ttc" id="anamespacebaecon_1_1bvhar_html_aebaafb66c81b30da5c6e5e168ad8f311"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#aebaafb66c81b30da5c6e5e168ad8f311">baecon::bvhar::sim_invgauss</a></div><div class="ttdeci">double sim_invgauss(double mean, double shape, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> random.h:339</div></div>
+<div class="ttc" id="anamespacebaecon_1_1bvhar_html_aebce33ac530c9797ba69e64e2df98f38"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#aebce33ac530c9797ba69e64e2df98f38">baecon::bvhar::sim_mn</a></div><div class="ttdeci">Eigen::MatrixXd sim_mn(const Eigen::MatrixXd &amp;mat_mean, const Eigen::MatrixXd &amp;mat_scale_u, const Eigen::MatrixXd &amp;mat_scale_v, bool prec, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> random.h:232</div></div>
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_af7bc4252ab994b7a89c6924961f852cc"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#af7bc4252ab994b7a89c6924961f852cc">baecon::bvhar::sim_gig</a></div><div class="ttdeci">double sim_gig(double lambda, double psi, double chi, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> random.h:316</div></div>
 <div class="ttc" id="anamespacebaecon_html"><div class="ttname"><a href="namespacebaecon.html">baecon</a></div><div class="ttdef"><b>Definition</b> bayes.h:16</div></div>
-<div class="ttc" id="anamespacestd_html_a03d5ca705e3360c607bf2586e9a9de3b"><div class="ttname"><a href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::make_unique</a></div><div class="ttdeci">unique_ptr&lt; T &gt; make_unique(Args &amp;&amp;... args)</div><div class="ttdef"><b>Definition</b> commondefs.h:123</div></div>
+<div class="ttc" id="anamespacestd_html_a03d5ca705e3360c607bf2586e9a9de3b"><div class="ttname"><a href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::make_unique</a></div><div class="ttdeci">unique_ptr&lt; T &gt; make_unique(Args &amp;&amp;... args)</div><div class="ttdef"><b>Definition</b> commondefs.h:170</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

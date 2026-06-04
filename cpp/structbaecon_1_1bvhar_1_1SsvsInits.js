@@ -1,7 +1,8 @@
 var structbaecon_1_1bvhar_1_1SsvsInits =
 [
-    [ "SsvsInits", "structbaecon_1_1bvhar_1_1SsvsInits.html#a6673bed7c0b8d090f8d64e8c6f3b7ac5", null ],
-    [ "SsvsInits", "structbaecon_1_1bvhar_1_1SsvsInits.html#a62967e769e6a8f6a3ba9e8f48f678eea", null ],
+    [ "SsvsInits", "structbaecon_1_1bvhar_1_1SsvsInits.html#a3ca1eec2d9a792323ce3257d596cbfbb", null ],
+    [ "SsvsInits", "structbaecon_1_1bvhar_1_1SsvsInits.html#a9c7c68deac8045b95ebbe2a332a5be30", null ],
+    [ "SsvsInits", "structbaecon_1_1bvhar_1_1SsvsInits.html#a91248f7d99f157863f67040167e1cd7f", null ],
     [ "_dummy", "structbaecon_1_1bvhar_1_1SsvsInits.html#ac8a442387954bde9b6b017b0b924ea09", null ],
     [ "_weight", "structbaecon_1_1bvhar_1_1SsvsInits.html#a212de23bc54b19a1ca07a6e135f406fe", null ],
     [ "_slab", "structbaecon_1_1bvhar_1_1SsvsInits.html#acc834dd9960193246557234eec545623", null ],

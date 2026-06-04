@@ -1,6 +1,6 @@
 <map id="baecon::bvhar::McmcSpillover::computeSpillover" name="baecon::bvhar::McmcSpillover::computeSpillover">
 <area shape="rect" id="Node000001" title="Generate spillover density." alt="" coords="5,199,224,239"/>
-<area shape="rect" id="Node000002" href="$namespacebaecon_1_1bvhar.html#a1e40393471c836d8f4554afbc096bfda" title=" " alt="" coords="304,5,459,45"/>
+<area shape="rect" id="Node000002" href="$namespacebaecon_1_1bvhar.html#abde3fd1276bbc8e8e023c2c6f20413f1" title=" " alt="" coords="304,5,459,45"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="128,197,185,128,225,89,271,55,290,45,292,50,273,60,229,93,189,131,132,200"/>
 <area shape="rect" id="Node000003" href="$namespacebaecon_1_1bvhar.html#a514b1d75671b93e1522f7f1628408b21" title=" " alt="" coords="273,70,490,95"/>
 <area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="136,196,194,150,232,125,271,104,290,97,292,102,273,109,234,130,198,154,140,200"/>

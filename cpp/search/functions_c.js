@@ -5,7 +5,7 @@ var searchData=
   ['ng_5fmn_5fshape_5fjump_2',['ng_mn_shape_jump',['../namespacebaecon_1_1bvhar.html#a9c359f61f55567f8002d143ad7312f40',1,'baecon::bvhar']]],
   ['ng_5fmn_5fsparsity_3',['ng_mn_sparsity',['../namespacebaecon_1_1bvhar.html#a8e077d93f5292412a3aa612a1b7beaef',1,'baecon::bvhar']]],
   ['ng_5fshape_5fjump_4',['ng_shape_jump',['../namespacebaecon_1_1bvhar.html#ac76ecbd39f25d80e73573792bd767171',1,'baecon::bvhar']]],
-  ['nginits_5',['nginits',['../structbaecon_1_1bvhar_1_1NgInits.html#aa5e5a583404d5a869400646170f1b7bd',1,'baecon::bvhar::NgInits::NgInits(Rcpp::List &amp;init)'],['../structbaecon_1_1bvhar_1_1NgInits.html#a787dab27a78729cbd77f0cd10437079d',1,'baecon::bvhar::NgInits::NgInits(Rcpp::List &amp;init, int num_design)']]],
-  ['ngparams_6',['NgParams',['../structbaecon_1_1bvhar_1_1NgParams.html#aaaf4c6674503e04ad4c70f1cda2acfce',1,'baecon::bvhar::NgParams']]],
+  ['nginits_5',['nginits',['../structbaecon_1_1bvhar_1_1NgInits.html#a8528428374f942da7af03a2b2e323648',1,'baecon::bvhar::NgInits::NgInits(BvharList &amp;init)'],['../structbaecon_1_1bvhar_1_1NgInits.html#afaf71c13f15c9d66d50143f15e702d89',1,'baecon::bvhar::NgInits::NgInits(BvharList &amp;init, int num_design)'],['../structbaecon_1_1bvhar_1_1NgInits.html#a770199e3e42cd899c79c702cd2bc093f',1,'baecon::bvhar::NgInits::NgInits(int num_param, int num_grp, boost::random::mixmax &amp;rng)']]],
+  ['ngparams_6',['NgParams',['../structbaecon_1_1bvhar_1_1NgParams.html#a835891a97bc65bd35900cfde11175c92',1,'baecon::bvhar::NgParams']]],
   ['ngupdater_7',['NgUpdater',['../classbaecon_1_1bvhar_1_1NgUpdater.html#a7ce1d5eea9054fede2557d3c1259f1de',1,'baecon::bvhar::NgUpdater']]]
 ];

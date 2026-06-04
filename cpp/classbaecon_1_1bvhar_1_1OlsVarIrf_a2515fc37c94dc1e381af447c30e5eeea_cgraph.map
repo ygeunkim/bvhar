@@ -1,0 +1,10 @@
+<map id="baecon::bvhar::OlsVarIrf::returnIrfDensity" name="baecon::bvhar::OlsVarIrf::returnIrfDensity">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,184,45"/>
+<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1OlsVarIrf.html#ae0e5178b5ad75255652afe386cdb32a4" title=" " alt="" coords="232,5,411,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="185,23,218,23,218,28,185,28"/>
+<area shape="rect" id="Node000003" href="$namespacebaecon_1_1bvhar.html#a36e0bc21618d2e34fea196bf2e850fbd" title=" " alt="" coords="677,5,848,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="411,20,459,19,629,19,664,19,664,25,629,24,459,24,411,25"/>
+<area shape="rect" id="Node000004" href="$namespacebaecon_1_1bvhar.html#a36697e6f2e30989c11bc9a2fc2bff113" title=" " alt="" coords="459,33,629,73"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="411,34,445,38,445,44,411,39"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="629,40,663,35,664,41,630,45"/>
+</map>

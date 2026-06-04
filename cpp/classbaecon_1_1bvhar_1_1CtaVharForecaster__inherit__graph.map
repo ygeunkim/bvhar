@@ -1,13 +1,15 @@
 <map id="baecon::bvhar::CtaVharForecaster&lt; BaseForecaster &gt;" name="baecon::bvhar::CtaVharForecaster&lt; BaseForecaster &gt;">
-<area shape="rect" id="Node000001" title="Forecast class of Bayesian VHAR based on McmcTriangular" alt="" coords="5,357,248,397"/>
-<area shape="rect" id="Node000006" href="$classbaecon_1_1bvhar_1_1CtaVharSelectForecaster.html" title="Bayesian VHAR forecast class with sparse draw induced by posterior summary." alt="" coords="17,445,237,485"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="129,411,129,445,124,445,124,411"/>
-<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1RegForecaster.html" title="Forecast class for McmcReg" alt="" coords="19,284,234,309"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="129,323,129,357,124,357,124,323"/>
-<area shape="rect" id="Node000003" href="$classbaecon_1_1bvhar_1_1CtaForecaster.html" title="Forecast class for McmcTriangular" alt="" coords="21,211,233,236"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="129,250,129,284,124,284,124,250"/>
-<area shape="rect" id="Node000004" href="$classbaecon_1_1bvhar_1_1BayesForecaster.html" title=" " alt="" coords="11,108,242,163"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="129,176,129,210,124,210,124,176"/>
-<area shape="rect" id="Node000005" href="$classbaecon_1_1bvhar_1_1MultistepForecaster.html" title="Base class for Recursive multi&#45;step forecasting." alt="" coords="35,5,218,60"/>
-<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="129,74,129,108,124,108,124,74"/>
+<area shape="rect" id="Node000001" title="Forecast class of Bayesian VHAR based on McmcTriangular" alt="" coords="1037,45,1280,85"/>
+<area shape="rect" id="Node000007" href="$classbaecon_1_1bvhar_1_1CtaVharSelectForecaster.html" title="Bayesian VHAR forecast class with sparse draw induced by posterior summary." alt="" coords="1328,45,1548,85"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="1294,62,1328,62,1328,67,1294,67"/>
+<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1RegForecaster.html" title="Forecast class for McmcReg" alt="" coords="775,52,989,77"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1003,62,1037,62,1037,67,1003,67"/>
+<area shape="rect" id="Node000003" href="$classbaecon_1_1bvhar_1_1CtaForecaster.html" title="Forecast class for McmcTriangular" alt="" coords="515,52,727,77"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="741,62,774,62,774,67,741,67"/>
+<area shape="rect" id="Node000004" href="$classbaecon_1_1bvhar_1_1BayesForecaster.html" title=" " alt="" coords="236,37,467,92"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="480,62,515,62,515,67,480,67"/>
+<area shape="rect" id="Node000005" href="$classbaecon_1_1bvhar_1_1MultistepForecaster.html" title="Base class for Recursive multi&#45;step forecasting." alt="" coords="5,5,188,60"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="202,43,236,48,235,53,201,48"/>
+<area shape="rect" id="Node000006" href="$classbaecon_1_1bvhar_1_1RngState.html" title="RNG state." alt="" coords="6,84,187,109"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="201,81,235,77,236,82,201,86"/>
 </map>

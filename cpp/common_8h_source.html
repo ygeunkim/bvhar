@@ -26,7 +26,7 @@
  <tr id="projectrow">
   <td id="projectlogo"><img alt="Logo" src="apple-touch-icon.png"/></td>
   <td id="projectalign">
-   <div id="projectname">bvhar<span id="projectnumber">&#160;2.4.0</span>
+   <div id="projectname">bvhar<span id="projectnumber">&#160;2.4.1</span>
    </div>
    <div id="projectbrief">C++ headers by bvhar package</div>
   </td>
@@ -581,7 +581,7 @@ $(document).ready(function(){initNavTree('common_8h_source.html',''); initResiza
 <div class="line"><a id="l00460" name="l00460"></a><span class="lineno">  460</span> </div>
 <div class="line"><a id="l00461" name="l00461"></a><span class="lineno">  461</span><span class="comment">// Gamma function</span></div>
 <div class="line"><a id="l00462" name="l00462"></a><span class="lineno">  462</span><span class="keyword">inline</span> <span class="keywordtype">double</span> gammafn(<span class="keywordtype">double</span> x) {</div>
-<div class="line"><a id="l00463" name="l00463"></a><span class="lineno">  463</span>  <span class="keywordflow">return</span> Rf_gammafn(x);</div>
+<div class="line"><a id="l00463" name="l00463"></a><span class="lineno">  463</span>  <span class="keywordflow">return</span> <a class="code hl_define" href="commondefs_8h.html#a86aa4061d061f75e13a9eadc4d7db3c7">Rf_gammafn</a>(x);</div>
 <div class="line"><a id="l00464" name="l00464"></a><span class="lineno">  464</span>}</div>
 <div class="line"><a id="l00465" name="l00465"></a><span class="lineno">  465</span> </div>
 <div class="line"><a id="l00466" name="l00466"></a><span class="lineno">  466</span><span class="keyword">inline</span> <span class="keywordtype">double</span> mgammafn(<span class="keywordtype">double</span> x, <span class="keywordtype">int</span> p) {</div>
@@ -597,7 +597,7 @@ $(document).ready(function(){initNavTree('common_8h_source.html',''); initResiza
 <div class="line"><a id="l00476" name="l00476"></a><span class="lineno">  476</span>  <span class="keywordflow">if</span> (2 * x &lt; p) {</div>
 <div class="line"><a id="l00477" name="l00477"></a><span class="lineno">  477</span>    <a class="code hl_define" href="commondefs_8h.html#abc2ee0187a6d5ca2c32fe4873f941159">BVHAR_STOP</a>(<span class="stringliteral">&quot;&#39;x / 2&#39; should be larger than &#39;p&#39;.&quot;</span>);</div>
 <div class="line"><a id="l00478" name="l00478"></a><span class="lineno">  478</span>  }</div>
-<div class="line"><a id="l00479" name="l00479"></a><span class="lineno">  479</span>  <span class="keywordtype">double</span> res = pow(M_PI, p * (p - 1) / 4.0);</div>
+<div class="line"><a id="l00479" name="l00479"></a><span class="lineno">  479</span>  <span class="keywordtype">double</span> res = pow(<a class="code hl_define" href="commondefs_8h.html#ae71449b1cc6e6250b91f539153a7a0d3">M_PI</a>, p * (p - 1) / 4.0);</div>
 <div class="line"><a id="l00480" name="l00480"></a><span class="lineno">  480</span>  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; p; i++) {</div>
 <div class="line"><a id="l00481" name="l00481"></a><span class="lineno">  481</span>    res *= gammafn(x - i / 2.0); <span class="comment">// x + (1 - j) / 2</span></div>
 <div class="line"><a id="l00482" name="l00482"></a><span class="lineno">  482</span>  }</div>
@@ -606,11 +606,11 @@ $(document).ready(function(){initNavTree('common_8h_source.html',''); initResiza
 <div class="line"><a id="l00485" name="l00485"></a><span class="lineno">  485</span> </div>
 <div class="line"><a id="l00486" name="l00486"></a><span class="lineno">  486</span><span class="comment">// Density functions--------------------------</span></div>
 <div class="line"><a id="l00487" name="l00487"></a><span class="lineno">  487</span><span class="keyword">inline</span> <span class="keywordtype">double</span> lgammafn(<span class="keywordtype">double</span> x) {</div>
-<div class="line"><a id="l00488" name="l00488"></a><span class="lineno">  488</span>  <span class="keywordflow">return</span> Rf_lgammafn(x);</div>
+<div class="line"><a id="l00488" name="l00488"></a><span class="lineno">  488</span>  <span class="keywordflow">return</span> <a class="code hl_define" href="commondefs_8h.html#a330f36e7dab4d2671359ce7f8e4f6b8a">Rf_lgammafn</a>(x);</div>
 <div class="line"><a id="l00489" name="l00489"></a><span class="lineno">  489</span>}</div>
 <div class="line"><a id="l00490" name="l00490"></a><span class="lineno">  490</span> </div>
 <div class="line"><a id="l00491" name="l00491"></a><span class="lineno">  491</span><span class="keyword">inline</span> <span class="keywordtype">double</span> gamma_dens(<span class="keywordtype">double</span> x, <span class="keywordtype">double</span> shp, <span class="keywordtype">double</span> scl, <span class="keywordtype">bool</span> lg) {</div>
-<div class="line"><a id="l00492" name="l00492"></a><span class="lineno">  492</span>  <span class="keywordflow">return</span> Rf_dgamma(x, shp, scl, lg);</div>
+<div class="line"><a id="l00492" name="l00492"></a><span class="lineno">  492</span>  <span class="keywordflow">return</span> <a class="code hl_define" href="commondefs_8h.html#a80355d2cc0a255b1c7e7183a2076e500">Rf_dgamma</a>(x, shp, scl, lg);</div>
 <div class="line"><a id="l00493" name="l00493"></a><span class="lineno">  493</span>}</div>
 <div class="line"><a id="l00494" name="l00494"></a><span class="lineno">  494</span> </div>
 <div class="line"><a id="l00495" name="l00495"></a><span class="lineno">  495</span><span class="comment">// Log of Multivariate Gamma Function</span></div>
@@ -632,7 +632,7 @@ $(document).ready(function(){initNavTree('common_8h_source.html',''); initResiza
 <div class="line"><a id="l00511" name="l00511"></a><span class="lineno">  511</span>  <span class="comment">// if (2 * x &lt; p) {</span></div>
 <div class="line"><a id="l00512" name="l00512"></a><span class="lineno">  512</span>  <span class="comment">//   Rcpp::stop(&quot;&#39;x / 2&#39; should be larger than &#39;p&#39;.&quot;);</span></div>
 <div class="line"><a id="l00513" name="l00513"></a><span class="lineno">  513</span>  <span class="comment">// }</span></div>
-<div class="line"><a id="l00514" name="l00514"></a><span class="lineno">  514</span>  <span class="keywordtype">double</span> res = p * (p - 1) / 4.0 * log(M_PI);</div>
+<div class="line"><a id="l00514" name="l00514"></a><span class="lineno">  514</span>  <span class="keywordtype">double</span> res = p * (p - 1) / 4.0 * log(<a class="code hl_define" href="commondefs_8h.html#ae71449b1cc6e6250b91f539153a7a0d3">M_PI</a>);</div>
 <div class="line"><a id="l00515" name="l00515"></a><span class="lineno">  515</span>  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; p; i++) {</div>
 <div class="line"><a id="l00516" name="l00516"></a><span class="lineno">  516</span>    res += lgammafn(x - i / 2.0);</div>
 <div class="line"><a id="l00517" name="l00517"></a><span class="lineno">  517</span>  }</div>
@@ -665,101 +665,193 @@ $(document).ready(function(){initNavTree('common_8h_source.html',''); initResiza
 <div class="line"><a id="l00544" name="l00544"></a><span class="lineno">  544</span>}</div>
 <div class="line"><a id="l00545" name="l00545"></a><span class="lineno">  545</span> </div>
 <div class="line"><a id="l00546" name="l00546"></a><span class="lineno">  546</span><span class="comment">// RNG----------------------------------------</span></div>
-<div class="line"><a id="l00547" name="l00547"></a><span class="lineno">  547</span><span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6">cut_param</a>(<span class="keywordtype">double</span>&amp; param) {</div>
-<div class="line"><a id="l00548" name="l00548"></a><span class="lineno">  548</span>  <span class="keywordflow">if</span> (param &lt; std::numeric_limits&lt;double&gt;::min() || <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::isnan</a>(param)) {</div>
-<div class="line"><a id="l00549" name="l00549"></a><span class="lineno">  549</span>    param = std::numeric_limits&lt;double&gt;::min();</div>
-<div class="line"><a id="l00550" name="l00550"></a><span class="lineno">  550</span>  } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (param &gt; std::numeric_limits&lt;double&gt;::max() || <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::isinf</a>(param)) {</div>
-<div class="line"><a id="l00551" name="l00551"></a><span class="lineno">  551</span>    param = std::numeric_limits&lt;double&gt;::max();</div>
+<div class="line"><a id="l00547" name="l00547"></a><span class="lineno">  547</span><span class="keyword">inline</span> <span class="keywordtype">void</span> cut_positive_param(<span class="keywordtype">double</span>&amp; param) {</div>
+<div class="line"><a id="l00548" name="l00548"></a><span class="lineno">  548</span>  <span class="keywordflow">if</span> (param &lt; <a class="code hl_define" href="commondefs_8h.html#ad1a8dcfa01b68407083e32d0682994dd">BVHAR_DBL_TOL</a> || <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::isnan</a>(param)) {</div>
+<div class="line"><a id="l00549" name="l00549"></a><span class="lineno">  549</span>    param = <a class="code hl_define" href="commondefs_8h.html#ad1a8dcfa01b68407083e32d0682994dd">BVHAR_DBL_TOL</a>;</div>
+<div class="line"><a id="l00550" name="l00550"></a><span class="lineno">  550</span>  } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (param &gt; <a class="code hl_define" href="commondefs_8h.html#a8e4a9517198518a9d4aff1bc419d6c6b">BVHAR_DBL_MAX</a> || <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::isinf</a>(param)) {</div>
+<div class="line"><a id="l00551" name="l00551"></a><span class="lineno">  551</span>    param = <a class="code hl_define" href="commondefs_8h.html#a8e4a9517198518a9d4aff1bc419d6c6b">BVHAR_DBL_MAX</a>;</div>
 <div class="line"><a id="l00552" name="l00552"></a><span class="lineno">  552</span>  }</div>
 <div class="line"><a id="l00553" name="l00553"></a><span class="lineno">  553</span>}</div>
 <div class="line"><a id="l00554" name="l00554"></a><span class="lineno">  554</span> </div>
-<div class="line"><a id="l00555" name="l00555"></a><span class="lineno">  555</span><span class="preprocessor">#ifdef BVHAR_USE_RCPP</span></div>
-<div class="line"><a id="l00556" name="l00556"></a><span class="lineno">  556</span><span class="keyword">inline</span> <span class="keywordtype">double</span> bindom_rand(<span class="keywordtype">int</span> n, <span class="keywordtype">double</span> prob) {</div>
-<div class="line"><a id="l00557" name="l00557"></a><span class="lineno">  557</span>  <span class="keywordflow">return</span> Rf_rbinom(n, prob);</div>
-<div class="line"><a id="l00558" name="l00558"></a><span class="lineno">  558</span>}</div>
-<div class="line"><a id="l00559" name="l00559"></a><span class="lineno">  559</span> </div>
-<div class="line"><a id="l00560" name="l00560"></a><span class="lineno">  560</span><span class="keyword">inline</span> <span class="keywordtype">double</span> chisq_rand(<span class="keywordtype">double</span> df) {</div>
-<div class="line"><a id="l00561" name="l00561"></a><span class="lineno">  561</span>  <span class="keywordflow">return</span> Rf_rchisq(df);</div>
-<div class="line"><a id="l00562" name="l00562"></a><span class="lineno">  562</span>}</div>
-<div class="line"><a id="l00563" name="l00563"></a><span class="lineno">  563</span> </div>
-<div class="line"><a id="l00564" name="l00564"></a><span class="lineno">  564</span><span class="keyword">inline</span> <span class="keywordtype">double</span> gamma_rand(<span class="keywordtype">double</span> shp, <span class="keywordtype">double</span> scl) {</div>
-<div class="line"><a id="l00565" name="l00565"></a><span class="lineno">  565</span>  <span class="keywordflow">return</span> Rf_rgamma(shp, scl); <span class="comment">// 2nd: scale</span></div>
+<div class="line"><a id="l00555" name="l00555"></a><span class="lineno">  555</span><span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6">cut_param</a>(<span class="keywordtype">double</span>&amp; param) {</div>
+<div class="line"><a id="l00556" name="l00556"></a><span class="lineno">  556</span>  <span class="keywordflow">if</span> (abs(param) &lt; <a class="code hl_define" href="commondefs_8h.html#ad1a8dcfa01b68407083e32d0682994dd">BVHAR_DBL_TOL</a> || <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::isnan</a>(param)) {</div>
+<div class="line"><a id="l00557" name="l00557"></a><span class="lineno">  557</span>    param = param &gt;= 0 ? <a class="code hl_define" href="commondefs_8h.html#ad1a8dcfa01b68407083e32d0682994dd">BVHAR_DBL_TOL</a> : -<a class="code hl_define" href="commondefs_8h.html#ad1a8dcfa01b68407083e32d0682994dd">BVHAR_DBL_TOL</a>;</div>
+<div class="line"><a id="l00558" name="l00558"></a><span class="lineno">  558</span>  } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (abs(param) &gt; <a class="code hl_define" href="commondefs_8h.html#a8e4a9517198518a9d4aff1bc419d6c6b">BVHAR_DBL_MAX</a> || <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::isinf</a>(param)) {</div>
+<div class="line"><a id="l00559" name="l00559"></a><span class="lineno">  559</span>    param = param &gt;= 0 ? <a class="code hl_define" href="commondefs_8h.html#a8e4a9517198518a9d4aff1bc419d6c6b">BVHAR_DBL_MAX</a> : -<a class="code hl_define" href="commondefs_8h.html#a8e4a9517198518a9d4aff1bc419d6c6b">BVHAR_DBL_MAX</a>;</div>
+<div class="line"><a id="l00560" name="l00560"></a><span class="lineno">  560</span>  }</div>
+<div class="line"><a id="l00561" name="l00561"></a><span class="lineno">  561</span>}</div>
+<div class="line"><a id="l00562" name="l00562"></a><span class="lineno">  562</span> </div>
+<div class="line"><a id="l00563" name="l00563"></a><span class="lineno">  563</span><span class="preprocessor">#ifdef BVHAR_USE_RCPP</span></div>
+<div class="line"><a id="l00564" name="l00564"></a><span class="lineno">  564</span><span class="keyword">inline</span> <span class="keywordtype">double</span> bindom_rand(<span class="keywordtype">int</span> n, <span class="keywordtype">double</span> prob) {</div>
+<div class="line"><a id="l00565" name="l00565"></a><span class="lineno">  565</span>  <span class="keywordflow">return</span> Rf_rbinom(n, prob);</div>
 <div class="line"><a id="l00566" name="l00566"></a><span class="lineno">  566</span>}</div>
 <div class="line"><a id="l00567" name="l00567"></a><span class="lineno">  567</span> </div>
-<div class="line"><a id="l00568" name="l00568"></a><span class="lineno">  568</span><span class="keyword">inline</span> <span class="keywordtype">double</span> unif_rand(<span class="keywordtype">double</span> min, <span class="keywordtype">double</span> max) {</div>
-<div class="line"><a id="l00569" name="l00569"></a><span class="lineno">  569</span>  <span class="keywordflow">return</span> Rf_runif(min, max);</div>
+<div class="line"><a id="l00568" name="l00568"></a><span class="lineno">  568</span><span class="keyword">inline</span> <span class="keywordtype">double</span> chisq_rand(<span class="keywordtype">double</span> df) {</div>
+<div class="line"><a id="l00569" name="l00569"></a><span class="lineno">  569</span>  <span class="keywordflow">return</span> Rf_rchisq(df);</div>
 <div class="line"><a id="l00570" name="l00570"></a><span class="lineno">  570</span>}</div>
 <div class="line"><a id="l00571" name="l00571"></a><span class="lineno">  571</span> </div>
-<div class="line"><a id="l00572" name="l00572"></a><span class="lineno">  572</span><span class="keyword">inline</span> <span class="keywordtype">double</span> beta_rand(<span class="keywordtype">double</span> s1, <span class="keywordtype">double</span> s2) {</div>
-<div class="line"><a id="l00573" name="l00573"></a><span class="lineno">  573</span>  <span class="keywordflow">return</span> Rf_rbeta(s1, s2);</div>
+<div class="line"><a id="l00572" name="l00572"></a><span class="lineno">  572</span><span class="keyword">inline</span> <span class="keywordtype">double</span> gamma_rand(<span class="keywordtype">double</span> shp, <span class="keywordtype">double</span> scl) {</div>
+<div class="line"><a id="l00573" name="l00573"></a><span class="lineno">  573</span>  <span class="keywordflow">return</span> Rf_rgamma(shp, scl); <span class="comment">// 2nd: scale</span></div>
 <div class="line"><a id="l00574" name="l00574"></a><span class="lineno">  574</span>}</div>
-<div class="line"><a id="l00575" name="l00575"></a><span class="lineno">  575</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l00576" name="l00576"></a><span class="lineno">  576</span> </div>
-<div class="line"><a id="l00577" name="l00577"></a><span class="lineno">  577</span><span class="keyword">inline</span> <span class="keywordtype">double</span> normal_rand(<a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
-<div class="line"><a id="l00578" name="l00578"></a><span class="lineno">  578</span>  boost::random::normal_distribution&lt;&gt; rdist(0.0, 1.0);</div>
-<div class="line"><a id="l00579" name="l00579"></a><span class="lineno">  579</span>  <span class="keywordflow">return</span> rdist(rng);</div>
-<div class="line"><a id="l00580" name="l00580"></a><span class="lineno">  580</span>}</div>
-<div class="line"><a id="l00581" name="l00581"></a><span class="lineno">  581</span> </div>
-<div class="line"><a id="l00582" name="l00582"></a><span class="lineno">  582</span><span class="keyword">inline</span> <span class="keywordtype">double</span> chisq_rand(<span class="keywordtype">double</span> df, <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
-<div class="line"><a id="l00583" name="l00583"></a><span class="lineno">  583</span>  boost::random::chi_squared_distribution&lt;&gt; rdist(df);</div>
-<div class="line"><a id="l00584" name="l00584"></a><span class="lineno">  584</span>  <span class="keywordflow">return</span> rdist(rng);</div>
-<div class="line"><a id="l00585" name="l00585"></a><span class="lineno">  585</span>}</div>
-<div class="line"><a id="l00586" name="l00586"></a><span class="lineno">  586</span> </div>
-<div class="line"><a id="l00587" name="l00587"></a><span class="lineno">  587</span><span class="keyword">inline</span> <span class="keywordtype">double</span> gamma_rand(<span class="keywordtype">double</span> shp, <span class="keywordtype">double</span> scl, <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
-<div class="line"><a id="l00588" name="l00588"></a><span class="lineno">  588</span>  <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6">cut_param</a>(scl);</div>
-<div class="line"><a id="l00589" name="l00589"></a><span class="lineno">  589</span>  boost::random::gamma_distribution&lt;&gt; rdist(shp, scl); <span class="comment">// 2nd: scale</span></div>
-<div class="line"><a id="l00590" name="l00590"></a><span class="lineno">  590</span>  <span class="keywordflow">return</span> rdist(rng);</div>
-<div class="line"><a id="l00591" name="l00591"></a><span class="lineno">  591</span>}</div>
-<div class="line"><a id="l00592" name="l00592"></a><span class="lineno">  592</span> </div>
-<div class="line"><a id="l00593" name="l00593"></a><span class="lineno">  593</span><span class="keyword">inline</span> <span class="keywordtype">double</span> ber_rand(<span class="keywordtype">double</span> prob, <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
-<div class="line"><a id="l00594" name="l00594"></a><span class="lineno">  594</span>  boost::random::bernoulli_distribution&lt;&gt; rdist(prob); <span class="comment">// Bernoulli supported -&gt; use this instead of binomial</span></div>
-<div class="line"><a id="l00595" name="l00595"></a><span class="lineno">  595</span>  <span class="keywordflow">return</span> rdist(rng) * 1.0; <span class="comment">// change to int later: now just use double to match Rf_rbinom</span></div>
-<div class="line"><a id="l00596" name="l00596"></a><span class="lineno">  596</span>}</div>
-<div class="line"><a id="l00597" name="l00597"></a><span class="lineno">  597</span> </div>
-<div class="line"><a id="l00598" name="l00598"></a><span class="lineno">  598</span><span class="keyword">inline</span> <span class="keywordtype">double</span> unif_rand(<span class="keywordtype">double</span> min, <span class="keywordtype">double</span> max, <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
-<div class="line"><a id="l00599" name="l00599"></a><span class="lineno">  599</span>  boost::random::uniform_real_distribution&lt;&gt; rdist(min, max);</div>
-<div class="line"><a id="l00600" name="l00600"></a><span class="lineno">  600</span>  <span class="keywordflow">return</span> rdist(rng);</div>
-<div class="line"><a id="l00601" name="l00601"></a><span class="lineno">  601</span>}</div>
-<div class="line"><a id="l00602" name="l00602"></a><span class="lineno">  602</span> </div>
-<div class="line"><a id="l00603" name="l00603"></a><span class="lineno">  603</span><span class="keyword">inline</span> <span class="keywordtype">double</span> unif_rand(<a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
-<div class="line"><a id="l00604" name="l00604"></a><span class="lineno">  604</span>  boost::random::uniform_01&lt;&gt; rdist;</div>
-<div class="line"><a id="l00605" name="l00605"></a><span class="lineno">  605</span>  <span class="keywordflow">return</span> rdist(rng);</div>
-<div class="line"><a id="l00606" name="l00606"></a><span class="lineno">  606</span>}</div>
-<div class="line"><a id="l00607" name="l00607"></a><span class="lineno">  607</span> </div>
-<div class="line"><a id="l00608" name="l00608"></a><span class="lineno">  608</span><span class="keyword">inline</span> <span class="keywordtype">double</span> beta_rand(<span class="keywordtype">double</span> s1, <span class="keywordtype">double</span> s2, <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
-<div class="line"><a id="l00609" name="l00609"></a><span class="lineno">  609</span>  boost::random::beta_distribution&lt;&gt; rdist(s1, s2);</div>
-<div class="line"><a id="l00610" name="l00610"></a><span class="lineno">  610</span>  <span class="keywordflow">return</span> rdist(rng);</div>
-<div class="line"><a id="l00611" name="l00611"></a><span class="lineno">  611</span>}</div>
-<div class="line"><a id="l00612" name="l00612"></a><span class="lineno">  612</span> </div>
-<div class="line"><a id="l00613" name="l00613"></a><span class="lineno">  613</span><span class="keyword">inline</span> <span class="keywordtype">int</span> cat_rand(<span class="keyword">const</span> Eigen::VectorXd&amp; probabilities, <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
-<div class="line"><a id="l00614" name="l00614"></a><span class="lineno">  614</span>  boost::random::discrete_distribution&lt;&gt; rdist(probabilities.data(), probabilities.data() + probabilities.size());</div>
-<div class="line"><a id="l00615" name="l00615"></a><span class="lineno">  615</span>  <span class="keywordflow">return</span> rdist(rng);</div>
-<div class="line"><a id="l00616" name="l00616"></a><span class="lineno">  616</span>}</div>
-<div class="line"><a id="l00617" name="l00617"></a><span class="lineno">  617</span> </div>
-<div class="line"><a id="l00618" name="l00618"></a><span class="lineno">  618</span><span class="keyword">inline</span> <span class="keywordtype">double</span> quantile_lower(<span class="keyword">const</span> Eigen::Ref&lt;Eigen::VectorXd&gt;&amp; x, <span class="keywordtype">double</span> prob) {</div>
-<div class="line"><a id="l00619" name="l00619"></a><span class="lineno">  619</span>  boost::accumulators::accumulator_set&lt;double, boost::accumulators::stats&lt;boost::accumulators::tag::tail_quantile&lt;boost::accumulators::left&gt;&gt;&gt; acc(</div>
-<div class="line"><a id="l00620" name="l00620"></a><span class="lineno">  620</span>    boost::accumulators::tag::tail&lt;boost::accumulators::left&gt;::cache_size = x.size()</div>
-<div class="line"><a id="l00621" name="l00621"></a><span class="lineno">  621</span>  );</div>
-<div class="line"><a id="l00622" name="l00622"></a><span class="lineno">  622</span>  <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;val : x) {</div>
-<div class="line"><a id="l00623" name="l00623"></a><span class="lineno">  623</span>    acc(val);</div>
-<div class="line"><a id="l00624" name="l00624"></a><span class="lineno">  624</span>  }</div>
-<div class="line"><a id="l00625" name="l00625"></a><span class="lineno">  625</span>  <span class="keywordflow">return</span> boost::accumulators::tail_quantile(acc, boost::accumulators::quantile_probability = prob);</div>
-<div class="line"><a id="l00626" name="l00626"></a><span class="lineno">  626</span>}</div>
-<div class="line"><a id="l00627" name="l00627"></a><span class="lineno">  627</span> </div>
-<div class="line"><a id="l00628" name="l00628"></a><span class="lineno">  628</span><span class="keyword">inline</span> <span class="keywordtype">double</span> quantile_upper(<span class="keyword">const</span> Eigen::Ref&lt;Eigen::VectorXd&gt;&amp; x, <span class="keywordtype">double</span> prob) {</div>
-<div class="line"><a id="l00629" name="l00629"></a><span class="lineno">  629</span>  boost::accumulators::accumulator_set&lt;double, boost::accumulators::stats&lt;boost::accumulators::tag::tail_quantile&lt;boost::accumulators::right&gt;&gt;&gt; acc(</div>
-<div class="line"><a id="l00630" name="l00630"></a><span class="lineno">  630</span>    boost::accumulators::tag::tail&lt;boost::accumulators::right&gt;::cache_size = x.size()</div>
-<div class="line"><a id="l00631" name="l00631"></a><span class="lineno">  631</span>  );</div>
-<div class="line"><a id="l00632" name="l00632"></a><span class="lineno">  632</span>  <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;val : x) {</div>
-<div class="line"><a id="l00633" name="l00633"></a><span class="lineno">  633</span>    acc(val);</div>
-<div class="line"><a id="l00634" name="l00634"></a><span class="lineno">  634</span>  }</div>
-<div class="line"><a id="l00635" name="l00635"></a><span class="lineno">  635</span>  <span class="keywordflow">return</span> boost::accumulators::tail_quantile(acc, boost::accumulators::quantile_probability = prob);</div>
-<div class="line"><a id="l00636" name="l00636"></a><span class="lineno">  636</span>}</div>
-<div class="line"><a id="l00637" name="l00637"></a><span class="lineno">  637</span> </div>
-<div class="line"><a id="l00638" name="l00638"></a><span class="lineno">  638</span>} <span class="comment">// namespace bvhar</span></div>
-<div class="line"><a id="l00639" name="l00639"></a><span class="lineno">  639</span>} <span class="comment">// namespace baecon</span></div>
-<div class="line"><a id="l00640" name="l00640"></a><span class="lineno">  640</span> </div>
-<div class="line"><a id="l00641" name="l00641"></a><span class="lineno">  641</span><span class="preprocessor">#endif </span><span class="comment">// BVHAR_CORE_COMMON_H</span></div>
+<div class="line"><a id="l00575" name="l00575"></a><span class="lineno">  575</span> </div>
+<div class="line"><a id="l00576" name="l00576"></a><span class="lineno">  576</span><span class="keyword">inline</span> <span class="keywordtype">double</span> unif_rand(<span class="keywordtype">double</span> min, <span class="keywordtype">double</span> max) {</div>
+<div class="line"><a id="l00577" name="l00577"></a><span class="lineno">  577</span>  <span class="keywordflow">return</span> Rf_runif(min, max);</div>
+<div class="line"><a id="l00578" name="l00578"></a><span class="lineno">  578</span>}</div>
+<div class="line"><a id="l00579" name="l00579"></a><span class="lineno">  579</span> </div>
+<div class="line"><a id="l00580" name="l00580"></a><span class="lineno">  580</span><span class="keyword">inline</span> <span class="keywordtype">double</span> beta_rand(<span class="keywordtype">double</span> s1, <span class="keywordtype">double</span> s2) {</div>
+<div class="line"><a id="l00581" name="l00581"></a><span class="lineno">  581</span>  <span class="keywordflow">return</span> Rf_rbeta(s1, s2);</div>
+<div class="line"><a id="l00582" name="l00582"></a><span class="lineno">  582</span>}</div>
+<div class="line"><a id="l00583" name="l00583"></a><span class="lineno">  583</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00584" name="l00584"></a><span class="lineno">  584</span> </div>
+<div class="line"><a id="l00585" name="l00585"></a><span class="lineno">  585</span><span class="keyword">inline</span> <span class="keywordtype">double</span> normal_rand(<a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
+<div class="line"><a id="l00586" name="l00586"></a><span class="lineno">  586</span>  boost::random::normal_distribution&lt;&gt; rdist(0.0, 1.0);</div>
+<div class="line"><a id="l00587" name="l00587"></a><span class="lineno">  587</span>  <span class="keywordflow">return</span> rdist(rng);</div>
+<div class="line"><a id="l00588" name="l00588"></a><span class="lineno">  588</span>}</div>
+<div class="line"><a id="l00589" name="l00589"></a><span class="lineno">  589</span> </div>
+<div class="line"><a id="l00590" name="l00590"></a><span class="lineno">  590</span><span class="keyword">inline</span> <span class="keywordtype">double</span> chisq_rand(<span class="keywordtype">double</span> df, <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
+<div class="line"><a id="l00591" name="l00591"></a><span class="lineno">  591</span>  boost::random::chi_squared_distribution&lt;&gt; rdist(df);</div>
+<div class="line"><a id="l00592" name="l00592"></a><span class="lineno">  592</span>  <span class="keywordflow">return</span> rdist(rng);</div>
+<div class="line"><a id="l00593" name="l00593"></a><span class="lineno">  593</span>}</div>
+<div class="line"><a id="l00594" name="l00594"></a><span class="lineno">  594</span> </div>
+<div class="line"><a id="l00595" name="l00595"></a><span class="lineno">  595</span><span class="keyword">inline</span> <span class="keywordtype">double</span> gamma_rand(<span class="keywordtype">double</span> shp, <span class="keywordtype">double</span> scl, <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
+<div class="line"><a id="l00596" name="l00596"></a><span class="lineno">  596</span>  cut_positive_param(shp);</div>
+<div class="line"><a id="l00597" name="l00597"></a><span class="lineno">  597</span>  cut_positive_param(scl);</div>
+<div class="line"><a id="l00598" name="l00598"></a><span class="lineno">  598</span>  boost::random::gamma_distribution&lt;&gt; rdist(shp, scl); <span class="comment">// 2nd: scale</span></div>
+<div class="line"><a id="l00599" name="l00599"></a><span class="lineno">  599</span>  <span class="keywordflow">return</span> rdist(rng);</div>
+<div class="line"><a id="l00600" name="l00600"></a><span class="lineno">  600</span>}</div>
+<div class="line"><a id="l00601" name="l00601"></a><span class="lineno">  601</span> </div>
+<div class="line"><a id="l00602" name="l00602"></a><span class="lineno">  602</span><span class="keyword">inline</span> <span class="keywordtype">double</span> ber_rand(<span class="keywordtype">double</span> prob, <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
+<div class="line"><a id="l00603" name="l00603"></a><span class="lineno">  603</span>  boost::random::bernoulli_distribution&lt;&gt; rdist(prob); <span class="comment">// Bernoulli supported -&gt; use this instead of binomial</span></div>
+<div class="line"><a id="l00604" name="l00604"></a><span class="lineno">  604</span>  <span class="keywordflow">return</span> rdist(rng) * 1.0; <span class="comment">// change to int later: now just use double to match Rf_rbinom</span></div>
+<div class="line"><a id="l00605" name="l00605"></a><span class="lineno">  605</span>}</div>
+<div class="line"><a id="l00606" name="l00606"></a><span class="lineno">  606</span> </div>
+<div class="line"><a id="l00607" name="l00607"></a><span class="lineno">  607</span><span class="keyword">inline</span> <span class="keywordtype">double</span> unif_rand(<span class="keywordtype">double</span> min, <span class="keywordtype">double</span> max, <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
+<div class="line"><a id="l00608" name="l00608"></a><span class="lineno">  608</span>  boost::random::uniform_real_distribution&lt;&gt; rdist(min, max);</div>
+<div class="line"><a id="l00609" name="l00609"></a><span class="lineno">  609</span>  <span class="keywordflow">return</span> rdist(rng);</div>
+<div class="line"><a id="l00610" name="l00610"></a><span class="lineno">  610</span>}</div>
+<div class="line"><a id="l00611" name="l00611"></a><span class="lineno">  611</span> </div>
+<div class="line"><a id="l00612" name="l00612"></a><span class="lineno">  612</span><span class="keyword">inline</span> <span class="keywordtype">double</span> unif_rand(<a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
+<div class="line"><a id="l00613" name="l00613"></a><span class="lineno">  613</span>  boost::random::uniform_01&lt;&gt; rdist;</div>
+<div class="line"><a id="l00614" name="l00614"></a><span class="lineno">  614</span>  <span class="keywordflow">return</span> rdist(rng);</div>
+<div class="line"><a id="l00615" name="l00615"></a><span class="lineno">  615</span>}</div>
+<div class="line"><a id="l00616" name="l00616"></a><span class="lineno">  616</span> </div>
+<div class="line"><a id="l00617" name="l00617"></a><span class="lineno">  617</span><span class="keyword">inline</span> <span class="keywordtype">double</span> beta_rand(<span class="keywordtype">double</span> s1, <span class="keywordtype">double</span> s2, <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
+<div class="line"><a id="l00618" name="l00618"></a><span class="lineno">  618</span>  boost::random::beta_distribution&lt;&gt; rdist(s1, s2);</div>
+<div class="line"><a id="l00619" name="l00619"></a><span class="lineno">  619</span>  <span class="keywordflow">return</span> rdist(rng);</div>
+<div class="line"><a id="l00620" name="l00620"></a><span class="lineno">  620</span>}</div>
+<div class="line"><a id="l00621" name="l00621"></a><span class="lineno">  621</span> </div>
+<div class="line"><a id="l00622" name="l00622"></a><span class="lineno">  622</span><span class="keyword">inline</span> <span class="keywordtype">int</span> cat_rand(<span class="keyword">const</span> Eigen::VectorXd&amp; probabilities, <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
+<div class="line"><a id="l00623" name="l00623"></a><span class="lineno">  623</span>  boost::random::discrete_distribution&lt;&gt; rdist(probabilities.data(), probabilities.data() + probabilities.size());</div>
+<div class="line"><a id="l00624" name="l00624"></a><span class="lineno">  624</span>  <span class="keywordflow">return</span> rdist(rng);</div>
+<div class="line"><a id="l00625" name="l00625"></a><span class="lineno">  625</span>}</div>
+<div class="line"><a id="l00626" name="l00626"></a><span class="lineno">  626</span> </div>
+<div class="line"><a id="l00627" name="l00627"></a><span class="lineno">  627</span><span class="keyword">inline</span> <span class="keywordtype">double</span> quantile_lower(<span class="keyword">const</span> Eigen::Ref&lt;Eigen::VectorXd&gt;&amp; x, <span class="keywordtype">double</span> prob) {</div>
+<div class="line"><a id="l00628" name="l00628"></a><span class="lineno">  628</span>  boost::accumulators::accumulator_set&lt;double, boost::accumulators::stats&lt;boost::accumulators::tag::tail_quantile&lt;boost::accumulators::left&gt;&gt;&gt; acc(</div>
+<div class="line"><a id="l00629" name="l00629"></a><span class="lineno">  629</span>    boost::accumulators::tag::tail&lt;boost::accumulators::left&gt;::cache_size = x.size()</div>
+<div class="line"><a id="l00630" name="l00630"></a><span class="lineno">  630</span>  );</div>
+<div class="line"><a id="l00631" name="l00631"></a><span class="lineno">  631</span>  <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;val : x) {</div>
+<div class="line"><a id="l00632" name="l00632"></a><span class="lineno">  632</span>    acc(val);</div>
+<div class="line"><a id="l00633" name="l00633"></a><span class="lineno">  633</span>  }</div>
+<div class="line"><a id="l00634" name="l00634"></a><span class="lineno">  634</span>  <span class="keywordflow">return</span> boost::accumulators::tail_quantile(acc, boost::accumulators::quantile_probability = prob);</div>
+<div class="line"><a id="l00635" name="l00635"></a><span class="lineno">  635</span>}</div>
+<div class="line"><a id="l00636" name="l00636"></a><span class="lineno">  636</span> </div>
+<div class="line"><a id="l00637" name="l00637"></a><span class="lineno">  637</span><span class="keyword">inline</span> <span class="keywordtype">double</span> quantile_upper(<span class="keyword">const</span> Eigen::Ref&lt;Eigen::VectorXd&gt;&amp; x, <span class="keywordtype">double</span> prob) {</div>
+<div class="line"><a id="l00638" name="l00638"></a><span class="lineno">  638</span>  boost::accumulators::accumulator_set&lt;double, boost::accumulators::stats&lt;boost::accumulators::tag::tail_quantile&lt;boost::accumulators::right&gt;&gt;&gt; acc(</div>
+<div class="line"><a id="l00639" name="l00639"></a><span class="lineno">  639</span>    boost::accumulators::tag::tail&lt;boost::accumulators::right&gt;::cache_size = x.size()</div>
+<div class="line"><a id="l00640" name="l00640"></a><span class="lineno">  640</span>  );</div>
+<div class="line"><a id="l00641" name="l00641"></a><span class="lineno">  641</span>  <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;val : x) {</div>
+<div class="line"><a id="l00642" name="l00642"></a><span class="lineno">  642</span>    acc(val);</div>
+<div class="line"><a id="l00643" name="l00643"></a><span class="lineno">  643</span>  }</div>
+<div class="line"><a id="l00644" name="l00644"></a><span class="lineno">  644</span>  <span class="keywordflow">return</span> boost::accumulators::tail_quantile(acc, boost::accumulators::quantile_probability = prob);</div>
+<div class="line"><a id="l00645" name="l00645"></a><span class="lineno">  645</span>}</div>
+<div class="line"><a id="l00646" name="l00646"></a><span class="lineno">  646</span> </div>
+<div class="line"><a id="l00647" name="l00647"></a><span class="lineno">  647</span>} <span class="comment">// namespace bvhar</span></div>
+<div class="line"><a id="l00648" name="l00648"></a><span class="lineno">  648</span>} <span class="comment">// namespace baecon</span></div>
+<div class="line"><a id="l00649" name="l00649"></a><span class="lineno">  649</span> </div>
+<div class="line"><a id="l00650" name="l00650"></a><span class="lineno">  650</span><span class="preprocessor">#if !defined(BVHAR_USE_RCPP) &amp;&amp; !defined(BVHAR_USE_PYBIND11)</span></div>
+<div class="line"><a id="l00651" name="l00651"></a><span class="lineno">  651</span> </div>
+<div class="foldopen" id="foldopen00652" data-start="{" data-end="}">
+<div class="line"><a id="l00652" name="l00652"></a><span class="lineno"><a class="line" href="common_8h.html#a785845cf32dceb77de45ad3996d2785e">  652</a></span><span class="keyword">inline</span> <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::ostream</a>&amp; <a class="code hl_function" href="common_8h.html#a785845cf32dceb77de45ad3996d2785e">operator&lt;&lt;</a>(<a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::ostream</a>&amp; os, <span class="keyword">const</span> <a class="code hl_define" href="commondefs_8h.html#ac66f23a4818bd454ba9e7847a2bdb2cb">BVHAR_LIST</a>&amp; dict) {</div>
+<div class="line"><a id="l00653" name="l00653"></a><span class="lineno">  653</span>  os &lt;&lt; <span class="stringliteral">&quot;List of &quot;</span> &lt;&lt; dict.size() &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;</div>
+<div class="line"><a id="l00654" name="l00654"></a><span class="lineno">  654</span>  <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span>&amp; elem : dict) {</div>
+<div class="line"><a id="l00655" name="l00655"></a><span class="lineno">  655</span>    os &lt;&lt; <span class="stringliteral">&quot; $ &quot;</span> &lt;&lt; elem.first &lt;&lt; <span class="stringliteral">&quot;: &quot;</span>;</div>
+<div class="line"><a id="l00656" name="l00656"></a><span class="lineno">  656</span>    <span class="keyword">const</span> <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::any</a>&amp; val = elem.second;</div>
+<div class="line"><a id="l00657" name="l00657"></a><span class="lineno">  657</span>    <span class="keywordflow">if</span> (!val.has_value()) {</div>
+<div class="line"><a id="l00658" name="l00658"></a><span class="lineno">  658</span>      os &lt;&lt; <span class="stringliteral">&quot;NULL&quot;</span>;</div>
+<div class="line"><a id="l00659" name="l00659"></a><span class="lineno">  659</span>    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (val.type() == <span class="keyword">typeid</span>(int)) {</div>
+<div class="line"><a id="l00660" name="l00660"></a><span class="lineno">  660</span>      os &lt;&lt; std::any_cast&lt;int&gt;(val);</div>
+<div class="line"><a id="l00661" name="l00661"></a><span class="lineno">  661</span>    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (val.type() == <span class="keyword">typeid</span>(<span class="keywordtype">double</span>)) {</div>
+<div class="line"><a id="l00662" name="l00662"></a><span class="lineno">  662</span>      os &lt;&lt; std::any_cast&lt;double&gt;(val);</div>
+<div class="line"><a id="l00663" name="l00663"></a><span class="lineno">  663</span>    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (val.type() == <span class="keyword">typeid</span>(<span class="keywordtype">bool</span>)) {</div>
+<div class="line"><a id="l00664" name="l00664"></a><span class="lineno">  664</span>      os &lt;&lt; (std::any_cast&lt;bool&gt;(val) ? <span class="stringliteral">&quot;TRUE&quot;</span> : <span class="stringliteral">&quot;FALSE&quot;</span>);</div>
+<div class="line"><a id="l00665" name="l00665"></a><span class="lineno">  665</span>    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (val.type() == <span class="keyword">typeid</span>(<a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::string</a>)) {</div>
+<div class="line"><a id="l00666" name="l00666"></a><span class="lineno">  666</span>      os &lt;&lt; <span class="stringliteral">&quot;\&quot;&quot;</span> &lt;&lt; <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::any_cast&lt;std::string&gt;</a>(val) &lt;&lt; <span class="stringliteral">&quot;\&quot;&quot;</span>;</div>
+<div class="line"><a id="l00667" name="l00667"></a><span class="lineno">  667</span>    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (val.type() == <span class="keyword">typeid</span>(Eigen::MatrixXd)) {</div>
+<div class="line"><a id="l00668" name="l00668"></a><span class="lineno">  668</span>      <span class="keyword">auto</span> mat = <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::any_cast&lt;Eigen::MatrixXd&gt;</a>(val);</div>
+<div class="line"><a id="l00669" name="l00669"></a><span class="lineno">  669</span>      os &lt;&lt; <span class="stringliteral">&quot;Eigen::MatrixXd(&quot;</span> &lt;&lt; mat.rows() &lt;&lt; <span class="stringliteral">&quot;, &quot;</span> &lt;&lt; mat.cols() &lt;&lt; <span class="stringliteral">&quot;)&quot;</span>;</div>
+<div class="line"><a id="l00670" name="l00670"></a><span class="lineno">  670</span>    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (val.type() == <span class="keyword">typeid</span>(Eigen::VectorXd)) {</div>
+<div class="line"><a id="l00671" name="l00671"></a><span class="lineno">  671</span>      <span class="keyword">auto</span> vec = <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::any_cast&lt;Eigen::VectorXd&gt;</a>(val);</div>
+<div class="line"><a id="l00672" name="l00672"></a><span class="lineno">  672</span>      os &lt;&lt; <span class="stringliteral">&quot;Eigen::VectorXd(&quot;</span> &lt;&lt; vec.size() &lt;&lt; <span class="stringliteral">&quot;)&quot;</span>;</div>
+<div class="line"><a id="l00673" name="l00673"></a><span class="lineno">  673</span>    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (val.type() == <span class="keyword">typeid</span>(Eigen::MatrixXi)) {</div>
+<div class="line"><a id="l00674" name="l00674"></a><span class="lineno">  674</span>      <span class="keyword">auto</span> mat = <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::any_cast&lt;Eigen::MatrixXi&gt;</a>(val);</div>
+<div class="line"><a id="l00675" name="l00675"></a><span class="lineno">  675</span>      os &lt;&lt; <span class="stringliteral">&quot;Eigen::MatrixXi(&quot;</span> &lt;&lt; mat.rows() &lt;&lt; <span class="stringliteral">&quot;, &quot;</span> &lt;&lt; mat.cols() &lt;&lt; <span class="stringliteral">&quot;)&quot;</span>;</div>
+<div class="line"><a id="l00676" name="l00676"></a><span class="lineno">  676</span>    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (val.type() == <span class="keyword">typeid</span>(Eigen::VectorXi)) {</div>
+<div class="line"><a id="l00677" name="l00677"></a><span class="lineno">  677</span>      <span class="keyword">auto</span> vec = <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::any_cast&lt;Eigen::VectorXi&gt;</a>(val);</div>
+<div class="line"><a id="l00678" name="l00678"></a><span class="lineno">  678</span>      os &lt;&lt; <span class="stringliteral">&quot;Eigen::VectorXi(&quot;</span> &lt;&lt; vec.size() &lt;&lt; <span class="stringliteral">&quot;)&quot;</span>;</div>
+<div class="line"><a id="l00679" name="l00679"></a><span class="lineno">  679</span>    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (val.type() == <span class="keyword">typeid</span>(baecon::bvhar::VectorXb)) {</div>
+<div class="line"><a id="l00680" name="l00680"></a><span class="lineno">  680</span>      <span class="keyword">auto</span> vec = <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::any_cast&lt;baecon::bvhar::VectorXb&gt;</a>(val);</div>
+<div class="line"><a id="l00681" name="l00681"></a><span class="lineno">  681</span>      os &lt;&lt; <span class="stringliteral">&quot;Eigen::Matrix&lt;bool, Eigen::Dynamic, 1&gt;(&quot;</span> &lt;&lt; vec.size() &lt;&lt; <span class="stringliteral">&quot;)&quot;</span>;</div>
+<div class="line"><a id="l00682" name="l00682"></a><span class="lineno">  682</span>    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (val.type() == <span class="keyword">typeid</span>(<a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector&lt;std::any&gt;</a>)) {</div>
+<div class="line"><a id="l00683" name="l00683"></a><span class="lineno">  683</span>      os &lt;&lt; <span class="stringliteral">&quot;BVHAR_PY_LIST &quot;</span> &lt;&lt; <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::any_cast&lt;std::vector&lt;std::any&gt;</a>&gt;(val).size();</div>
+<div class="line"><a id="l00684" name="l00684"></a><span class="lineno">  684</span>    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (val.type() == <span class="keyword">typeid</span>(<a class="code hl_typedef" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a>)) {</div>
+<div class="line"><a id="l00685" name="l00685"></a><span class="lineno">  685</span>      os &lt;&lt; <span class="stringliteral">&quot;BVHAR_LIST &quot;</span> &lt;&lt; <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::any_cast&lt;BvharList&gt;</a>(val).size();</div>
+<div class="line"><a id="l00686" name="l00686"></a><span class="lineno">  686</span>    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (val.type() == <span class="keyword">typeid</span>(<a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector&lt;BvharList&gt;</a>)) {</div>
+<div class="line"><a id="l00687" name="l00687"></a><span class="lineno">  687</span>      os &lt;&lt; <span class="stringliteral">&quot;BVHAR_LIST_OF_LIST &quot;</span> &lt;&lt; <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::any_cast&lt;std::vector&lt;BvharList&gt;</a>&gt;(val).size();</div>
+<div class="line"><a id="l00688" name="l00688"></a><span class="lineno">  688</span>    } <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l00689" name="l00689"></a><span class="lineno">  689</span>      os &lt;&lt; <span class="stringliteral">&quot;Unknown C++ Type &quot;</span> &lt;&lt; val.type().name();</div>
+<div class="line"><a id="l00690" name="l00690"></a><span class="lineno">  690</span>    }</div>
+<div class="line"><a id="l00691" name="l00691"></a><span class="lineno">  691</span>    os &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;</div>
+<div class="line"><a id="l00692" name="l00692"></a><span class="lineno">  692</span>  }</div>
+<div class="line"><a id="l00693" name="l00693"></a><span class="lineno">  693</span>  <span class="keywordflow">return</span> os;</div>
+<div class="line"><a id="l00694" name="l00694"></a><span class="lineno">  694</span>}</div>
+</div>
+<div class="line"><a id="l00695" name="l00695"></a><span class="lineno">  695</span> </div>
+<div class="foldopen" id="foldopen00696" data-start="{" data-end="}">
+<div class="line"><a id="l00696" name="l00696"></a><span class="lineno"><a class="line" href="common_8h.html#ae87bbdb2a909754e30d409843f1da509">  696</a></span><span class="keyword">inline</span> <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::ostream</a>&amp; <a class="code hl_function" href="common_8h.html#a785845cf32dceb77de45ad3996d2785e">operator&lt;&lt;</a>(<a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::ostream</a>&amp; os, <span class="keyword">const</span> <a class="code hl_define" href="commondefs_8h.html#a293837e81aa14759d76f6223b447290b">BVHAR_LIST_OF_LIST</a>&amp; dict_vec) {</div>
+<div class="line"><a id="l00697" name="l00697"></a><span class="lineno">  697</span>  os &lt;&lt; <span class="stringliteral">&quot;List of &quot;</span> &lt;&lt; dict_vec.size() &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;</div>
+<div class="line"><a id="l00698" name="l00698"></a><span class="lineno">  698</span>  <span class="keywordtype">int</span> len = dict_vec.size();</div>
+<div class="line"><a id="l00699" name="l00699"></a><span class="lineno">  699</span>  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; len; ++i) {</div>
+<div class="line"><a id="l00700" name="l00700"></a><span class="lineno">  700</span>    os &lt;&lt; <span class="stringliteral">&quot;[&quot;</span> &lt;&lt; i &lt;&lt; <span class="stringliteral">&quot;] &quot;</span> &lt;&lt; dict_vec[i] &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;</div>
+<div class="line"><a id="l00701" name="l00701"></a><span class="lineno">  701</span>  }</div>
+<div class="line"><a id="l00702" name="l00702"></a><span class="lineno">  702</span>  <span class="keywordflow">return</span> os;</div>
+<div class="line"><a id="l00703" name="l00703"></a><span class="lineno">  703</span>}</div>
+</div>
+<div class="line"><a id="l00704" name="l00704"></a><span class="lineno">  704</span> </div>
+<div class="line"><a id="l00705" name="l00705"></a><span class="lineno">  705</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespacebaecon.html">baecon</a> {</div>
+<div class="line"><a id="l00706" name="l00706"></a><span class="lineno">  706</span><span class="keyword">namespace </span>bvhar {</div>
+<div class="line"><a id="l00707" name="l00707"></a><span class="lineno">  707</span> </div>
+<div class="line"><a id="l00708" name="l00708"></a><span class="lineno">  708</span><span class="comment">// BVHAR_LIST_OF_LIST into BVHAR_LIST of BVHAR_PY_LIST</span></div>
+<div class="line"><a id="l00709" name="l00709"></a><span class="lineno">  709</span><span class="comment">// Will be used when changing MCMC records format into forecaster input</span></div>
+<div class="line"><a id="l00710" name="l00710"></a><span class="lineno">  710</span><span class="keyword">inline</span> <a class="code hl_define" href="commondefs_8h.html#ac66f23a4818bd454ba9e7847a2bdb2cb">BVHAR_LIST</a> transpose_dict(<a class="code hl_define" href="commondefs_8h.html#a293837e81aa14759d76f6223b447290b">BVHAR_LIST_OF_LIST</a>&amp; dict_vec) {</div>
+<div class="line"><a id="l00711" name="l00711"></a><span class="lineno">  711</span>  <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::map&lt;std::string, std::vector&lt;std::any&gt;</a>&gt; py_list;</div>
+<div class="line"><a id="l00712" name="l00712"></a><span class="lineno">  712</span>  <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span>&amp; row : dict_vec) {</div>
+<div class="line"><a id="l00713" name="l00713"></a><span class="lineno">  713</span>    <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span>&amp; [key, value] : row) {</div>
+<div class="line"><a id="l00714" name="l00714"></a><span class="lineno">  714</span>      py_list[key].push_back(value);</div>
+<div class="line"><a id="l00715" name="l00715"></a><span class="lineno">  715</span>    }</div>
+<div class="line"><a id="l00716" name="l00716"></a><span class="lineno">  716</span>  }</div>
+<div class="line"><a id="l00717" name="l00717"></a><span class="lineno">  717</span>  <a class="code hl_define" href="commondefs_8h.html#ac66f23a4818bd454ba9e7847a2bdb2cb">BVHAR_LIST</a> res;</div>
+<div class="line"><a id="l00718" name="l00718"></a><span class="lineno">  718</span>  <span class="keywordflow">for</span> (<span class="keyword">auto</span>&amp; [key, vec_of_any] : py_list) {</div>
+<div class="line"><a id="l00719" name="l00719"></a><span class="lineno">  719</span>    res[key] = <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::move</a>(vec_of_any);</div>
+<div class="line"><a id="l00720" name="l00720"></a><span class="lineno">  720</span>  }</div>
+<div class="line"><a id="l00721" name="l00721"></a><span class="lineno">  721</span>  <span class="keywordflow">return</span> res;</div>
+<div class="line"><a id="l00722" name="l00722"></a><span class="lineno">  722</span>}</div>
+<div class="line"><a id="l00723" name="l00723"></a><span class="lineno">  723</span> </div>
+<div class="line"><a id="l00724" name="l00724"></a><span class="lineno">  724</span>} <span class="comment">// namespace bvhar</span></div>
+<div class="line"><a id="l00725" name="l00725"></a><span class="lineno">  725</span>} <span class="comment">// namespace baecon</span></div>
+<div class="line"><a id="l00726" name="l00726"></a><span class="lineno">  726</span> </div>
+<div class="line"><a id="l00727" name="l00727"></a><span class="lineno">  727</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00728" name="l00728"></a><span class="lineno">  728</span> </div>
+<div class="line"><a id="l00729" name="l00729"></a><span class="lineno">  729</span><span class="preprocessor">#endif </span><span class="comment">// BVHAR_CORE_COMMON_H</span></div>
 <div class="ttc" id="aclassboost_1_1random_1_1generalized__inverse__gaussian__distribution_1_1param__type_html"><div class="ttname"><a href="classboost_1_1random_1_1generalized__inverse__gaussian__distribution_1_1param__type.html">boost::random::generalized_inverse_gaussian_distribution::param_type</a></div><div class="ttdef"><b>Definition</b> common.h:200</div></div>
 <div class="ttc" id="aclassboost_1_1random_1_1generalized__inverse__gaussian__distribution_1_1param__type_html_a67b0a8109066cf56bf77b87b2b6e3d4f"><div class="ttname"><a href="classboost_1_1random_1_1generalized__inverse__gaussian__distribution_1_1param__type.html#a67b0a8109066cf56bf77b87b2b6e3d4f">boost::random::generalized_inverse_gaussian_distribution::param_type::p</a></div><div class="ttdeci">RealType p() const</div><div class="ttdef"><b>Definition</b> common.h:215</div></div>
 <div class="ttc" id="aclassboost_1_1random_1_1generalized__inverse__gaussian__distribution_1_1param__type_html_a8c66019cddd9edd394a467a67661dca7"><div class="ttname"><a href="classboost_1_1random_1_1generalized__inverse__gaussian__distribution_1_1param__type.html#a8c66019cddd9edd394a467a67661dca7">boost::random::generalized_inverse_gaussian_distribution::param_type::a</a></div><div class="ttdeci">RealType a() const</div><div class="ttdef"><b>Definition</b> common.h:216</div></div>
@@ -796,16 +888,26 @@ $(document).ready(function(){initNavTree('common_8h_source.html',''); initResiza
 <div class="ttc" id="aclassboost_1_1random_1_1inverse__gaussian__distribution_html_af21e822cd7dac4ae12f5a8858ab0c294"><div class="ttname"><a href="classboost_1_1random_1_1inverse__gaussian__distribution.html#af21e822cd7dac4ae12f5a8858ab0c294">boost::random::inverse_gaussian_distribution::operator()</a></div><div class="ttdeci">RealType operator()(URNG &amp;urng, const param_type &amp;parm) const</div><div class="ttdef"><b>Definition</b> common.h:120</div></div>
 <div class="ttc" id="aclassboost_1_1random_1_1inverse__gaussian__distribution_html_af37a9347ab1a7ed27f858bbf1fb33624"><div class="ttname"><a href="classboost_1_1random_1_1inverse__gaussian__distribution.html#af37a9347ab1a7ed27f858bbf1fb33624">boost::random::inverse_gaussian_distribution::BOOST_RANDOM_DETAIL_OSTREAM_OPERATOR</a></div><div class="ttdeci">BOOST_RANDOM_DETAIL_OSTREAM_OPERATOR(os, inverse_gaussian_distribution, wd)</div><div class="ttdef"><b>Definition</b> common.h:139</div></div>
 <div class="ttc" id="acommon_8h_html_a6cf9f648a944e66c2478fa29468b7ac0"><div class="ttname"><a href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a></div><div class="ttdeci">#define BVHAR_BHRNG</div><div class="ttdef"><b>Definition</b> common.h:34</div></div>
+<div class="ttc" id="acommon_8h_html_a785845cf32dceb77de45ad3996d2785e"><div class="ttname"><a href="common_8h.html#a785845cf32dceb77de45ad3996d2785e">operator&lt;&lt;</a></div><div class="ttdeci">std::ostream &amp; operator&lt;&lt;(std::ostream &amp;os, const BvharList &amp;dict)</div><div class="ttdef"><b>Definition</b> common.h:652</div></div>
 <div class="ttc" id="acommon_8h_html_a86a80d5eec2ef849167f34308b38dea2"><div class="ttname"><a href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a></div><div class="ttdeci">boost::optional&lt; T &gt; BVHAR_OPTIONAL</div><div class="ttdef"><b>Definition</b> common.h:427</div></div>
-<div class="ttc" id="acommondefs_8h_html_abc2ee0187a6d5ca2c32fe4873f941159"><div class="ttname"><a href="commondefs_8h.html#abc2ee0187a6d5ca2c32fe4873f941159">BVHAR_STOP</a></div><div class="ttdeci">#define BVHAR_STOP(...)</div><div class="ttdef"><b>Definition</b> commondefs.h:19</div></div>
+<div class="ttc" id="acommoncpp_8h_html_a27ccf3148de56cc60fe2da5c280e0510"><div class="ttname"><a href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a></div><div class="ttdeci">std::map&lt; std::string, std::any &gt; BvharList</div><div class="ttdoc">Works like Rcpp's list.</div><div class="ttdef"><b>Definition</b> commoncpp.h:24</div></div>
+<div class="ttc" id="acommondefs_8h_html_a293837e81aa14759d76f6223b447290b"><div class="ttname"><a href="commondefs_8h.html#a293837e81aa14759d76f6223b447290b">BVHAR_LIST_OF_LIST</a></div><div class="ttdeci">#define BVHAR_LIST_OF_LIST</div><div class="ttdef"><b>Definition</b> commondefs.h:123</div></div>
+<div class="ttc" id="acommondefs_8h_html_a330f36e7dab4d2671359ce7f8e4f6b8a"><div class="ttname"><a href="commondefs_8h.html#a330f36e7dab4d2671359ce7f8e4f6b8a">Rf_lgammafn</a></div><div class="ttdeci">#define Rf_lgammafn(x)</div><div class="ttdef"><b>Definition</b> commondefs.h:159</div></div>
+<div class="ttc" id="acommondefs_8h_html_a80355d2cc0a255b1c7e7183a2076e500"><div class="ttname"><a href="commondefs_8h.html#a80355d2cc0a255b1c7e7183a2076e500">Rf_dgamma</a></div><div class="ttdeci">#define Rf_dgamma(x, shp, scl, lg)</div><div class="ttdef"><b>Definition</b> commondefs.h:160</div></div>
+<div class="ttc" id="acommondefs_8h_html_a86aa4061d061f75e13a9eadc4d7db3c7"><div class="ttname"><a href="commondefs_8h.html#a86aa4061d061f75e13a9eadc4d7db3c7">Rf_gammafn</a></div><div class="ttdeci">#define Rf_gammafn(x)</div><div class="ttdef"><b>Definition</b> commondefs.h:158</div></div>
+<div class="ttc" id="acommondefs_8h_html_a8e4a9517198518a9d4aff1bc419d6c6b"><div class="ttname"><a href="commondefs_8h.html#a8e4a9517198518a9d4aff1bc419d6c6b">BVHAR_DBL_MAX</a></div><div class="ttdeci">#define BVHAR_DBL_MAX</div><div class="ttdef"><b>Definition</b> commondefs.h:20</div></div>
+<div class="ttc" id="acommondefs_8h_html_abc2ee0187a6d5ca2c32fe4873f941159"><div class="ttname"><a href="commondefs_8h.html#abc2ee0187a6d5ca2c32fe4873f941159">BVHAR_STOP</a></div><div class="ttdeci">#define BVHAR_STOP(...)</div><div class="ttdef"><b>Definition</b> commondefs.h:138</div></div>
+<div class="ttc" id="acommondefs_8h_html_ac66f23a4818bd454ba9e7847a2bdb2cb"><div class="ttname"><a href="commondefs_8h.html#ac66f23a4818bd454ba9e7847a2bdb2cb">BVHAR_LIST</a></div><div class="ttdeci">#define BVHAR_LIST</div><div class="ttdef"><b>Definition</b> commondefs.h:122</div></div>
+<div class="ttc" id="acommondefs_8h_html_ad1a8dcfa01b68407083e32d0682994dd"><div class="ttname"><a href="commondefs_8h.html#ad1a8dcfa01b68407083e32d0682994dd">BVHAR_DBL_TOL</a></div><div class="ttdeci">#define BVHAR_DBL_TOL</div><div class="ttdef"><b>Definition</b> commondefs.h:19</div></div>
+<div class="ttc" id="acommondefs_8h_html_ae71449b1cc6e6250b91f539153a7a0d3"><div class="ttname"><a href="commondefs_8h.html#ae71449b1cc6e6250b91f539153a7a0d3">M_PI</a></div><div class="ttdeci">#define M_PI</div><div class="ttdef"><b>Definition</b> commondefs.h:154</div></div>
 <div class="ttc" id="aeigen_8h_html"><div class="ttname"><a href="eigen_8h.html">eigen.h</a></div></div>
 <div class="ttc" id="albfgspp_8h_html"><div class="ttname"><a href="lbfgspp_8h.html">lbfgspp.h</a></div></div>
-<div class="ttc" id="anamespacebaecon_1_1bvhar_html_ac9248c352d5f64ac9b9595197784a9e6"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6">baecon::bvhar::cut_param</a></div><div class="ttdeci">void cut_param(Eigen::Ref&lt; Eigen::VectorXd &gt; param)</div><div class="ttdef"><b>Definition</b> helper.h:37</div></div>
+<div class="ttc" id="anamespacebaecon_1_1bvhar_html_ac9248c352d5f64ac9b9595197784a9e6"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6">baecon::bvhar::cut_param</a></div><div class="ttdeci">void cut_param(Eigen::Ref&lt; Eigen::VectorXd &gt; param)</div><div class="ttdef"><b>Definition</b> helper.h:36</div></div>
 <div class="ttc" id="anamespacebaecon_html"><div class="ttname"><a href="namespacebaecon.html">baecon</a></div><div class="ttdef"><b>Definition</b> bayes.h:16</div></div>
 <div class="ttc" id="anamespaceboost_html"><div class="ttname"><a href="namespaceboost.html">boost</a></div><div class="ttdef"><b>Definition</b> common.h:8</div></div>
 <div class="ttc" id="anamespaceboost_html_a6ea615b0e29a9b35870fb8662f0e1291"><div class="ttname"><a href="namespaceboost.html#a6ea615b0e29a9b35870fb8662f0e1291">boost::assertion_failed</a></div><div class="ttdeci">void assertion_failed(char const *expr, char const *function, char const *file, long line)</div><div class="ttdef"><b>Definition</b> common.h:10</div></div>
 <div class="ttc" id="anamespaceboost_html_afbd4a259de77230355c3c2de9ce6d6c9"><div class="ttname"><a href="namespaceboost.html#afbd4a259de77230355c3c2de9ce6d6c9">boost::assertion_failed_msg</a></div><div class="ttdeci">void assertion_failed_msg(char const *expr, char const *msg, char const *function, char const *file, long line)</div><div class="ttdef"><b>Definition</b> common.h:14</div></div>
-<div class="ttc" id="anamespacestd_html_a03d5ca705e3360c607bf2586e9a9de3b"><div class="ttname"><a href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::make_unique</a></div><div class="ttdeci">unique_ptr&lt; T &gt; make_unique(Args &amp;&amp;... args)</div><div class="ttdef"><b>Definition</b> commondefs.h:123</div></div>
+<div class="ttc" id="anamespacestd_html_a03d5ca705e3360c607bf2586e9a9de3b"><div class="ttname"><a href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::make_unique</a></div><div class="ttdeci">unique_ptr&lt; T &gt; make_unique(Args &amp;&amp;... args)</div><div class="ttdef"><b>Definition</b> commondefs.h:170</div></div>
 <div class="ttc" id="aspdlog_8h_html"><div class="ttname"><a href="spdlog_8h.html">spdlog.h</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->

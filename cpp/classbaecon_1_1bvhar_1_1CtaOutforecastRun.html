@@ -26,7 +26,7 @@
  <tr id="projectrow">
   <td id="projectlogo"><img alt="Logo" src="apple-touch-icon.png"/></td>
   <td id="projectalign">
-   <div id="projectname">bvhar<span id="projectnumber">&#160;2.4.0</span>
+   <div id="projectname">bvhar<span id="projectnumber">&#160;2.4.1</span>
    </div>
    <div id="projectbrief">C++ headers by bvhar package</div>
   </td>
@@ -136,8 +136,8 @@ Collaboration diagram for baecon::bvhar::CtaOutforecastRun&lt; BaseForecaster, i
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a3134fa7ad656cfb66925a2ebcbe0eb1a" id="r_a3134fa7ad656cfb66925a2ebcbe0eb1a"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#a3134fa7ad656cfb66925a2ebcbe0eb1a">CtaOutforecastRun</a> (const Eigen::MatrixXd &amp;y, int <a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#a902bdade7e8a3963eb11840321a6921a">lag</a>, int <a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#a31276ef3d409e650af5639576b20c1eb">num_chains</a>, int <a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#a8d049d656f73d92ecd474ea3681e585c">num_iter</a>, int <a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#ae3e04ad074ddf91154a5bce98a0b3fb1">num_burn</a>, int <a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#ae19dd79b1f5f30bc5cd62deafe0aa2ae">thin</a>, bool <a class="el" href="classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#ad587a428f4c691da6e49afcbc1712726">sparse</a>, double <a class="el" href="classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#a2149a3bb74df05fbcab964bf9329a527">level</a>, Rcpp::List &amp;fit_record, Rcpp::List &amp;param_reg, Rcpp::List &amp;param_prior, Rcpp::List &amp;param_intercept, Rcpp::List &amp;param_init, int prior_type, Rcpp::List &amp;contem_prior, Rcpp::List &amp;contem_init, int contem_prior_type, const Eigen::VectorXi &amp;grp_id, const Eigen::VectorXi &amp;own_id, const Eigen::VectorXi &amp;cross_id, const Eigen::MatrixXi &amp;grp_mat, bool <a class="el" href="classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#a777624438956defbc0072323915ec7ca">include_mean</a>, bool stable, int <a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#a763ce99ba4c1a474121554eda84c06e4">step</a>, const Eigen::MatrixXd &amp;<a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#a2f7f18ba78fa92cfbfa80f4614dd1c8e">y_test</a>, bool <a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#a956deb064cd9aeec53aa42839b250339">get_lpl</a>, bool <a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#a5c088bfe4ecb5e375ddb150cf097fbd8">use_fit</a>, const Eigen::MatrixXi &amp;seed_chain, const Eigen::VectorXi &amp;<a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#ab05f74031db21c2287e1c8dd13a4b7a2">seed_forecast</a>, bool <a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#a2869802cde66639f3fb758c2641ec36d">display_progress</a>, int <a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#a73d9cca04c63ee4fd0355345fc7c1249">nthreads</a>, bool <a class="el" href="classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#af0f604e93e4175e60da29bebd6ebb127">sv</a>=true, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; Rcpp::List &gt; exogen_prior=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; Rcpp::List &gt; exogen_init=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; int &gt; exogen_prior_type=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; Eigen::MatrixXd &gt; exogen=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; int &gt; exogen_lag=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; Rcpp::List &gt; factor_prior=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; Rcpp::List &gt; factor_init=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; int &gt; factor_prior_type=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; int &gt; <a class="el" href="classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#aef35a8d94e77c781ac72f5e3832f8a3f">size_factor</a>=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; int &gt; <a class="el" href="classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#a1d6c2880a3ce10f38d1c17146d54b518">factor_lag</a>=boost::none)</td></tr>
-<tr class="separator:a3134fa7ad656cfb66925a2ebcbe0eb1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2fd6a7d22492f76e67c8b53f81cc6dd8" id="r_a2fd6a7d22492f76e67c8b53f81cc6dd8"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#a2fd6a7d22492f76e67c8b53f81cc6dd8">CtaOutforecastRun</a> (const Eigen::MatrixXd &amp;y, int <a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#a902bdade7e8a3963eb11840321a6921a">lag</a>, int <a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#a31276ef3d409e650af5639576b20c1eb">num_chains</a>, int <a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#a8d049d656f73d92ecd474ea3681e585c">num_iter</a>, int <a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#ae3e04ad074ddf91154a5bce98a0b3fb1">num_burn</a>, int <a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#ae19dd79b1f5f30bc5cd62deafe0aa2ae">thin</a>, bool <a class="el" href="classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#ad587a428f4c691da6e49afcbc1712726">sparse</a>, double <a class="el" href="classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#a2149a3bb74df05fbcab964bf9329a527">level</a>, <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;fit_record, <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;param_reg, <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;param_prior, <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;param_intercept, <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; &amp;param_init, int prior_type, <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;contem_prior, <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; &amp;contem_init, int contem_prior_type, const Eigen::VectorXi &amp;grp_id, const Eigen::VectorXi &amp;own_id, const Eigen::VectorXi &amp;cross_id, const Eigen::MatrixXi &amp;grp_mat, bool <a class="el" href="classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#a777624438956defbc0072323915ec7ca">include_mean</a>, bool stable, int <a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#a763ce99ba4c1a474121554eda84c06e4">step</a>, const Eigen::MatrixXd &amp;<a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#a2f7f18ba78fa92cfbfa80f4614dd1c8e">y_test</a>, bool <a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#a956deb064cd9aeec53aa42839b250339">get_lpl</a>, bool <a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#a5c088bfe4ecb5e375ddb150cf097fbd8">use_fit</a>, const Eigen::MatrixXi &amp;seed_chain, const Eigen::VectorXi &amp;<a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#ab05f74031db21c2287e1c8dd13a4b7a2">seed_forecast</a>, bool <a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#a2869802cde66639f3fb758c2641ec36d">display_progress</a>, int <a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#a73d9cca04c63ee4fd0355345fc7c1249">nthreads</a>, bool <a class="el" href="classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#af0f604e93e4175e60da29bebd6ebb127">sv</a>=true, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; exogen_prior=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; &gt; exogen_init=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; int &gt; exogen_prior_type=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; Eigen::MatrixXd &gt; exogen=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; int &gt; exogen_lag=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; factor_prior=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; &gt; factor_init=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; int &gt; factor_prior_type=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; int &gt; <a class="el" href="classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#aef35a8d94e77c781ac72f5e3832f8a3f">size_factor</a>=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; int &gt; <a class="el" href="classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#a1d6c2880a3ce10f38d1c17146d54b518">factor_lag</a>=boost::none)</td></tr>
+<tr class="separator:a2fd6a7d22492f76e67c8b53f81cc6dd8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1dd19ddff1eeed28785749e4566ff768" id="r_a1dd19ddff1eeed28785749e4566ff768"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#a1dd19ddff1eeed28785749e4566ff768">~CtaOutforecastRun</a> ()=default</td></tr>
 <tr class="separator:a1dd19ddff1eeed28785749e4566ff768"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classbaecon_1_1bvhar_1_1McmcOutForecastRun"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classbaecon_1_1bvhar_1_1McmcOutForecastRun')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html">baecon::bvhar::McmcOutForecastRun&lt; ReturnType, DataType, isPath, isUpdate &gt;</a></td></tr>
@@ -148,9 +148,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a9773be4455debc184fb804f7374112a5 inherit pub_methods_classbaecon_1_1bvhar_1_1McmcOutForecastRun" id="r_a9773be4455debc184fb804f7374112a5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#a9773be4455debc184fb804f7374112a5">forecast</a> () override</td></tr>
 <tr class="memdesc:a9773be4455debc184fb804f7374112a5 inherit pub_methods_classbaecon_1_1bvhar_1_1McmcOutForecastRun"><td class="mdescLeft">&#160;</td><td class="mdescRight">Out-of-sample forecasting.  <br /></td></tr>
 <tr class="separator:a9773be4455debc184fb804f7374112a5 inherit pub_methods_classbaecon_1_1bvhar_1_1McmcOutForecastRun"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa98149ddd38a3c40f3b3a28cf2783aec inherit pub_methods_classbaecon_1_1bvhar_1_1McmcOutForecastRun" id="r_aa98149ddd38a3c40f3b3a28cf2783aec"><td class="memItemLeft" align="right" valign="top">Rcpp::List&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#aa98149ddd38a3c40f3b3a28cf2783aec">returnForecast</a> () override</td></tr>
-<tr class="memdesc:aa98149ddd38a3c40f3b3a28cf2783aec inherit pub_methods_classbaecon_1_1bvhar_1_1McmcOutForecastRun"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return out-of-sample forecasting draws.  <br /></td></tr>
-<tr class="separator:aa98149ddd38a3c40f3b3a28cf2783aec inherit pub_methods_classbaecon_1_1bvhar_1_1McmcOutForecastRun"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adc7a65dc9a1e2408bb4f8ac79a1d8734 inherit pub_methods_classbaecon_1_1bvhar_1_1McmcOutForecastRun" id="r_adc7a65dc9a1e2408bb4f8ac79a1d8734"><td class="memItemLeft" align="right" valign="top"><a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#adc7a65dc9a1e2408bb4f8ac79a1d8734">returnForecast</a> () override</td></tr>
+<tr class="memdesc:adc7a65dc9a1e2408bb4f8ac79a1d8734 inherit pub_methods_classbaecon_1_1bvhar_1_1McmcOutForecastRun"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return out-of-sample forecasting draws.  <br /></td></tr>
+<tr class="separator:adc7a65dc9a1e2408bb4f8ac79a1d8734 inherit pub_methods_classbaecon_1_1bvhar_1_1McmcOutForecastRun"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classbaecon_1_1bvhar_1_1McmcOutforecastInterface"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classbaecon_1_1bvhar_1_1McmcOutforecastInterface')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classbaecon_1_1bvhar_1_1McmcOutforecastInterface.html">baecon::bvhar::McmcOutforecastInterface</a></td></tr>
 <tr class="memitem:a85c3c8d4a0e1953f98207a16a7520658 inherit pub_methods_classbaecon_1_1bvhar_1_1McmcOutforecastInterface" id="r_a85c3c8d4a0e1953f98207a16a7520658"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1McmcOutforecastInterface.html#a85c3c8d4a0e1953f98207a16a7520658">McmcOutforecastInterface</a> ()</td></tr>
 <tr class="separator:a85c3c8d4a0e1953f98207a16a7520658 inherit pub_methods_classbaecon_1_1bvhar_1_1McmcOutforecastInterface"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -172,18 +172,18 @@ Protected Member Functions</h2></td></tr>
 <tr class="memitem:a978110d56d67b96494059f9bfc028b74" id="r_a978110d56d67b96494059f9bfc028b74"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#a978110d56d67b96494059f9bfc028b74">initData</a> (const Eigen::MatrixXd &amp;y, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; Eigen::MatrixXd &gt; exogen=boost::none)=0</td></tr>
 <tr class="memdesc:a978110d56d67b96494059f9bfc028b74"><td class="mdescLeft">&#160;</td><td class="mdescRight">Define input in each window.  <br /></td></tr>
 <tr class="separator:a978110d56d67b96494059f9bfc028b74"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2101c371d13b1e7c4fa2e0832bdf729c" id="r_a2101c371d13b1e7c4fa2e0832bdf729c"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#a2101c371d13b1e7c4fa2e0832bdf729c">initForecaster</a> (Rcpp::List &amp;fit_record)=0</td></tr>
-<tr class="memdesc:a2101c371d13b1e7c4fa2e0832bdf729c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize forecaster.  <br /></td></tr>
-<tr class="separator:a2101c371d13b1e7c4fa2e0832bdf729c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a44dd985b04267fd982f7d5ed28de2acd" id="r_a44dd985b04267fd982f7d5ed28de2acd"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#a44dd985b04267fd982f7d5ed28de2acd">initMcmc</a> (Rcpp::List &amp;param_reg, Rcpp::List &amp;param_prior, Rcpp::List &amp;param_intercept, Rcpp::List &amp;param_init, int prior_type, Rcpp::List &amp;contem_prior, Rcpp::List &amp;contem_init, int contem_prior_type, const Eigen::VectorXi &amp;grp_id, const Eigen::VectorXi &amp;own_id, const Eigen::VectorXi &amp;cross_id, const Eigen::MatrixXi &amp;grp_mat, const Eigen::MatrixXi &amp;seed_chain, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; Rcpp::List &gt; exogen_prior=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; Rcpp::List &gt; exogen_init=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; int &gt; exogen_prior_type=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; Rcpp::List &gt; factor_prior=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; Rcpp::List &gt; factor_init=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; int &gt; factor_prior_type=boost::none)=0</td></tr>
-<tr class="memdesc:a44dd985b04267fd982f7d5ed28de2acd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize CTA.  <br /></td></tr>
-<tr class="separator:a44dd985b04267fd982f7d5ed28de2acd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8248d698c3c63d5010315acfa86aad9a" id="r_a8248d698c3c63d5010315acfa86aad9a"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#a8248d698c3c63d5010315acfa86aad9a">initForecaster</a> (<a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;fit_record)=0</td></tr>
+<tr class="memdesc:a8248d698c3c63d5010315acfa86aad9a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize forecaster.  <br /></td></tr>
+<tr class="separator:a8248d698c3c63d5010315acfa86aad9a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a12359a9ad4c07287b654c2bc4607e003" id="r_a12359a9ad4c07287b654c2bc4607e003"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#a12359a9ad4c07287b654c2bc4607e003">initMcmc</a> (<a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;param_reg, <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;param_prior, <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;param_intercept, <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; &amp;param_init, int prior_type, <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;contem_prior, <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; &amp;contem_init, int contem_prior_type, const Eigen::VectorXi &amp;grp_id, const Eigen::VectorXi &amp;own_id, const Eigen::VectorXi &amp;cross_id, const Eigen::MatrixXi &amp;grp_mat, const Eigen::MatrixXi &amp;seed_chain, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; exogen_prior=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; &gt; exogen_init=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; int &gt; exogen_prior_type=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; factor_prior=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; &gt; factor_init=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; int &gt; factor_prior_type=boost::none)=0</td></tr>
+<tr class="memdesc:a12359a9ad4c07287b654c2bc4607e003"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize CTA.  <br /></td></tr>
+<tr class="separator:a12359a9ad4c07287b654c2bc4607e003"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae3a58e82446450e58a7a26fd6a13dbe0" id="r_ae3a58e82446450e58a7a26fd6a13dbe0"><td class="memItemLeft" align="right" valign="top">virtual Eigen::MatrixXd&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#ae3a58e82446450e58a7a26fd6a13dbe0">buildDesign</a> (int window)=0</td></tr>
 <tr class="memdesc:ae3a58e82446450e58a7a26fd6a13dbe0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Define VAR or VHAR design matrix.  <br /></td></tr>
 <tr class="separator:ae3a58e82446450e58a7a26fd6a13dbe0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5aa4df673cf2c65a5609cdb55ac1d273" id="r_a5aa4df673cf2c65a5609cdb55ac1d273"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#a5aa4df673cf2c65a5609cdb55ac1d273">initialize</a> (const Eigen::MatrixXd &amp;y, Rcpp::List &amp;fit_record, Rcpp::List &amp;param_reg, Rcpp::List &amp;param_prior, Rcpp::List &amp;param_intercept, Rcpp::List &amp;param_init, int prior_type, Rcpp::List &amp;contem_prior, Rcpp::List &amp;contem_init, int contem_prior_type, const Eigen::VectorXi &amp;grp_id, const Eigen::VectorXi &amp;own_id, const Eigen::VectorXi &amp;cross_id, const Eigen::MatrixXi &amp;grp_mat, const Eigen::MatrixXi &amp;seed_chain, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; Rcpp::List &gt; exogen_prior=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; Rcpp::List &gt; exogen_init=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; int &gt; exogen_prior_type=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; Eigen::MatrixXd &gt; exogen=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; int &gt; exogen_lag=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; Rcpp::List &gt; factor_prior=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; Rcpp::List &gt; factor_init=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; int &gt; factor_prior_type=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; int &gt; <a class="el" href="classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#aef35a8d94e77c781ac72f5e3832f8a3f">size_factor</a>=boost::none)</td></tr>
-<tr class="memdesc:a5aa4df673cf2c65a5609cdb55ac1d273"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize every member of <code><a class="el" href="classbaecon_1_1bvhar_1_1CtaOutforecastRun.html" title="Out-of-sample forecasting class.">CtaOutforecastRun</a></code>  <br /></td></tr>
-<tr class="separator:a5aa4df673cf2c65a5609cdb55ac1d273"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aedf176831e17424a822f93379b7038db" id="r_aedf176831e17424a822f93379b7038db"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#aedf176831e17424a822f93379b7038db">initialize</a> (const Eigen::MatrixXd &amp;y, <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;fit_record, <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;param_reg, <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;param_prior, <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;param_intercept, <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; &amp;param_init, int prior_type, <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;contem_prior, <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; &amp;contem_init, int contem_prior_type, const Eigen::VectorXi &amp;grp_id, const Eigen::VectorXi &amp;own_id, const Eigen::VectorXi &amp;cross_id, const Eigen::MatrixXi &amp;grp_mat, const Eigen::MatrixXi &amp;seed_chain, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; exogen_prior=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; &gt; exogen_init=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; int &gt; exogen_prior_type=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; Eigen::MatrixXd &gt; exogen=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; int &gt; exogen_lag=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; factor_prior=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; &gt; factor_init=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; int &gt; factor_prior_type=boost::none, <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; int &gt; <a class="el" href="classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#aef35a8d94e77c781ac72f5e3832f8a3f">size_factor</a>=boost::none)</td></tr>
+<tr class="memdesc:aedf176831e17424a822f93379b7038db"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize every member of <code><a class="el" href="classbaecon_1_1bvhar_1_1CtaOutforecastRun.html" title="Out-of-sample forecasting class.">CtaOutforecastRun</a></code>  <br /></td></tr>
+<tr class="separator:aedf176831e17424a822f93379b7038db"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acb1266264065c7f9e7452fb96a507ab7" id="r_acb1266264065c7f9e7452fb96a507ab7"><td class="memItemLeft" align="right" valign="top">Eigen::VectorXd&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#acb1266264065c7f9e7452fb96a507ab7">getValid</a> () override</td></tr>
 <tr class="memdesc:acb1266264065c7f9e7452fb96a507ab7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get valid_vec.  <br /></td></tr>
 <tr class="separator:acb1266264065c7f9e7452fb96a507ab7"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -235,6 +235,8 @@ Protected Attributes</h2></td></tr>
 <tr class="separator:ae3e04ad074ddf91154a5bce98a0b3fb1 inherit pro_attribs_classbaecon_1_1bvhar_1_1McmcOutForecastRun"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae19dd79b1f5f30bc5cd62deafe0aa2ae inherit pro_attribs_classbaecon_1_1bvhar_1_1McmcOutForecastRun" id="r_ae19dd79b1f5f30bc5cd62deafe0aa2ae"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#ae19dd79b1f5f30bc5cd62deafe0aa2ae">thin</a></td></tr>
 <tr class="separator:ae19dd79b1f5f30bc5cd62deafe0aa2ae inherit pro_attribs_classbaecon_1_1bvhar_1_1McmcOutForecastRun"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7eee843821715b161d1d559a84a6dbb5 inherit pro_attribs_classbaecon_1_1bvhar_1_1McmcOutForecastRun" id="r_a7eee843821715b161d1d559a84a6dbb5"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#a7eee843821715b161d1d559a84a6dbb5">num_sim</a></td></tr>
+<tr class="separator:a7eee843821715b161d1d559a84a6dbb5 inherit pro_attribs_classbaecon_1_1bvhar_1_1McmcOutForecastRun"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a73d9cca04c63ee4fd0355345fc7c1249 inherit pro_attribs_classbaecon_1_1bvhar_1_1McmcOutForecastRun" id="r_a73d9cca04c63ee4fd0355345fc7c1249"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#a73d9cca04c63ee4fd0355345fc7c1249">nthreads</a></td></tr>
 <tr class="separator:a73d9cca04c63ee4fd0355345fc7c1249 inherit pro_attribs_classbaecon_1_1bvhar_1_1McmcOutForecastRun"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a956deb064cd9aeec53aa42839b250339 inherit pro_attribs_classbaecon_1_1bvhar_1_1McmcOutForecastRun" id="r_a956deb064cd9aeec53aa42839b250339"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#a956deb064cd9aeec53aa42839b250339">get_lpl</a></td></tr>
@@ -259,6 +261,8 @@ Protected Attributes</h2></td></tr>
 <tr class="separator:ae3bb595ae14aa79c104bb3d37eb04862 inherit pro_attribs_classbaecon_1_1bvhar_1_1McmcOutForecastRun"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6b0b129df0d0aef808b689cc762109f3 inherit pro_attribs_classbaecon_1_1bvhar_1_1McmcOutForecastRun" id="r_a6b0b129df0d0aef808b689cc762109f3"><td class="memItemLeft" align="right" valign="top">Eigen::MatrixXd&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#a6b0b129df0d0aef808b689cc762109f3">lpl_record</a></td></tr>
 <tr class="separator:a6b0b129df0d0aef808b689cc762109f3 inherit pro_attribs_classbaecon_1_1bvhar_1_1McmcOutForecastRun"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac6b5a6900f8fed300224ed4b0ade251e inherit pro_attribs_classbaecon_1_1bvhar_1_1McmcOutForecastRun" id="r_ac6b5a6900f8fed300224ed4b0ade251e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; Eigen::MatrixXd &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#ac6b5a6900f8fed300224ed4b0ade251e">lpl_draws</a></td></tr>
+<tr class="separator:ac6b5a6900f8fed300224ed4b0ade251e inherit pro_attribs_classbaecon_1_1bvhar_1_1McmcOutForecastRun"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2a16b1cf20af6684000edec354a6fbc1 inherit pro_attribs_classbaecon_1_1bvhar_1_1McmcOutForecastRun" id="r_a2a16b1cf20af6684000edec354a6fbc1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; ReturnType &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#a2a16b1cf20af6684000edec354a6fbc1">roll_exogen_mat</a></td></tr>
 <tr class="separator:a2a16b1cf20af6684000edec354a6fbc1 inherit pro_attribs_classbaecon_1_1bvhar_1_1McmcOutForecastRun"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5354fd66b7799116886aeac4555d14e6 inherit pro_attribs_classbaecon_1_1bvhar_1_1McmcOutForecastRun" id="r_a5354fd66b7799116886aeac4555d14e6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; <a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; ReturnType &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1McmcOutForecastRun.html#a5354fd66b7799116886aeac4555d14e6">roll_exogen</a></td></tr>
@@ -328,8 +332,8 @@ template&lt;typename BaseForecaster  = RegForecaster, bool isPath = false, bool 
 </div>
 </div>
 <h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a3134fa7ad656cfb66925a2ebcbe0eb1a" name="a3134fa7ad656cfb66925a2ebcbe0eb1a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3134fa7ad656cfb66925a2ebcbe0eb1a">&#9670;&#160;</a></span>CtaOutforecastRun()</h2>
+<a id="a2fd6a7d22492f76e67c8b53f81cc6dd8" name="a2fd6a7d22492f76e67c8b53f81cc6dd8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2fd6a7d22492f76e67c8b53f81cc6dd8">&#9670;&#160;</a></span>CtaOutforecastRun()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -390,31 +394,31 @@ template&lt;typename BaseForecaster  = RegForecaster, bool isPath = false, bool 
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">Rcpp::List &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;&#160;</td>
           <td class="paramname"><em>fit_record</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">Rcpp::List &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;&#160;</td>
           <td class="paramname"><em>param_reg</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">Rcpp::List &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;&#160;</td>
           <td class="paramname"><em>param_prior</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">Rcpp::List &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;&#160;</td>
           <td class="paramname"><em>param_intercept</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">Rcpp::List &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>param_init</em>, </td>
         </tr>
         <tr>
@@ -426,13 +430,13 @@ template&lt;typename BaseForecaster  = RegForecaster, bool isPath = false, bool 
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">Rcpp::List &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;&#160;</td>
           <td class="paramname"><em>contem_prior</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">Rcpp::List &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>contem_init</em>, </td>
         </tr>
         <tr>
@@ -534,13 +538,13 @@ template&lt;typename BaseForecaster  = RegForecaster, bool isPath = false, bool 
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; Rcpp::List &gt;&#160;</td>
+          <td class="paramtype"><a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt;&#160;</td>
           <td class="paramname"><em>exogen_prior</em> = <code>boost::none</code>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; Rcpp::List &gt;&#160;</td>
+          <td class="paramtype"><a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; &gt;&#160;</td>
           <td class="paramname"><em>exogen_init</em> = <code>boost::none</code>, </td>
         </tr>
         <tr>
@@ -564,13 +568,13 @@ template&lt;typename BaseForecaster  = RegForecaster, bool isPath = false, bool 
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; Rcpp::List &gt;&#160;</td>
+          <td class="paramtype"><a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt;&#160;</td>
           <td class="paramname"><em>factor_prior</em> = <code>boost::none</code>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; Rcpp::List &gt;&#160;</td>
+          <td class="paramtype"><a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; &gt;&#160;</td>
           <td class="paramname"><em>factor_init</em> = <code>boost::none</code>, </td>
         </tr>
         <tr>
@@ -682,8 +686,8 @@ template&lt;typename BaseForecaster  = RegForecaster, bool isPath = false, bool 
 
 </div>
 </div>
-<a id="a2101c371d13b1e7c4fa2e0832bdf729c" name="a2101c371d13b1e7c4fa2e0832bdf729c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2101c371d13b1e7c4fa2e0832bdf729c">&#9670;&#160;</a></span>initForecaster()</h2>
+<a id="a8248d698c3c63d5010315acfa86aad9a" name="a8248d698c3c63d5010315acfa86aad9a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8248d698c3c63d5010315acfa86aad9a">&#9670;&#160;</a></span>initForecaster()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -696,7 +700,7 @@ template&lt;typename BaseForecaster  = RegForecaster, bool isPath = false, bool 
         <tr>
           <td class="memname">virtual void <a class="el" href="classbaecon_1_1bvhar_1_1CtaOutforecastRun.html">baecon::bvhar::CtaOutforecastRun</a>&lt; BaseForecaster, isPath, isUpdate &gt;::initForecaster </td>
           <td>(</td>
-          <td class="paramtype">Rcpp::List &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;&#160;</td>
           <td class="paramname"><em>fit_record</em></td><td>)</td>
           <td></td>
         </tr>
@@ -718,8 +722,8 @@ template&lt;typename BaseForecaster  = RegForecaster, bool isPath = false, bool 
 
 </div>
 </div>
-<a id="a44dd985b04267fd982f7d5ed28de2acd" name="a44dd985b04267fd982f7d5ed28de2acd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a44dd985b04267fd982f7d5ed28de2acd">&#9670;&#160;</a></span>initMcmc()</h2>
+<a id="a12359a9ad4c07287b654c2bc4607e003" name="a12359a9ad4c07287b654c2bc4607e003"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a12359a9ad4c07287b654c2bc4607e003">&#9670;&#160;</a></span>initMcmc()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -732,25 +736,25 @@ template&lt;typename BaseForecaster  = RegForecaster, bool isPath = false, bool 
         <tr>
           <td class="memname">virtual void <a class="el" href="classbaecon_1_1bvhar_1_1CtaOutforecastRun.html">baecon::bvhar::CtaOutforecastRun</a>&lt; BaseForecaster, isPath, isUpdate &gt;::initMcmc </td>
           <td>(</td>
-          <td class="paramtype">Rcpp::List &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;&#160;</td>
           <td class="paramname"><em>param_reg</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">Rcpp::List &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;&#160;</td>
           <td class="paramname"><em>param_prior</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">Rcpp::List &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;&#160;</td>
           <td class="paramname"><em>param_intercept</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">Rcpp::List &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>param_init</em>, </td>
         </tr>
         <tr>
@@ -762,13 +766,13 @@ template&lt;typename BaseForecaster  = RegForecaster, bool isPath = false, bool 
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">Rcpp::List &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;&#160;</td>
           <td class="paramname"><em>contem_prior</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">Rcpp::List &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>contem_init</em>, </td>
         </tr>
         <tr>
@@ -810,13 +814,13 @@ template&lt;typename BaseForecaster  = RegForecaster, bool isPath = false, bool 
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; Rcpp::List &gt;&#160;</td>
+          <td class="paramtype"><a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt;&#160;</td>
           <td class="paramname"><em>exogen_prior</em> = <code>boost::none</code>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; Rcpp::List &gt;&#160;</td>
+          <td class="paramtype"><a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; &gt;&#160;</td>
           <td class="paramname"><em>exogen_init</em> = <code>boost::none</code>, </td>
         </tr>
         <tr>
@@ -828,13 +832,13 @@ template&lt;typename BaseForecaster  = RegForecaster, bool isPath = false, bool 
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; Rcpp::List &gt;&#160;</td>
+          <td class="paramtype"><a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt;&#160;</td>
           <td class="paramname"><em>factor_prior</em> = <code>boost::none</code>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; Rcpp::List &gt;&#160;</td>
+          <td class="paramtype"><a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; &gt;&#160;</td>
           <td class="paramname"><em>factor_init</em> = <code>boost::none</code>, </td>
         </tr>
         <tr>
@@ -873,7 +877,7 @@ template&lt;typename BaseForecaster  = RegForecaster, bool isPath = false, bool 
   </dd>
 </dl>
 
-<p>Implemented in <a class="el" href="classbaecon_1_1bvhar_1_1CtaRollforecastRun.html#a7d2c8fec393fc8d6571cbf87b88b5d8b">baecon::bvhar::CtaRollforecastRun&lt; BaseForecaster, isGroup, isPath, isUpdate &gt;</a>, and <a class="el" href="classbaecon_1_1bvhar_1_1CtaExpandforecastRun.html#a000503e19bdac8dc9f32ed75f6ffc79f">baecon::bvhar::CtaExpandforecastRun&lt; BaseForecaster, isGroup, isPath, isUpdate &gt;</a>.</p>
+<p>Implemented in <a class="el" href="classbaecon_1_1bvhar_1_1CtaRollforecastRun.html#a570ba5dd803f080a18b0896e9faf300d">baecon::bvhar::CtaRollforecastRun&lt; BaseForecaster, isGroup, isPath, isUpdate &gt;</a>, and <a class="el" href="classbaecon_1_1bvhar_1_1CtaExpandforecastRun.html#af6878809adf91f8ada65f872981727aa">baecon::bvhar::CtaExpandforecastRun&lt; BaseForecaster, isGroup, isPath, isUpdate &gt;</a>.</p>
 
 </div>
 </div>
@@ -914,8 +918,8 @@ template&lt;typename BaseForecaster  = RegForecaster, bool isPath = false, bool 
 
 </div>
 </div>
-<a id="a5aa4df673cf2c65a5609cdb55ac1d273" name="a5aa4df673cf2c65a5609cdb55ac1d273"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5aa4df673cf2c65a5609cdb55ac1d273">&#9670;&#160;</a></span>initialize()</h2>
+<a id="aedf176831e17424a822f93379b7038db" name="aedf176831e17424a822f93379b7038db"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aedf176831e17424a822f93379b7038db">&#9670;&#160;</a></span>initialize()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -934,31 +938,31 @@ template&lt;typename BaseForecaster  = RegForecaster, bool isPath = false, bool 
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">Rcpp::List &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;&#160;</td>
           <td class="paramname"><em>fit_record</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">Rcpp::List &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;&#160;</td>
           <td class="paramname"><em>param_reg</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">Rcpp::List &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;&#160;</td>
           <td class="paramname"><em>param_prior</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">Rcpp::List &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;&#160;</td>
           <td class="paramname"><em>param_intercept</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">Rcpp::List &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>param_init</em>, </td>
         </tr>
         <tr>
@@ -970,13 +974,13 @@ template&lt;typename BaseForecaster  = RegForecaster, bool isPath = false, bool 
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">Rcpp::List &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;&#160;</td>
           <td class="paramname"><em>contem_prior</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">Rcpp::List &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>contem_init</em>, </td>
         </tr>
         <tr>
@@ -1018,13 +1022,13 @@ template&lt;typename BaseForecaster  = RegForecaster, bool isPath = false, bool 
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; Rcpp::List &gt;&#160;</td>
+          <td class="paramtype"><a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt;&#160;</td>
           <td class="paramname"><em>exogen_prior</em> = <code>boost::none</code>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; Rcpp::List &gt;&#160;</td>
+          <td class="paramtype"><a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; &gt;&#160;</td>
           <td class="paramname"><em>exogen_init</em> = <code>boost::none</code>, </td>
         </tr>
         <tr>
@@ -1048,13 +1052,13 @@ template&lt;typename BaseForecaster  = RegForecaster, bool isPath = false, bool 
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; Rcpp::List &gt;&#160;</td>
+          <td class="paramtype"><a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt;&#160;</td>
           <td class="paramname"><em>factor_prior</em> = <code>boost::none</code>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; Rcpp::List &gt;&#160;</td>
+          <td class="paramtype"><a class="el" href="common_8h.html#a86a80d5eec2ef849167f34308b38dea2">BVHAR_OPTIONAL</a>&lt; <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt; <a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &gt; &gt;&#160;</td>
           <td class="paramname"><em>factor_init</em> = <code>boost::none</code>, </td>
         </tr>
         <tr>
@@ -1103,18 +1107,15 @@ template&lt;typename BaseForecaster  = RegForecaster, bool isPath = false, bool 
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="classbaecon_1_1bvhar_1_1CtaOutforecastRun_a5aa4df673cf2c65a5609cdb55ac1d273_cgraph.png" border="0" usemap="#aclassbaecon_1_1bvhar_1_1CtaOutforecastRun_a5aa4df673cf2c65a5609cdb55ac1d273_cgraph" alt=""/></div>
-<map name="aclassbaecon_1_1bvhar_1_1CtaOutforecastRun_a5aa4df673cf2c65a5609cdb55ac1d273_cgraph" id="aclassbaecon_1_1bvhar_1_1CtaOutforecastRun_a5aa4df673cf2c65a5609cdb55ac1d273_cgraph">
-<area shape="rect" title="Initialize every member of CtaOutforecastRun" alt="" coords="5,101,225,141"/>
+<div class="center"><img src="classbaecon_1_1bvhar_1_1CtaOutforecastRun_aedf176831e17424a822f93379b7038db_cgraph.png" border="0" usemap="#aclassbaecon_1_1bvhar_1_1CtaOutforecastRun_aedf176831e17424a822f93379b7038db_cgraph" alt=""/></div>
+<map name="aclassbaecon_1_1bvhar_1_1CtaOutforecastRun_aedf176831e17424a822f93379b7038db_cgraph" id="aclassbaecon_1_1bvhar_1_1CtaOutforecastRun_aedf176831e17424a822f93379b7038db_cgraph">
+<area shape="rect" title="Initialize every member of CtaOutforecastRun" alt="" coords="5,69,225,109"/>
 <area shape="rect" href="classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#a978110d56d67b96494059f9bfc028b74" title="Define input in each window." alt="" coords="273,5,493,45"/>
-<area shape="poly" title=" " alt="" coords="161,99,272,55,296,47,297,52,274,60,163,104"/>
-<area shape="rect" href="classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#a2101c371d13b1e7c4fa2e0832bdf729c" title="Initialize forecaster." alt="" coords="273,69,493,109"/>
-<area shape="poly" title=" " alt="" coords="225,106,259,101,260,107,226,111"/>
-<area shape="rect" href="classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#a44dd985b04267fd982f7d5ed28de2acd" title="Initialize CTA." alt="" coords="273,133,493,173"/>
-<area shape="poly" title=" " alt="" coords="226,132,260,136,259,141,225,137"/>
-<area shape="rect" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b" title=" " alt="" coords="315,222,452,247"/>
-<area shape="poly" title=" " alt="" coords="165,139,340,214,338,219,162,144"/>
-<area shape="poly" title=" " alt="" coords="340,224,331,214,336,204,354,197,383,195,422,199,432,204,436,210,431,213,428,208,420,205,383,201,355,203,339,208,336,213,344,220"/>
+<area shape="poly" title=" " alt="" coords="199,67,285,46,287,51,201,72"/>
+<area shape="rect" href="classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#a8248d698c3c63d5010315acfa86aad9a" title="Initialize forecaster." alt="" coords="273,69,493,109"/>
+<area shape="poly" title=" " alt="" coords="225,87,260,87,260,92,225,92"/>
+<area shape="rect" href="classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#a12359a9ad4c07287b654c2bc4607e003" title="Initialize CTA." alt="" coords="273,133,493,173"/>
+<area shape="poly" title=" " alt="" coords="201,107,287,128,285,133,199,112"/>
 </map>
 </div>
 

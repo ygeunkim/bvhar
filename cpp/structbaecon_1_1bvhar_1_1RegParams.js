@@ -1,6 +1,6 @@
 var structbaecon_1_1bvhar_1_1RegParams =
 [
-    [ "RegParams", "structbaecon_1_1bvhar_1_1RegParams.html#a2537b2a1cb4ad59f930b3ad38ef23be1", null ],
+    [ "RegParams", "structbaecon_1_1bvhar_1_1RegParams.html#ac9422fd488d46723e52df324908a0ce8", null ],
     [ "_x", "structbaecon_1_1bvhar_1_1RegParams.html#a6f6650596708af9949726aba222b3bcd", null ],
     [ "_y", "structbaecon_1_1bvhar_1_1RegParams.html#a9eb78e26a166579d67f1049bf0a9b1d0", null ],
     [ "_mean", "structbaecon_1_1bvhar_1_1RegParams.html#a0add3cf513263825da2ba16857d9ece3", null ],

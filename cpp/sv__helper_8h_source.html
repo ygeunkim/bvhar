@@ -26,7 +26,7 @@
  <tr id="projectrow">
   <td id="projectlogo"><img alt="Logo" src="apple-touch-icon.png"/></td>
   <td id="projectalign">
-   <div id="projectname">bvhar<span id="projectnumber">&#160;2.4.0</span>
+   <div id="projectname">bvhar<span id="projectnumber">&#160;2.4.1</span>
    </div>
    <div id="projectbrief">C++ headers by bvhar package</div>
   </td>
@@ -137,7 +137,7 @@ $(document).ready(function(){initNavTree('sv__helper_8h_source.html',''); initRe
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    inv_method[i] = unif_rand(0, 1, rng);</div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  }</div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; 7; i++) {</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    mixture_pdf.col(i) = (-((latent_vec.array() - sv_vec.array() - muj[i]).array() / sdj[i]).array().square() / 2).exp() * pj[i] / (sdj[i] * sqrt(2 * M_PI));</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    mixture_pdf.col(i) = (-((latent_vec.array() - sv_vec.array() - muj[i]).array() / sdj[i]).array().square() / 2).exp() * pj[i] / (sdj[i] * sqrt(2 * <a class="code hl_define" href="commondefs_8h.html#ae71449b1cc6e6250b91f539153a7a0d3">M_PI</a>));</div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  }</div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  mixture_pdf.array().colwise() /= mixture_pdf.rowwise().sum().array();</div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; 7; i++) {</div>
@@ -220,6 +220,7 @@ $(document).ready(function(){initNavTree('sv__helper_8h_source.html',''); initRe
 <div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span> </div>
 <div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span><span class="preprocessor">#endif </span><span class="comment">// BVHAR_BAYES_MISC_SV_HELPER_H_H</span></div>
 <div class="ttc" id="acommon_8h_html_a6cf9f648a944e66c2478fa29468b7ac0"><div class="ttname"><a href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a></div><div class="ttdeci">#define BVHAR_BHRNG</div><div class="ttdef"><b>Definition</b> common.h:34</div></div>
+<div class="ttc" id="acommondefs_8h_html_ae71449b1cc6e6250b91f539153a7a0d3"><div class="ttname"><a href="commondefs_8h.html#ae71449b1cc6e6250b91f539153a7a0d3">M_PI</a></div><div class="ttdeci">#define M_PI</div><div class="ttdef"><b>Definition</b> commondefs.h:154</div></div>
 <div class="ttc" id="ahelper_8h_html"><div class="ttname"><a href="helper_8h.html">helper.h</a></div></div>
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_a68b3a59e4870c0048cb2fac1a1acc3a6"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a68b3a59e4870c0048cb2fac1a1acc3a6">baecon::bvhar::varsv_ht</a></div><div class="ttdeci">void varsv_ht(Eigen::Ref&lt; Eigen::VectorXd &gt; sv_vec, double init_sv, double sv_sig, Eigen::Ref&lt; Eigen::VectorXd &gt; latent_vec, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> sv_helper.h:17</div></div>
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_abf891dc3456cf4d9c4c220e391caa1dd"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#abf891dc3456cf4d9c4c220e391caa1dd">baecon::bvhar::varsv_h0</a></div><div class="ttdeci">void varsv_h0(Eigen::Ref&lt; Eigen::VectorXd &gt; h0, Eigen::Ref&lt; Eigen::VectorXd &gt; prior_mean, Eigen::Ref&lt; Eigen::VectorXd &gt; prior_prec, Eigen::Ref&lt; const Eigen::VectorXd &gt; h1, Eigen::Ref&lt; const Eigen::VectorXd &gt; sv_prec, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> sv_helper.h:99</div></div>

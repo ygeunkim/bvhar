@@ -49,6 +49,8 @@ var NAVTREE =
       [ "File List", "files.html", "files_dup" ],
       [ "File Members", "globals.html", [
         [ "All", "globals.html", null ],
+        [ "Functions", "globals_func.html", null ],
+        [ "Variables", "globals_vars.html", null ],
         [ "Typedefs", "globals_type.html", null ],
         [ "Macros", "globals_defs.html", null ]
       ] ]
@@ -59,18 +61,19 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"classbaecon_1_1bvhar_1_1CtaForecaster.html#ada17a15aa76b129b72993a6d594ee7f9",
-"classbaecon_1_1bvhar_1_1ExogenForecaster.html#ad7d98ae00cbdc715eee8985897cd96e1",
-"classbaecon_1_1bvhar_1_1McmcReg.html#a450c2fc1a9bbe274ea56d31f718d0d48",
-"classbaecon_1_1bvhar_1_1McmcTriangular.html#afa628beed78ef49c540419d4bc6acb36",
-"classbaecon_1_1bvhar_1_1MinnSpillover.html#ac5d7e92ea74adb37a3d9fd35fb9d4b17",
-"classbaecon_1_1bvhar_1_1OlsForecaster.html",
-"classbaecon_1_1bvhar_1_1OlsVhar.html#ab96e38ad767afa5778d2368dcb500f3f",
-"classboost_1_1random_1_1inverse__gaussian__distribution_1_1param__type.html#afb239a2de6472713a54199eb5288b84e",
-"namespacebaecon_1_1bvhar.html#a58c1c6bd19018c8c7a576a024883542b",
-"structbaecon_1_1bvhar_1_1GdpInits.html#a7a1401cb170da3c00d09dd53d07266d9",
-"structbaecon_1_1bvhar_1_1RegParams.html#a4a2ec3c9f9916f168b45c977d0ba527e",
-"svforecaster_8h.html#a019c9bae0f5dc2468322f2224586e926"
+"classbaecon_1_1bvhar_1_1CtaForecaster.html#ab79c942937422138a100149e31c21af9",
+"classbaecon_1_1bvhar_1_1DynamicLdltSpillover.html#ae8d71d64d7df1ed15a1d2897a4787a8c",
+"classbaecon_1_1bvhar_1_1McmcIrfRun.html#a14c8f7deb30ccefcff1f2ccaa22c1138",
+"classbaecon_1_1bvhar_1_1McmcTriangular.html#a0e5e0a4dd79b9bdb8f56ad4397cdfb30",
+"classbaecon_1_1bvhar_1_1MinnFlat.html#a5a88d8928d786429487da8b250d3d953",
+"classbaecon_1_1bvhar_1_1MinnesotaLogLik.html#af0f9564636778c79a47f364f850058b9",
+"classbaecon_1_1bvhar_1_1OlsOutforecastRun.html#a4b0bef307f9213b4a8c62db5598c11b8",
+"classbaecon_1_1bvhar_1_1ProgressInterface.html",
+"commoncpp_8h_source.html",
+"namespacebaecon_1_1bvhar.html#a374a80c12987b6754b05fe2ada3080bc",
+"structbaecon_1_1bvhar_1_1DlParams.html#a9794457339a5dde81a949e25507b0bda",
+"structbaecon_1_1bvhar_1_1RegInits.html#af8028429b9b6f4e0d777d6ccf006685e",
+"structbaecon_1_1bvhar_1_1SvRecords.html#afb1f922a0e1c3ae346c26c83a3aff018"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

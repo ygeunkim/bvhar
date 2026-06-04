@@ -1,0 +1,10 @@
+<map id="baecon::bvhar::MinnVharIrf::updateMovingAverage" name="baecon::bvhar::MinnVharIrf::updateMovingAverage">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,204,45"/>
+<area shape="rect" id="Node000002" href="$namespacebaecon_1_1bvhar.html#af7075daadb72c6837392f76fd8ad3f4c" title=" " alt="" coords="471,5,641,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="204,20,252,19,423,19,457,19,457,25,423,24,252,24,204,25"/>
+<area shape="rect" id="Node000004" href="$namespacebaecon_1_1bvhar.html#a2c7737f5d734bde9f26e8675c2151cdc" title=" " alt="" coords="252,33,423,73"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="205,35,239,39,238,44,204,40"/>
+<area shape="rect" id="Node000003" href="$namespacebaecon_1_1bvhar.html#a0d564c6e40ce6ce4d0d62da32a781377" title=" " alt="" coords="689,5,840,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="642,23,676,23,676,28,642,28"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="422,40,457,35,457,41,423,45"/>
+</map>

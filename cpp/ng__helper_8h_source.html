@@ -26,7 +26,7 @@
  <tr id="projectrow">
   <td id="projectlogo"><img alt="Logo" src="apple-touch-icon.png"/></td>
   <td id="projectalign">
-   <div id="projectname">bvhar<span id="projectnumber">&#160;2.4.0</span>
+   <div id="projectname">bvhar<span id="projectnumber">&#160;2.4.1</span>
    </div>
    <div id="projectbrief">C++ headers by bvhar package</div>
   </td>
@@ -119,12 +119,12 @@ $(document).ready(function(){initNavTree('ng__helper_8h_source.html',''); initRe
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>                              Eigen::Ref&lt;Eigen::VectorXd&gt; coef, Eigen::Ref&lt;const Eigen::VectorXd&gt; global_param,</div>
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>                              <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; coef.size(); ++i) {</div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>    local_param[i] = sqrt(<a class="code hl_function" href="namespacebaecon_1_1bvhar.html#af7bc4252ab994b7a89c6924961f852cc">sim_gig</a>(</div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>    local_param[i] = <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#af7bc4252ab994b7a89c6924961f852cc">sim_gig</a>(</div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>      shape - .5,</div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>      2 * shape / (global_param[i] * global_param[i]),</div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>      2 * shape / global_param[i],</div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>      coef[i] * coef[i], rng</div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>    ));</div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>    <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6">cut_param</a>(local_param[i]);</div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>    );</div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>    cut_positive_param(local_param[i]);</div>
 <div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>  }</div>
 <div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>}</div>
 </div>
@@ -134,12 +134,12 @@ $(document).ready(function(){initNavTree('ng__helper_8h_source.html',''); initRe
 <div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>                              Eigen::Ref&lt;Eigen::VectorXd&gt; coef, Eigen::Ref&lt;const Eigen::VectorXd&gt; global_param,</div>
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>                              <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; coef.size(); ++i) {</div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>    local_param[i] = sqrt(<a class="code hl_function" href="namespacebaecon_1_1bvhar.html#af7bc4252ab994b7a89c6924961f852cc">sim_gig</a>(</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>    local_param[i] = <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#af7bc4252ab994b7a89c6924961f852cc">sim_gig</a>(</div>
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>      shape[i] - .5,</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>      2 * shape[i] / (global_param[i] * global_param[i]),</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>      2 * shape[i] / global_param[i],</div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>      coef[i] * coef[i], rng</div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    ));</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6">cut_param</a>(local_param[i]);</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    );</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    cut_positive_param(local_param[i]);</div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  }</div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>}</div>
 </div>
@@ -159,12 +159,12 @@ $(document).ready(function(){initNavTree('ng__helper_8h_source.html',''); initRe
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>  <span class="comment">//  1 / (hyper_gamma * local_param.squaredNorm() + scl),</span></div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>  <span class="comment">//  rng</span></div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>  <span class="comment">// ));</span></div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>  <span class="keywordtype">double</span> tau = sqrt(1 / gamma_rand(</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>  <span class="keywordtype">double</span> tau = 1 / gamma_rand(</div>
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    shape + local_param.size() * hyper_gamma,</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    1 / (hyper_gamma * local_param.squaredNorm() + scl),</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    1 / (hyper_gamma * local_param.lpNorm&lt;1&gt;() + scl),</div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    rng</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>  ));</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>  <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6">cut_param</a>(tau);</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>  );</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>  cut_positive_param(tau);</div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>  <span class="keywordflow">return</span> tau;</div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>}</div>
 </div>
@@ -177,12 +177,12 @@ $(document).ready(function(){initNavTree('ng__helper_8h_source.html',''); initRe
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>  <span class="comment">//  1 / ((hyper_gamma.array() * local_param.array().square()).sum() + scl),</span></div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>  <span class="comment">//  rng</span></div>
 <div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>  <span class="comment">// ));</span></div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>  <span class="keywordtype">double</span> tau = sqrt(1 / gamma_rand(</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>  <span class="keywordtype">double</span> tau = 1 / gamma_rand(</div>
 <div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    shape + hyper_gamma.sum(),</div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    1 / ((hyper_gamma.array() * local_param.array().square()).sum() + scl),</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    1 / ((hyper_gamma.array() * local_param.array()).sum() + scl),</div>
 <div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>    rng</div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>  ));</div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>  <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6">cut_param</a>(tau);</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>  );</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>  cut_positive_param(tau);</div>
 <div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>  <span class="keywordflow">return</span> tau;</div>
 <div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>}</div>
 </div>
@@ -209,23 +209,23 @@ $(document).ready(function(){initNavTree('ng__helper_8h_source.html',''); initRe
 <div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>      }</div>
 <div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>    }</div>
 <div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>    group_param[i] = <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#afbbe0aa39faad29730e48d225c097e54">ng_global_sparsity</a>(mn_local, hyper_gamma[i], shape, scl, rng);</div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6">cut_param</a>(group_param[i]);</div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>  }</div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>}</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>  }</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>}</div>
 </div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span> </div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span><span class="comment">// MH for shape parameter of Normal-Gamma Prior</span></div>
-<div class="foldopen" id="foldopen00107" data-start="{" data-end="}">
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#ac76ecbd39f25d80e73573792bd767171">  107</a></span><span class="keyword">inline</span> <span class="keywordtype">double</span> <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#ac76ecbd39f25d80e73573792bd767171">ng_shape_jump</a>(<span class="keywordtype">double</span>&amp; gamma_hyper, Eigen::VectorXd&amp; local_param,</div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>                            <span class="keywordtype">double</span> global_param, <span class="keywordtype">double</span> lognormal_sd, <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>  <span class="keywordtype">int</span> num_coef = local_param.size();</div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>  <span class="keywordtype">double</span> cand = exp(log(gamma_hyper) + normal_rand(rng) * lognormal_sd);</div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>  <span class="keywordtype">double</span> log_ratio = log(cand) - log(gamma_hyper) + num_coef * (lgammafn(gamma_hyper) - lgammafn(cand));</div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>  log_ratio += num_coef * cand * (log(cand) - 2 * log(global_param));</div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>  log_ratio -= num_coef * gamma_hyper * (log(gamma_hyper) - 2 * log(global_param));</div>
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>  log_ratio += (cand - gamma_hyper) * local_param.array().log().sum();</div>
-<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>  log_ratio += (gamma_hyper - cand) * local_param.array().square().sum() / (global_param * global_param);</div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>  <span class="keywordflow">if</span> (log(unif_rand(rng)) &lt; <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::min</a>(log_ratio, 0.0)) {</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span> </div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span><span class="comment">// MH for shape parameter of Normal-Gamma Prior</span></div>
+<div class="foldopen" id="foldopen00106" data-start="{" data-end="}">
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#ac76ecbd39f25d80e73573792bd767171">  106</a></span><span class="keyword">inline</span> <span class="keywordtype">double</span> <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#ac76ecbd39f25d80e73573792bd767171">ng_shape_jump</a>(<span class="keywordtype">double</span>&amp; gamma_hyper, Eigen::VectorXd&amp; local_param,</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>                            <span class="keywordtype">double</span> global_param, <span class="keywordtype">double</span> lognormal_sd, <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>  <span class="keywordtype">int</span> num_coef = local_param.size();</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>  <span class="keywordtype">double</span> cand = exp(log(gamma_hyper) + normal_rand(rng) * lognormal_sd);</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>  <span class="keywordtype">double</span> log_ratio = log(cand) - log(gamma_hyper) + num_coef * (lgammafn(gamma_hyper) - lgammafn(cand));</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>  log_ratio += num_coef * (cand * log(cand) - gamma_hyper * log(gamma_hyper));</div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>  log_ratio -= num_coef * (cand - gamma_hyper) * log(global_param);</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>  log_ratio += (cand - gamma_hyper) * local_param.array().log().sum() / 2;</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>  <span class="comment">// log_ratio += (gamma_hyper - cand) * local_param.array().sum() / (2 * global_param);</span></div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>  log_ratio += (gamma_hyper - cand) * local_param.array().sum() / global_param;</div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>  <span class="keywordflow">if</span> (log(1 - unif_rand(rng)) &lt; <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::min</a>(log_ratio, 0.0)) { <span class="comment">// unif_rand has [0, 1) -&gt; change to (0, 1]</span></div>
 <div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>    <span class="keywordflow">return</span> cand;</div>
 <div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>  }</div>
 <div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>  <span class="comment">// double acc_ratio = (cand / gamma_hyper) * pow(gammafn(gamma_hyper) / gammafn(cand), num_coef);</span></div>
@@ -270,13 +270,12 @@ $(document).ready(function(){initNavTree('ng__helper_8h_source.html',''); initRe
 <div class="ttc" id="ahelper_8h_html"><div class="ttname"><a href="helper_8h.html">helper.h</a></div></div>
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_a8e077d93f5292412a3aa612a1b7beaef"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a8e077d93f5292412a3aa612a1b7beaef">baecon::bvhar::ng_mn_sparsity</a></div><div class="ttdeci">void ng_mn_sparsity(Eigen::VectorXd &amp;group_param, Eigen::VectorXi &amp;grp_vec, Eigen::VectorXi &amp;grp_id, Eigen::VectorXd &amp;hyper_gamma, double &amp;global_param, Eigen::VectorXd &amp;local_param, double &amp;shape, double &amp;scl, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> ng_helper.h:85</div></div>
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_a9c359f61f55567f8002d143ad7312f40"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a9c359f61f55567f8002d143ad7312f40">baecon::bvhar::ng_mn_shape_jump</a></div><div class="ttdeci">void ng_mn_shape_jump(Eigen::VectorXd &amp;gamma_hyper, Eigen::VectorXd &amp;local_param, Eigen::VectorXd &amp;group_param, Eigen::VectorXi &amp;grp_vec, Eigen::VectorXi &amp;grp_id, double &amp;global_param, double lognormal_sd, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> ng_helper.h:130</div></div>
-<div class="ttc" id="anamespacebaecon_1_1bvhar_html_ac76ecbd39f25d80e73573792bd767171"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#ac76ecbd39f25d80e73573792bd767171">baecon::bvhar::ng_shape_jump</a></div><div class="ttdeci">double ng_shape_jump(double &amp;gamma_hyper, Eigen::VectorXd &amp;local_param, double global_param, double lognormal_sd, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> ng_helper.h:107</div></div>
-<div class="ttc" id="anamespacebaecon_1_1bvhar_html_ac9248c352d5f64ac9b9595197784a9e6"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6">baecon::bvhar::cut_param</a></div><div class="ttdeci">void cut_param(Eigen::Ref&lt; Eigen::VectorXd &gt; param)</div><div class="ttdef"><b>Definition</b> helper.h:37</div></div>
+<div class="ttc" id="anamespacebaecon_1_1bvhar_html_ac76ecbd39f25d80e73573792bd767171"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#ac76ecbd39f25d80e73573792bd767171">baecon::bvhar::ng_shape_jump</a></div><div class="ttdeci">double ng_shape_jump(double &amp;gamma_hyper, Eigen::VectorXd &amp;local_param, double global_param, double lognormal_sd, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> ng_helper.h:106</div></div>
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_acfa9262b58e938856c51e680c3c1010f"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#acfa9262b58e938856c51e680c3c1010f">baecon::bvhar::ng_local_sparsity</a></div><div class="ttdeci">void ng_local_sparsity(Eigen::VectorXd &amp;local_param, double &amp;shape, Eigen::Ref&lt; Eigen::VectorXd &gt; coef, Eigen::Ref&lt; const Eigen::VectorXd &gt; global_param, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> ng_helper.h:16</div></div>
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_af7bc4252ab994b7a89c6924961f852cc"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#af7bc4252ab994b7a89c6924961f852cc">baecon::bvhar::sim_gig</a></div><div class="ttdeci">double sim_gig(double lambda, double psi, double chi, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> random.h:316</div></div>
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_afbbe0aa39faad29730e48d225c097e54"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#afbbe0aa39faad29730e48d225c097e54">baecon::bvhar::ng_global_sparsity</a></div><div class="ttdeci">double ng_global_sparsity(Eigen::Ref&lt; const Eigen::VectorXd &gt; local_param, double &amp;hyper_gamma, double &amp;shape, double &amp;scl, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> ng_helper.h:49</div></div>
 <div class="ttc" id="anamespacebaecon_html"><div class="ttname"><a href="namespacebaecon.html">baecon</a></div><div class="ttdef"><b>Definition</b> bayes.h:16</div></div>
-<div class="ttc" id="anamespacestd_html_a03d5ca705e3360c607bf2586e9a9de3b"><div class="ttname"><a href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::make_unique</a></div><div class="ttdeci">unique_ptr&lt; T &gt; make_unique(Args &amp;&amp;... args)</div><div class="ttdef"><b>Definition</b> commondefs.h:123</div></div>
+<div class="ttc" id="anamespacestd_html_a03d5ca705e3360c607bf2586e9a9de3b"><div class="ttname"><a href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::make_unique</a></div><div class="ttdeci">unique_ptr&lt; T &gt; make_unique(Args &amp;&amp;... args)</div><div class="ttdef"><b>Definition</b> commondefs.h:170</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

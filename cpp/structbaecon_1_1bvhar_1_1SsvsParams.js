@@ -1,6 +1,6 @@
 var structbaecon_1_1bvhar_1_1SsvsParams =
 [
-    [ "SsvsParams", "structbaecon_1_1bvhar_1_1SsvsParams.html#a72204e3680bd0de404b15364c753c78a", null ],
+    [ "SsvsParams", "structbaecon_1_1bvhar_1_1SsvsParams.html#a5adc089afe1cf19b80f0a8d007bb3c8c", null ],
     [ "_s1", "structbaecon_1_1bvhar_1_1SsvsParams.html#a7df2479a7b86270ec985aa0027d4beb7", null ],
     [ "_s2", "structbaecon_1_1bvhar_1_1SsvsParams.html#aabb0dd4e8fda5293d53b9754910960c1", null ],
     [ "_slab_shape", "structbaecon_1_1bvhar_1_1SsvsParams.html#a996abc44d2702a33280ae876e62035ba", null ],

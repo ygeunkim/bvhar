@@ -16,7 +16,7 @@ var bayes_2triangular_2forecaster_8h =
     [ "baecon::bvhar::CtaExpandforecastRun< BaseForecaster, isGroup, isPath, isUpdate >", "classbaecon_1_1bvhar_1_1CtaExpandforecastRun.html", "classbaecon_1_1bvhar_1_1CtaExpandforecastRun" ],
     [ "baecon::bvhar::CtaVarforecastRun< BaseOutForecast, BaseForecaster, isGroup, isPath, isUpdate >", "classbaecon_1_1bvhar_1_1CtaVarforecastRun.html", "classbaecon_1_1bvhar_1_1CtaVarforecastRun" ],
     [ "baecon::bvhar::CtaVharforecastRun< BaseOutForecast, BaseForecaster, isGroup, isPath, isUpdate >", "classbaecon_1_1bvhar_1_1CtaVharforecastRun.html", "classbaecon_1_1bvhar_1_1CtaVharforecastRun" ],
-    [ "initialize_ctaforecaster", "bayes_2triangular_2forecaster_8h.html#a824e943e2375ab963d1ad110ae4290e2", null ],
-    [ "initialize_ctaoutforecaster", "bayes_2triangular_2forecaster_8h.html#a17bf35a8e298ebead4afc28635070a62", null ],
-    [ "initialize_ctaoutforecaster", "bayes_2triangular_2forecaster_8h.html#a6390f86ea4b35273661c9861732763fa", null ]
+    [ "initialize_ctaforecaster", "bayes_2triangular_2forecaster_8h.html#aca29d3e04bc2dccf8dca2a43f1601b2d", null ],
+    [ "initialize_ctaoutforecaster", "bayes_2triangular_2forecaster_8h.html#a1e46863629f7f510b0816a30ad028019", null ],
+    [ "initialize_ctaoutforecaster", "bayes_2triangular_2forecaster_8h.html#a347f4a4f28952ec386fdc93048da58ac", null ]
 ];

@@ -26,7 +26,7 @@
  <tr id="projectrow">
   <td id="projectlogo"><img alt="Logo" src="apple-touch-icon.png"/></td>
   <td id="projectalign">
-   <div id="projectname">bvhar<span id="projectnumber">&#160;2.4.0</span>
+   <div id="projectname">bvhar<span id="projectnumber">&#160;2.4.1</span>
    </div>
    <div id="projectbrief">C++ headers by bvhar package</div>
   </td>
@@ -103,200 +103,198 @@ $(document).ready(function(){initNavTree('minn__helper_8h_source.html',''); init
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="preprocessor">#define BVHAR_BAYES_MISC_MINN_HELPER_H_H</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span> </div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="preprocessor">#include &quot;<a class="code" href="helper_8h.html">./helper.h</a>&quot;</span></div>
-<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &lt;set&gt;</span></div>
-<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span> </div>
-<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespacebaecon.html">baecon</a> {</div>
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="keyword">namespace </span>bvhar {</div>
-<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span> </div>
-<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="comment">// Numerically Stable Log Marginal Likelihood Excluding Constant Term</span></div>
-<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="comment">// </span></div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="comment">// This function computes log of ML stable,</span></div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="comment">// excluding the constant term.</span></div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="comment">// </span></div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="comment">// @param dim Dimension of the time series</span></div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="comment">// @param num_design The number of the data matrix, \eqn{n = T - p}</span></div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="comment">// @param prior_prec Prior precision of Matrix Normal distribution</span></div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="comment">// @param prior_scale Prior scale of Inverse-Wishart distribution</span></div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="comment">// @param mn_prec Posterior precision of Matrix Normal distribution</span></div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="comment">// @param iw_scale Posterior scale of Inverse-Wishart distribution</span></div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="comment">// @param posterior_shape Posterior shape of Inverse-Wishart distribution</span></div>
-<div class="foldopen" id="foldopen00022" data-start="{" data-end="}">
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#a8b281fc02555cbd704448b963bee03a5">   22</a></span><span class="keyword">inline</span> <span class="keywordtype">double</span> <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a8b281fc02555cbd704448b963bee03a5">compute_logml</a>(<span class="keywordtype">int</span> dim, <span class="keywordtype">int</span> num_design, Eigen::MatrixXd prior_prec, Eigen::MatrixXd prior_scale,</div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>                            Eigen::MatrixXd mn_prec, Eigen::MatrixXd iw_scale, <span class="keywordtype">int</span> posterior_shape) {</div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>  Eigen::LLT&lt;Eigen::MatrixXd&gt; lltOfmn(prior_prec.inverse());</div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>  Eigen::MatrixXd chol_mn = lltOfmn.matrixL();</div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>  Eigen::MatrixXd stable_mat_a = chol_mn.transpose() * (mn_prec - prior_prec) * chol_mn;</div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>  Eigen::LLT&lt;Eigen::MatrixXd&gt; lltOfiw(prior_scale.inverse());</div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>  Eigen::MatrixXd chol_iw = lltOfiw.matrixL();</div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>  Eigen::MatrixXd stable_mat_b = chol_iw.transpose() * (iw_scale - prior_scale) * chol_iw;</div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>  <span class="comment">// eigenvalues</span></div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>  Eigen::SelfAdjointEigenSolver&lt;Eigen::MatrixXd&gt; es_a(stable_mat_a);</div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>  Eigen::VectorXd a_eigen = es_a.eigenvalues();</div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>  Eigen::SelfAdjointEigenSolver&lt;Eigen::MatrixXd&gt; es_b(stable_mat_b);</div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>  Eigen::VectorXd b_eigen = es_b.eigenvalues();</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>  <span class="comment">// sum of log(1 + eigenvalues)</span></div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  <span class="keywordtype">double</span> a_term = a_eigen.array().log1p().sum();</div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  <span class="keywordtype">double</span> b_term = b_eigen.array().log1p().sum();</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="comment">// result</span></div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  <span class="keywordflow">return</span> - num_design / 2.0 * log(prior_scale.determinant()) - dim / 2.0 * a_term - posterior_shape / 2.0 * b_term;</div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>}</div>
+<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span> </div>
+<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespacebaecon.html">baecon</a> {</div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="keyword">namespace </span>bvhar {</div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span> </div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="comment">// Numerically Stable Log Marginal Likelihood Excluding Constant Term</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="comment">// </span></div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="comment">// This function computes log of ML stable,</span></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="comment">// excluding the constant term.</span></div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="comment">// </span></div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="comment">// @param dim Dimension of the time series</span></div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="comment">// @param num_design The number of the data matrix, \eqn{n = T - p}</span></div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="comment">// @param prior_prec Prior precision of Matrix Normal distribution</span></div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="comment">// @param prior_scale Prior scale of Inverse-Wishart distribution</span></div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="comment">// @param mn_prec Posterior precision of Matrix Normal distribution</span></div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="comment">// @param iw_scale Posterior scale of Inverse-Wishart distribution</span></div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="comment">// @param posterior_shape Posterior shape of Inverse-Wishart distribution</span></div>
+<div class="foldopen" id="foldopen00021" data-start="{" data-end="}">
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#a8b281fc02555cbd704448b963bee03a5">   21</a></span><span class="keyword">inline</span> <span class="keywordtype">double</span> <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a8b281fc02555cbd704448b963bee03a5">compute_logml</a>(<span class="keywordtype">int</span> dim, <span class="keywordtype">int</span> num_design, Eigen::MatrixXd prior_prec, Eigen::MatrixXd prior_scale,</div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>                            Eigen::MatrixXd mn_prec, Eigen::MatrixXd iw_scale, <span class="keywordtype">int</span> posterior_shape) {</div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>  Eigen::LLT&lt;Eigen::MatrixXd&gt; lltOfmn(prior_prec.inverse());</div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>  Eigen::MatrixXd chol_mn = lltOfmn.matrixL();</div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>  Eigen::MatrixXd stable_mat_a = chol_mn.transpose() * (mn_prec - prior_prec) * chol_mn;</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>  Eigen::LLT&lt;Eigen::MatrixXd&gt; lltOfiw(prior_scale.inverse());</div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>  Eigen::MatrixXd chol_iw = lltOfiw.matrixL();</div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>  Eigen::MatrixXd stable_mat_b = chol_iw.transpose() * (iw_scale - prior_scale) * chol_iw;</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>  <span class="comment">// eigenvalues</span></div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>  Eigen::SelfAdjointEigenSolver&lt;Eigen::MatrixXd&gt; es_a(stable_mat_a);</div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>  Eigen::VectorXd a_eigen = es_a.eigenvalues();</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>  Eigen::SelfAdjointEigenSolver&lt;Eigen::MatrixXd&gt; es_b(stable_mat_b);</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>  Eigen::VectorXd b_eigen = es_b.eigenvalues();</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>  <span class="comment">// sum of log(1 + eigenvalues)</span></div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>  <span class="keywordtype">double</span> a_term = a_eigen.array().log1p().sum();</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  <span class="keywordtype">double</span> b_term = b_eigen.array().log1p().sum();</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  <span class="comment">// result</span></div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keywordflow">return</span> - num_design / 2.0 * log(prior_scale.determinant()) - dim / 2.0 * a_term - posterior_shape / 2.0 * b_term;</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>}</div>
 </div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="comment">// Log of Joint Posterior Density of Hyperparameters</span></div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span><span class="comment">// </span></div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span><span class="comment">// This function computes the log of joint posterior density of hyperparameters.</span></div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="comment">// </span></div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span><span class="comment">// @param cand_gamma Candidate value of hyperparameters following Gamma distribution</span></div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span><span class="comment">// @param cand_invgam Candidate value of hyperparameters following Inverse Gamma distribution</span></div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span><span class="comment">// @param dim Dimension of the time series</span></div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span><span class="comment">// @param num_design The number of the data matrix, \eqn{n = T - p}</span></div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span><span class="comment">// @param prior_prec Prior precision of Matrix Normal distribution</span></div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span><span class="comment">// @param prior_scale Prior scale of Inverse-Wishart distribution</span></div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span><span class="comment">// @param mn_prec Posterior precision of Matrix Normal distribution</span></div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span><span class="comment">// @param iw_scale Posterior scale of Inverse-Wishart distribution</span></div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span><span class="comment">// @param posterior_shape Posterior shape of Inverse-Wishart distribution</span></div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span><span class="comment">// @param gamma_shape Shape of hyperprior Gamma distribution</span></div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span><span class="comment">// @param gamma_rate Rate of hyperprior Gamma distribution</span></div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span><span class="comment">// @param invgam_shape Shape of hyperprior Inverse gamma distribution</span></div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span><span class="comment">// @param invgam_scl Scale of hyperprior Inverse gamma distribution</span></div>
-<div class="foldopen" id="foldopen00059" data-start="{" data-end="}">
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#a4ca9e10ea5a85ef402ce7174349b9e64">   59</a></span><span class="keyword">inline</span> <span class="keywordtype">double</span> <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a4ca9e10ea5a85ef402ce7174349b9e64">jointdens_hyperparam</a>(<span class="keywordtype">double</span> cand_gamma, Eigen::VectorXd cand_invgam, <span class="keywordtype">int</span> dim, <span class="keywordtype">int</span> num_design,</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>                                   Eigen::MatrixXd prior_prec, Eigen::MatrixXd prior_scale, <span class="keywordtype">int</span> prior_shape,</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>                                   Eigen::MatrixXd mn_prec, Eigen::MatrixXd iw_scale,</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>                                   <span class="keywordtype">int</span> posterior_shape, <span class="keywordtype">double</span> gamma_shp, <span class="keywordtype">double</span> gamma_rate, <span class="keywordtype">double</span> invgam_shp, <span class="keywordtype">double</span> invgam_scl) {</div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>  <span class="keywordtype">double</span> res = <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a8b281fc02555cbd704448b963bee03a5">compute_logml</a>(dim, num_design, prior_prec, prior_scale, mn_prec, iw_scale, posterior_shape);</div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>  res += -dim * num_design / 2.0 * log(M_PI) +</div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    lmgammafn((prior_shape + num_design) / 2.0, dim) -</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    lmgammafn(prior_shape / 2.0, dim); <span class="comment">// constant term</span></div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>  res += gamma_dens(cand_gamma, gamma_shp, 1 / gamma_rate, <span class="keyword">true</span>); <span class="comment">// gamma distribution</span></div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; cand_invgam.size(); i++) {</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    res += invgamma_dens(cand_invgam[i], invgam_shp, invgam_scl, <span class="keyword">true</span>); <span class="comment">// inverse gamma distribution</span></div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>  }</div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>  <span class="keywordflow">return</span> res;</div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>}</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span> </div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span><span class="comment">// Log of Joint Posterior Density of Hyperparameters</span></div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="comment">// </span></div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span><span class="comment">// This function computes the log of joint posterior density of hyperparameters.</span></div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span><span class="comment">// </span></div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="comment">// @param cand_gamma Candidate value of hyperparameters following Gamma distribution</span></div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span><span class="comment">// @param cand_invgam Candidate value of hyperparameters following Inverse Gamma distribution</span></div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span><span class="comment">// @param dim Dimension of the time series</span></div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span><span class="comment">// @param num_design The number of the data matrix, \eqn{n = T - p}</span></div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span><span class="comment">// @param prior_prec Prior precision of Matrix Normal distribution</span></div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span><span class="comment">// @param prior_scale Prior scale of Inverse-Wishart distribution</span></div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span><span class="comment">// @param mn_prec Posterior precision of Matrix Normal distribution</span></div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span><span class="comment">// @param iw_scale Posterior scale of Inverse-Wishart distribution</span></div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span><span class="comment">// @param posterior_shape Posterior shape of Inverse-Wishart distribution</span></div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span><span class="comment">// @param gamma_shape Shape of hyperprior Gamma distribution</span></div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span><span class="comment">// @param gamma_rate Rate of hyperprior Gamma distribution</span></div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span><span class="comment">// @param invgam_shape Shape of hyperprior Inverse gamma distribution</span></div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span><span class="comment">// @param invgam_scl Scale of hyperprior Inverse gamma distribution</span></div>
+<div class="foldopen" id="foldopen00058" data-start="{" data-end="}">
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#a4ca9e10ea5a85ef402ce7174349b9e64">   58</a></span><span class="keyword">inline</span> <span class="keywordtype">double</span> <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a4ca9e10ea5a85ef402ce7174349b9e64">jointdens_hyperparam</a>(<span class="keywordtype">double</span> cand_gamma, Eigen::VectorXd cand_invgam, <span class="keywordtype">int</span> dim, <span class="keywordtype">int</span> num_design,</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>                                   Eigen::MatrixXd prior_prec, Eigen::MatrixXd prior_scale, <span class="keywordtype">int</span> prior_shape,</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>                                   Eigen::MatrixXd mn_prec, Eigen::MatrixXd iw_scale,</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>                                   <span class="keywordtype">int</span> posterior_shape, <span class="keywordtype">double</span> gamma_shp, <span class="keywordtype">double</span> gamma_rate, <span class="keywordtype">double</span> invgam_shp, <span class="keywordtype">double</span> invgam_scl) {</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>  <span class="keywordtype">double</span> res = <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a8b281fc02555cbd704448b963bee03a5">compute_logml</a>(dim, num_design, prior_prec, prior_scale, mn_prec, iw_scale, posterior_shape);</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>  res += -dim * num_design / 2.0 * log(<a class="code hl_define" href="commondefs_8h.html#ae71449b1cc6e6250b91f539153a7a0d3">M_PI</a>) +</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    lmgammafn((prior_shape + num_design) / 2.0, dim) -</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    lmgammafn(prior_shape / 2.0, dim); <span class="comment">// constant term</span></div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>  res += gamma_dens(cand_gamma, gamma_shp, 1 / gamma_rate, <span class="keyword">true</span>); <span class="comment">// gamma distribution</span></div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; cand_invgam.size(); i++) {</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    res += invgamma_dens(cand_invgam[i], invgam_shp, invgam_scl, <span class="keyword">true</span>); <span class="comment">// inverse gamma distribution</span></div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>  }</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>  <span class="keywordflow">return</span> res;</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>}</div>
 </div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span> </div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span><span class="comment">// Generating contemporaneous lambda of Minnesota-SV</span></div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span><span class="comment">// </span></div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span><span class="comment">// @param lambda lambda1 or lambda2</span></div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span><span class="comment">// @param shape Gamma prior shape</span></div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span><span class="comment">// @param rate Gamma prior rate</span></div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span><span class="comment">// @param coef_vec Coefficients vector</span></div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span><span class="comment">// @param coef_mean Prior mean</span></div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span><span class="comment">// @param coef_prec Prior precision matrix</span></div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span><span class="comment">// @param rng boost rng</span></div>
-<div class="foldopen" id="foldopen00083" data-start="{" data-end="}">
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#a591dabc02db8bde6257cb2e6228926d7">   83</a></span><span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a591dabc02db8bde6257cb2e6228926d7">minnesota_lambda</a>(<span class="keywordtype">double</span>&amp; lambda, <span class="keywordtype">double</span>&amp; shape, <span class="keywordtype">double</span>&amp; rate, Eigen::Ref&lt;Eigen::VectorXd&gt; coef,</div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>                             Eigen::Ref&lt;Eigen::VectorXd&gt; coef_mean, Eigen::Ref&lt;Eigen::VectorXd&gt; coef_prec,</div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>                             <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>  coef_prec.array() *= lambda;</div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>  <span class="comment">// double gig_chi = (coef - coef_mean).squaredNorm();</span></div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>  <span class="keywordtype">double</span> gig_chi = ((coef - coef_mean).array().square() * coef_prec.array()).sum();</div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>  lambda = <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#af7bc4252ab994b7a89c6924961f852cc">sim_gig</a>(shape - coef.size() / 2, 2 * rate, gig_chi, rng);</div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>  <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6">cut_param</a>(lambda);</div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>  coef_prec.array() /= lambda;</div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>}</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span> </div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span><span class="comment">// Generating contemporaneous lambda of Minnesota-SV</span></div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span><span class="comment">// </span></div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span><span class="comment">// @param lambda lambda1 or lambda2</span></div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span><span class="comment">// @param shape Gamma prior shape</span></div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span><span class="comment">// @param rate Gamma prior rate</span></div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span><span class="comment">// @param coef_vec Coefficients vector</span></div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span><span class="comment">// @param coef_mean Prior mean</span></div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span><span class="comment">// @param coef_prec Prior precision matrix</span></div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span><span class="comment">// @param rng boost rng</span></div>
+<div class="foldopen" id="foldopen00082" data-start="{" data-end="}">
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#a591dabc02db8bde6257cb2e6228926d7">   82</a></span><span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a591dabc02db8bde6257cb2e6228926d7">minnesota_lambda</a>(<span class="keywordtype">double</span>&amp; lambda, <span class="keywordtype">double</span>&amp; shape, <span class="keywordtype">double</span>&amp; rate, Eigen::Ref&lt;Eigen::VectorXd&gt; coef,</div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>                             Eigen::Ref&lt;Eigen::VectorXd&gt; coef_mean, Eigen::Ref&lt;Eigen::VectorXd&gt; coef_prec,</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>                             <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>  coef_prec.array() *= lambda;</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>  <span class="comment">// double gig_chi = (coef - coef_mean).squaredNorm();</span></div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>  <span class="keywordtype">double</span> gig_chi = ((coef - coef_mean).array().square() * coef_prec.array()).sum();</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>  lambda = <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#af7bc4252ab994b7a89c6924961f852cc">sim_gig</a>(shape - coef.size() / 2, 2 * rate, gig_chi, rng);</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>  coef_prec.array() /= lambda;</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>}</div>
 </div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span> </div>
-<div class="foldopen" id="foldopen00094" data-start="{" data-end="}">
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#a1a20dbdb75296732edb89ef6ad712c95">   94</a></span><span class="keyword">inline</span> <span class="keywordtype">double</span> <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a1a20dbdb75296732edb89ef6ad712c95">minnesota_logdens_scl</a>(<span class="keywordtype">double</span>&amp; cand, Eigen::Ref&lt;Eigen::VectorXd&gt; coef,</div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>                                    Eigen::Ref&lt;Eigen::VectorXd&gt; coef_mean, Eigen::Ref&lt;Eigen::VectorXd&gt; coef_prec,</div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>                                    Eigen::VectorXi&amp; grp_vec, <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::set&lt;int&gt;</a>&amp; grp_id) {</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>  <span class="keywordtype">double</span> gaussian_kernel = 0;</div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>  <span class="keywordtype">int</span> mn_size = 0;</div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; coef.size(); ++i) {</div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>    <span class="keywordflow">if</span> (grp_id.find(grp_vec[i]) != grp_id.end()) {</div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>      mn_size++;</div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>      gaussian_kernel += (coef[i] - coef_mean[i]) * (coef[i] - coef_mean[i]) * coef_prec[i];</div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>    }</div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>  }</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>  <span class="keywordflow">return</span> -(mn_size * log(cand) + gaussian_kernel / cand) / 2;</div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>}</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span> </div>
+<div class="foldopen" id="foldopen00092" data-start="{" data-end="}">
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#a1a20dbdb75296732edb89ef6ad712c95">   92</a></span><span class="keyword">inline</span> <span class="keywordtype">double</span> <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a1a20dbdb75296732edb89ef6ad712c95">minnesota_logdens_scl</a>(<span class="keywordtype">double</span>&amp; cand, Eigen::Ref&lt;Eigen::VectorXd&gt; coef,</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>                                    Eigen::Ref&lt;Eigen::VectorXd&gt; coef_mean, Eigen::Ref&lt;Eigen::VectorXd&gt; coef_prec,</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>                                    Eigen::VectorXi&amp; grp_vec, <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::set&lt;int&gt;</a>&amp; grp_id) {</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>  <span class="keywordtype">double</span> gaussian_kernel = 0;</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>  <span class="keywordtype">int</span> mn_size = 0;</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; coef.size(); ++i) {</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>    <span class="keywordflow">if</span> (grp_id.find(grp_vec[i]) != grp_id.end()) {</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>      mn_size++;</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>      gaussian_kernel += (coef[i] - coef_mean[i]) * (coef[i] - coef_mean[i]) * coef_prec[i];</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>    }</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>  }</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>  <span class="keywordflow">return</span> -(mn_size * log(cand) + gaussian_kernel / cand) / 2;</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>}</div>
 </div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span> </div>
-<div class="foldopen" id="foldopen00108" data-start="{" data-end="}">
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#ac256cded3ade4b404247228d31ef40b6">  108</a></span><span class="keyword">inline</span> <span class="keywordtype">double</span> <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a1a20dbdb75296732edb89ef6ad712c95">minnesota_logdens_scl</a>(<span class="keywordtype">double</span>&amp; cand, Eigen::Ref&lt;Eigen::VectorXd&gt; coef,</div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>                                    Eigen::Ref&lt;Eigen::VectorXd&gt; coef_mean, Eigen::Ref&lt;Eigen::VectorXd&gt; coef_prec,</div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>                                    Eigen::VectorXi&amp; grp_vec, Eigen::VectorXi&amp; grp_id) {</div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>  <span class="keywordtype">double</span> gaussian_kernel = 0;</div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>  <span class="keywordtype">int</span> mn_size = 0;</div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>  <span class="keywordtype">int</span> num_coef = coef.size();</div>
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>  Eigen::Array&lt;bool, Eigen::Dynamic, 1&gt; global_id;</div>
-<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; grp_id.size(); ++i) {</div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>    global_id = grp_vec.array() == grp_id[i];</div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>    mn_size += global_id.count();</div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j = 0; j &lt; num_coef; ++j) {</div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>      <span class="keywordflow">if</span> (global_id[j]) {</div>
-<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>        gaussian_kernel += (coef[j] - coef_mean[j]) * (coef[j] - coef_mean[j]) * coef_prec[j];</div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>      }</div>
-<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>    }</div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>  }</div>
-<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>  <span class="keywordflow">return</span> -(mn_size * log(cand) + gaussian_kernel / cand) / 2;</div>
-<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>}</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span> </div>
+<div class="foldopen" id="foldopen00106" data-start="{" data-end="}">
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#ac256cded3ade4b404247228d31ef40b6">  106</a></span><span class="keyword">inline</span> <span class="keywordtype">double</span> <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a1a20dbdb75296732edb89ef6ad712c95">minnesota_logdens_scl</a>(<span class="keywordtype">double</span>&amp; cand, Eigen::Ref&lt;Eigen::VectorXd&gt; coef,</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>                                    Eigen::Ref&lt;Eigen::VectorXd&gt; coef_mean, Eigen::Ref&lt;Eigen::VectorXd&gt; coef_prec,</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>                                    Eigen::VectorXi&amp; grp_vec, Eigen::VectorXi&amp; grp_id) {</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>  <span class="keywordtype">double</span> gaussian_kernel = 0;</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>  <span class="keywordtype">int</span> mn_size = 0;</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>  <span class="keywordtype">int</span> num_coef = coef.size();</div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>  Eigen::Array&lt;bool, Eigen::Dynamic, 1&gt; global_id;</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; grp_id.size(); ++i) {</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    global_id = grp_vec.array() == grp_id[i];</div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>    mn_size += global_id.count();</div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j = 0; j &lt; num_coef; ++j) {</div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>      <span class="keywordflow">if</span> (global_id[j]) {</div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>        gaussian_kernel += (coef[j] - coef_mean[j]) * (coef[j] - coef_mean[j]) * coef_prec[j];</div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>      }</div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>    }</div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>  }</div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>  <span class="keywordflow">return</span> -(mn_size * log(cand) + gaussian_kernel / cand) / 2;</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>}</div>
 </div>
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span> </div>
-<div class="foldopen" id="foldopen00127" data-start="{" data-end="}">
-<div class="line"><a id="l00127" name="l00127"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#af424963d16635b52e64f8bbc9165f09b">  127</a></span><span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#af424963d16635b52e64f8bbc9165f09b">minnesota_nu_griddy</a>(<span class="keywordtype">double</span>&amp; nu, <span class="keywordtype">int</span> grid_size, Eigen::Ref&lt;Eigen::VectorXd&gt; coef,</div>
-<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>                                Eigen::Ref&lt;Eigen::VectorXd&gt; coef_mean, Eigen::Ref&lt;Eigen::VectorXd&gt; coef_prec,</div>
-<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>                                Eigen::VectorXi&amp; grp_vec, <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::set&lt;int&gt;</a>&amp; grp_id, <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
-<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>  Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size + 2, 0.0, 1.0).segment(1, grid_size);</div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>  Eigen::VectorXd log_wt(grid_size);</div>
-<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>  <span class="keywordtype">double</span> old_nu = nu;</div>
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; grid_size; ++i) {</div>
-<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>    log_wt[i] = <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a1a20dbdb75296732edb89ef6ad712c95">minnesota_logdens_scl</a>(grid[i], coef, coef_mean, coef_prec, grp_vec, grp_id);</div>
-<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>  }</div>
-<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>  Eigen::VectorXd weight = (log_wt.array() - log_wt.maxCoeff()).exp();</div>
-<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>  weight /= weight.sum();</div>
-<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>  nu = grid[cat_rand(weight, rng)];</div>
-<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; coef.size(); ++i) {</div>
-<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>    <span class="keywordflow">if</span> (grp_id.find(grp_vec[i]) != grp_id.end()) {</div>
-<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>      coef_prec[i] *= old_nu / nu;</div>
-<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>    }</div>
-<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>  }</div>
-<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>}</div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span> </div>
+<div class="foldopen" id="foldopen00125" data-start="{" data-end="}">
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#af424963d16635b52e64f8bbc9165f09b">  125</a></span><span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#af424963d16635b52e64f8bbc9165f09b">minnesota_nu_griddy</a>(<span class="keywordtype">double</span>&amp; nu, <span class="keywordtype">int</span> grid_size, Eigen::Ref&lt;Eigen::VectorXd&gt; coef,</div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>                                Eigen::Ref&lt;Eigen::VectorXd&gt; coef_mean, Eigen::Ref&lt;Eigen::VectorXd&gt; coef_prec,</div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>                                Eigen::VectorXi&amp; grp_vec, <a class="code hl_function" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::set&lt;int&gt;</a>&amp; grp_id, <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>  Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size + 2, 0.0, 1.0).segment(1, grid_size);</div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>  Eigen::VectorXd log_wt(grid_size);</div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>  <span class="keywordtype">double</span> old_nu = nu;</div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; grid_size; ++i) {</div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>    log_wt[i] = <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a1a20dbdb75296732edb89ef6ad712c95">minnesota_logdens_scl</a>(grid[i], coef, coef_mean, coef_prec, grp_vec, grp_id);</div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>  }</div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>  Eigen::VectorXd weight = (log_wt.array() - log_wt.maxCoeff()).exp();</div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>  weight /= weight.sum();</div>
+<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>  nu = grid[cat_rand(weight, rng)];</div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; coef.size(); ++i) {</div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>    <span class="keywordflow">if</span> (grp_id.find(grp_vec[i]) != grp_id.end()) {</div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>      coef_prec[i] *= old_nu / nu;</div>
+<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>    }</div>
+<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>  }</div>
+<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>}</div>
 </div>
-<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span> </div>
-<div class="foldopen" id="foldopen00146" data-start="{" data-end="}">
-<div class="line"><a id="l00146" name="l00146"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#a9c0ad6eef15b42985cc3dafe7fbd442c">  146</a></span><span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#af424963d16635b52e64f8bbc9165f09b">minnesota_nu_griddy</a>(<span class="keywordtype">double</span>&amp; nu, <span class="keywordtype">int</span> grid_size, Eigen::Ref&lt;Eigen::VectorXd&gt; coef,</div>
-<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>                                Eigen::Ref&lt;Eigen::VectorXd&gt; coef_mean, Eigen::Ref&lt;Eigen::VectorXd&gt; coef_prec,</div>
-<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>                                Eigen::VectorXi&amp; grp_vec, Eigen::VectorXi&amp; grp_id, <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
-<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>  Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size + 2, 0.0, 1.0).segment(1, grid_size);</div>
-<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>  Eigen::VectorXd log_wt(grid_size);</div>
-<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>  <span class="keywordtype">double</span> old_nu = nu;</div>
-<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; grid_size; ++i) {</div>
-<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>    log_wt[i] = <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a1a20dbdb75296732edb89ef6ad712c95">minnesota_logdens_scl</a>(grid[i], coef, coef_mean, coef_prec, grp_vec, grp_id);</div>
-<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>  }</div>
-<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>  Eigen::VectorXd weight = (log_wt.array() - log_wt.maxCoeff()).exp();</div>
-<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>  weight /= weight.sum();</div>
-<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>  nu = grid[cat_rand(weight, rng)];</div>
-<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>  <span class="keywordtype">int</span> num_coef = coef.size();</div>
-<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>  Eigen::Array&lt;bool, Eigen::Dynamic, 1&gt; global_id;</div>
-<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; grp_id.size(); ++i) {</div>
-<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>    global_id = grp_vec.array() == grp_id[i];</div>
-<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j = 0; j &lt; num_coef; ++j) {</div>
-<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>      <span class="keywordflow">if</span> (global_id[j]) {</div>
-<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>        coef_prec[j] *= old_nu / nu;</div>
-<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>      }</div>
-<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>    }</div>
-<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>  }</div>
-<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>}</div>
+<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span> </div>
+<div class="foldopen" id="foldopen00144" data-start="{" data-end="}">
+<div class="line"><a id="l00144" name="l00144"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#a9c0ad6eef15b42985cc3dafe7fbd442c">  144</a></span><span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#af424963d16635b52e64f8bbc9165f09b">minnesota_nu_griddy</a>(<span class="keywordtype">double</span>&amp; nu, <span class="keywordtype">int</span> grid_size, Eigen::Ref&lt;Eigen::VectorXd&gt; coef,</div>
+<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>                                Eigen::Ref&lt;Eigen::VectorXd&gt; coef_mean, Eigen::Ref&lt;Eigen::VectorXd&gt; coef_prec,</div>
+<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>                                Eigen::VectorXi&amp; grp_vec, Eigen::VectorXi&amp; grp_id, <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>  Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size + 2, 0.0, 1.0).segment(1, grid_size);</div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>  Eigen::VectorXd log_wt(grid_size);</div>
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>  <span class="keywordtype">double</span> old_nu = nu;</div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; grid_size; ++i) {</div>
+<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>    log_wt[i] = <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a1a20dbdb75296732edb89ef6ad712c95">minnesota_logdens_scl</a>(grid[i], coef, coef_mean, coef_prec, grp_vec, grp_id);</div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>  }</div>
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>  Eigen::VectorXd weight = (log_wt.array() - log_wt.maxCoeff()).exp();</div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>  weight /= weight.sum();</div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>  nu = grid[cat_rand(weight, rng)];</div>
+<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>  <span class="keywordtype">int</span> num_coef = coef.size();</div>
+<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>  Eigen::Array&lt;bool, Eigen::Dynamic, 1&gt; global_id;</div>
+<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; grp_id.size(); ++i) {</div>
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>    global_id = grp_vec.array() == grp_id[i];</div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j = 0; j &lt; num_coef; ++j) {</div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>      <span class="keywordflow">if</span> (global_id[j]) {</div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>        coef_prec[j] *= old_nu / nu;</div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>      }</div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>    }</div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>  }</div>
+<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>}</div>
 </div>
-<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span> </div>
-<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>} <span class="comment">// namespace bvhar</span></div>
-<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>} <span class="comment">// namespace baecon</span></div>
-<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span> </div>
-<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span><span class="preprocessor">#endif </span><span class="comment">// BVHAR_BAYES_MISC_MINN_HELPER_H_H</span></div>
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span> </div>
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>} <span class="comment">// namespace bvhar</span></div>
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>} <span class="comment">// namespace baecon</span></div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span> </div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span><span class="preprocessor">#endif </span><span class="comment">// BVHAR_BAYES_MISC_MINN_HELPER_H_H</span></div>
 <div class="ttc" id="acommon_8h_html_a6cf9f648a944e66c2478fa29468b7ac0"><div class="ttname"><a href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a></div><div class="ttdeci">#define BVHAR_BHRNG</div><div class="ttdef"><b>Definition</b> common.h:34</div></div>
+<div class="ttc" id="acommondefs_8h_html_ae71449b1cc6e6250b91f539153a7a0d3"><div class="ttname"><a href="commondefs_8h.html#ae71449b1cc6e6250b91f539153a7a0d3">M_PI</a></div><div class="ttdeci">#define M_PI</div><div class="ttdef"><b>Definition</b> commondefs.h:154</div></div>
 <div class="ttc" id="ahelper_8h_html"><div class="ttname"><a href="helper_8h.html">helper.h</a></div></div>
-<div class="ttc" id="anamespacebaecon_1_1bvhar_html_a1a20dbdb75296732edb89ef6ad712c95"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a1a20dbdb75296732edb89ef6ad712c95">baecon::bvhar::minnesota_logdens_scl</a></div><div class="ttdeci">double minnesota_logdens_scl(double &amp;cand, Eigen::Ref&lt; Eigen::VectorXd &gt; coef, Eigen::Ref&lt; Eigen::VectorXd &gt; coef_mean, Eigen::Ref&lt; Eigen::VectorXd &gt; coef_prec, Eigen::VectorXi &amp;grp_vec, std::set&lt; int &gt; &amp;grp_id)</div><div class="ttdef"><b>Definition</b> minn_helper.h:94</div></div>
-<div class="ttc" id="anamespacebaecon_1_1bvhar_html_a4ca9e10ea5a85ef402ce7174349b9e64"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a4ca9e10ea5a85ef402ce7174349b9e64">baecon::bvhar::jointdens_hyperparam</a></div><div class="ttdeci">double jointdens_hyperparam(double cand_gamma, Eigen::VectorXd cand_invgam, int dim, int num_design, Eigen::MatrixXd prior_prec, Eigen::MatrixXd prior_scale, int prior_shape, Eigen::MatrixXd mn_prec, Eigen::MatrixXd iw_scale, int posterior_shape, double gamma_shp, double gamma_rate, double invgam_shp, double invgam_scl)</div><div class="ttdef"><b>Definition</b> minn_helper.h:59</div></div>
-<div class="ttc" id="anamespacebaecon_1_1bvhar_html_a591dabc02db8bde6257cb2e6228926d7"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a591dabc02db8bde6257cb2e6228926d7">baecon::bvhar::minnesota_lambda</a></div><div class="ttdeci">void minnesota_lambda(double &amp;lambda, double &amp;shape, double &amp;rate, Eigen::Ref&lt; Eigen::VectorXd &gt; coef, Eigen::Ref&lt; Eigen::VectorXd &gt; coef_mean, Eigen::Ref&lt; Eigen::VectorXd &gt; coef_prec, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> minn_helper.h:83</div></div>
-<div class="ttc" id="anamespacebaecon_1_1bvhar_html_a8b281fc02555cbd704448b963bee03a5"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a8b281fc02555cbd704448b963bee03a5">baecon::bvhar::compute_logml</a></div><div class="ttdeci">double compute_logml(int dim, int num_design, Eigen::MatrixXd prior_prec, Eigen::MatrixXd prior_scale, Eigen::MatrixXd mn_prec, Eigen::MatrixXd iw_scale, int posterior_shape)</div><div class="ttdef"><b>Definition</b> minn_helper.h:22</div></div>
-<div class="ttc" id="anamespacebaecon_1_1bvhar_html_ac9248c352d5f64ac9b9595197784a9e6"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#ac9248c352d5f64ac9b9595197784a9e6">baecon::bvhar::cut_param</a></div><div class="ttdeci">void cut_param(Eigen::Ref&lt; Eigen::VectorXd &gt; param)</div><div class="ttdef"><b>Definition</b> helper.h:37</div></div>
-<div class="ttc" id="anamespacebaecon_1_1bvhar_html_af424963d16635b52e64f8bbc9165f09b"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#af424963d16635b52e64f8bbc9165f09b">baecon::bvhar::minnesota_nu_griddy</a></div><div class="ttdeci">void minnesota_nu_griddy(double &amp;nu, int grid_size, Eigen::Ref&lt; Eigen::VectorXd &gt; coef, Eigen::Ref&lt; Eigen::VectorXd &gt; coef_mean, Eigen::Ref&lt; Eigen::VectorXd &gt; coef_prec, Eigen::VectorXi &amp;grp_vec, std::set&lt; int &gt; &amp;grp_id, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> minn_helper.h:127</div></div>
+<div class="ttc" id="anamespacebaecon_1_1bvhar_html_a1a20dbdb75296732edb89ef6ad712c95"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a1a20dbdb75296732edb89ef6ad712c95">baecon::bvhar::minnesota_logdens_scl</a></div><div class="ttdeci">double minnesota_logdens_scl(double &amp;cand, Eigen::Ref&lt; Eigen::VectorXd &gt; coef, Eigen::Ref&lt; Eigen::VectorXd &gt; coef_mean, Eigen::Ref&lt; Eigen::VectorXd &gt; coef_prec, Eigen::VectorXi &amp;grp_vec, std::set&lt; int &gt; &amp;grp_id)</div><div class="ttdef"><b>Definition</b> minn_helper.h:92</div></div>
+<div class="ttc" id="anamespacebaecon_1_1bvhar_html_a4ca9e10ea5a85ef402ce7174349b9e64"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a4ca9e10ea5a85ef402ce7174349b9e64">baecon::bvhar::jointdens_hyperparam</a></div><div class="ttdeci">double jointdens_hyperparam(double cand_gamma, Eigen::VectorXd cand_invgam, int dim, int num_design, Eigen::MatrixXd prior_prec, Eigen::MatrixXd prior_scale, int prior_shape, Eigen::MatrixXd mn_prec, Eigen::MatrixXd iw_scale, int posterior_shape, double gamma_shp, double gamma_rate, double invgam_shp, double invgam_scl)</div><div class="ttdef"><b>Definition</b> minn_helper.h:58</div></div>
+<div class="ttc" id="anamespacebaecon_1_1bvhar_html_a591dabc02db8bde6257cb2e6228926d7"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a591dabc02db8bde6257cb2e6228926d7">baecon::bvhar::minnesota_lambda</a></div><div class="ttdeci">void minnesota_lambda(double &amp;lambda, double &amp;shape, double &amp;rate, Eigen::Ref&lt; Eigen::VectorXd &gt; coef, Eigen::Ref&lt; Eigen::VectorXd &gt; coef_mean, Eigen::Ref&lt; Eigen::VectorXd &gt; coef_prec, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> minn_helper.h:82</div></div>
+<div class="ttc" id="anamespacebaecon_1_1bvhar_html_a8b281fc02555cbd704448b963bee03a5"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a8b281fc02555cbd704448b963bee03a5">baecon::bvhar::compute_logml</a></div><div class="ttdeci">double compute_logml(int dim, int num_design, Eigen::MatrixXd prior_prec, Eigen::MatrixXd prior_scale, Eigen::MatrixXd mn_prec, Eigen::MatrixXd iw_scale, int posterior_shape)</div><div class="ttdef"><b>Definition</b> minn_helper.h:21</div></div>
+<div class="ttc" id="anamespacebaecon_1_1bvhar_html_af424963d16635b52e64f8bbc9165f09b"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#af424963d16635b52e64f8bbc9165f09b">baecon::bvhar::minnesota_nu_griddy</a></div><div class="ttdeci">void minnesota_nu_griddy(double &amp;nu, int grid_size, Eigen::Ref&lt; Eigen::VectorXd &gt; coef, Eigen::Ref&lt; Eigen::VectorXd &gt; coef_mean, Eigen::Ref&lt; Eigen::VectorXd &gt; coef_prec, Eigen::VectorXi &amp;grp_vec, std::set&lt; int &gt; &amp;grp_id, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> minn_helper.h:125</div></div>
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_af7bc4252ab994b7a89c6924961f852cc"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#af7bc4252ab994b7a89c6924961f852cc">baecon::bvhar::sim_gig</a></div><div class="ttdeci">double sim_gig(double lambda, double psi, double chi, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> random.h:316</div></div>
 <div class="ttc" id="anamespacebaecon_html"><div class="ttname"><a href="namespacebaecon.html">baecon</a></div><div class="ttdef"><b>Definition</b> bayes.h:16</div></div>
-<div class="ttc" id="anamespacestd_html_a03d5ca705e3360c607bf2586e9a9de3b"><div class="ttname"><a href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::make_unique</a></div><div class="ttdeci">unique_ptr&lt; T &gt; make_unique(Args &amp;&amp;... args)</div><div class="ttdef"><b>Definition</b> commondefs.h:123</div></div>
+<div class="ttc" id="anamespacestd_html_a03d5ca705e3360c607bf2586e9a9de3b"><div class="ttname"><a href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::make_unique</a></div><div class="ttdeci">unique_ptr&lt; T &gt; make_unique(Args &amp;&amp;... args)</div><div class="ttdef"><b>Definition</b> commondefs.h:170</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

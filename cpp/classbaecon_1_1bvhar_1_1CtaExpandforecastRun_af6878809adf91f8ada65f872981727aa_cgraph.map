@@ -1,0 +1,8 @@
+<map id="baecon::bvhar::CtaExpandforecastRun::initMcmc" name="baecon::bvhar::CtaExpandforecastRun::initMcmc">
+<area shape="rect" id="Node000001" title="Initialize CTA." alt="" coords="5,47,251,87"/>
+<area shape="rect" id="Node000002" href="$classbaecon_1_1bvhar_1_1CtaOutforecastRun.html#ae3a58e82446450e58a7a26fd6a13dbe0" title="Define VAR or VHAR design matrix." alt="" coords="299,5,519,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="250,46,285,41,285,46,251,51"/>
+<area shape="rect" id="Node000003" href="$namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b" title=" " alt="" coords="340,94,477,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="251,82,327,92,326,98,250,87"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="364,96,354,86,359,76,377,69,409,67,449,72,460,77,464,83,459,85,456,81,448,77,409,73,378,75,362,80,359,85,367,92"/>
+</map>

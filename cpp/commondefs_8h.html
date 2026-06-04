@@ -26,7 +26,7 @@
  <tr id="projectrow">
   <td id="projectlogo"><img alt="Logo" src="apple-touch-icon.png"/></td>
   <td id="projectalign">
-   <div id="projectname">bvhar<span id="projectnumber">&#160;2.4.0</span>
+   <div id="projectname">bvhar<span id="projectnumber">&#160;2.4.1</span>
    </div>
    <div id="projectbrief">C++ headers by bvhar package</div>
   </td>
@@ -101,10 +101,13 @@ $(document).ready(function(){initNavTree('commondefs_8h.html',''); initResizable
 
 <p>Common header.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &lt;Rcpp.h&gt;</code><br />
-<code>#include &lt;cmath&gt;</code><br />
+<div class="textblock"><code>#include &lt;cmath&gt;</code><br />
 <code>#include &lt;string&gt;</code><br />
-<code>#include &lt;RcppThread/Rcout.hpp&gt;</code><br />
+<code>#include &lt;vector&gt;</code><br />
+<code>#include &lt;utility&gt;</code><br />
+<code>#include &lt;algorithm&gt;</code><br />
+<code>#include &lt;set&gt;</code><br />
+<code>#include &quot;<a class="el" href="commoncpp_8h_source.html">./commoncpp.h</a>&quot;</code><br />
 <code>#include &lt;memory&gt;</code><br />
 <code>#include &lt;type_traits&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
@@ -112,19 +115,41 @@ Include dependency graph for commondefs.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="commondefs_8h__incl.png" border="0" usemap="#acommondefs_8h" alt=""/></div>
 <map name="acommondefs_8h" id="acommondefs_8h">
-<area shape="rect" title="Common header." alt="" coords="222,5,341,31"/>
-<area shape="rect" title=" " alt="" coords="5,79,72,104"/>
-<area shape="poly" title=" " alt="" coords="243,33,86,79,85,74,242,28"/>
-<area shape="rect" title=" " alt="" coords="97,79,159,104"/>
-<area shape="poly" title=" " alt="" coords="258,33,166,75,164,70,256,28"/>
-<area shape="rect" title=" " alt="" coords="184,79,243,104"/>
-<area shape="poly" title=" " alt="" coords="272,33,236,70,232,67,268,29"/>
-<area shape="rect" title=" " alt="" coords="267,79,435,104"/>
-<area shape="poly" title=" " alt="" coords="295,29,332,67,328,71,291,33"/>
-<area shape="rect" title=" " alt="" coords="459,79,536,104"/>
-<area shape="poly" title=" " alt="" coords="317,28,450,72,449,77,315,33"/>
-<area shape="rect" title=" " alt="" coords="561,79,653,104"/>
-<area shape="poly" title=" " alt="" coords="334,28,548,74,546,80,333,33"/>
+<area shape="rect" title="Common header." alt="" coords="282,5,401,31"/>
+<area shape="rect" title=" " alt="" coords="41,79,103,104"/>
+<area shape="poly" title=" " alt="" coords="299,33,117,81,116,76,297,28"/>
+<area shape="rect" title=" " alt="" coords="5,152,64,177"/>
+<area shape="poly" title=" " alt="" coords="313,33,201,81,69,148,67,143,199,76,311,28"/>
+<area shape="rect" title=" " alt="" coords="89,152,151,177"/>
+<area shape="poly" title=" " alt="" coords="323,33,243,81,148,146,145,142,240,76,320,28"/>
+<area shape="rect" title=" " alt="" coords="175,152,235,177"/>
+<area shape="poly" title=" " alt="" coords="326,33,299,54,270,81,244,112,222,142,218,139,240,108,266,77,295,50,323,29"/>
+<area shape="rect" title=" " alt="" coords="477,79,563,104"/>
+<area shape="poly" title=" " alt="" coords="371,28,479,71,477,76,369,33"/>
+<area shape="rect" title=" " alt="" coords="587,79,629,104"/>
+<area shape="poly" title=" " alt="" coords="391,28,574,76,573,81,390,33"/>
+<area shape="rect" href="commoncpp_8h.html" title="Rcpp and Pybind11 alternatives in C++." alt="" coords="280,79,403,104"/>
+<area shape="poly" title=" " alt="" coords="344,31,344,65,339,65,339,31"/>
+<area shape="rect" title=" " alt="" coords="798,152,890,177"/>
+<area shape="poly" title=" " alt="" coords="356,29,402,66,433,85,466,102,511,117,551,127,621,136,693,139,785,149,784,154,693,145,620,141,550,132,510,122,464,106,431,90,399,70,352,33"/>
+<area shape="rect" title=" " alt="" coords="653,79,731,104"/>
+<area shape="poly" title=" " alt="" coords="402,28,640,76,639,81,401,33"/>
+<area shape="poly" title=" " alt="" coords="287,107,78,154,77,149,286,101"/>
+<area shape="poly" title=" " alt="" coords="307,107,165,152,163,147,305,101"/>
+<area shape="poly" title=" " alt="" coords="321,106,241,148,238,143,318,102"/>
+<area shape="rect" title=" " alt="" coords="260,152,321,177"/>
+<area shape="poly" title=" " alt="" coords="335,106,309,142,305,139,331,103"/>
+<area shape="rect" title=" " alt="" coords="346,152,411,177"/>
+<area shape="poly" title=" " alt="" coords="350,103,369,139,364,141,345,106"/>
+<area shape="rect" title=" " alt="" coords="436,152,487,177"/>
+<area shape="poly" title=" " alt="" coords="362,102,431,142,428,147,359,106"/>
+<area shape="rect" title=" " alt="" coords="511,152,558,177"/>
+<area shape="poly" title=" " alt="" coords="373,102,499,147,497,152,371,107"/>
+<area shape="rect" title=" " alt="" coords="583,152,663,177"/>
+<area shape="poly" title=" " alt="" coords="387,101,570,147,569,153,386,107"/>
+<area shape="rect" title=" " alt="" coords="687,152,774,177"/>
+<area shape="poly" title=" " alt="" coords="403,101,675,149,674,155,402,106"/>
+<area shape="poly" title=" " alt="" coords="403,99,422,101,602,123,785,149,784,154,601,129,421,107,403,104"/>
 </map>
 </div>
 </div><div class="textblock"><div class="dynheader">
@@ -132,125 +157,144 @@ This graph shows which files directly or indirectly include this file:</div>
 <div class="dyncontent">
 <div class="center"><img src="commondefs_8h__dep__incl.png" border="0" usemap="#acommondefs_8hdep" alt=""/></div>
 <map name="acommondefs_8hdep" id="acommondefs_8hdep">
-<area shape="rect" title="Common header." alt="" coords="391,5,510,31"/>
-<area shape="rect" href="eigen_8h.html" title=" " alt="" coords="465,79,535,104"/>
-<area shape="poly" title=" " alt="" coords="469,41,494,77,490,80,464,44"/>
-<area shape="rect" href="spdlog_8h.html" title=" " alt="" coords="363,79,440,104"/>
-<area shape="poly" title=" " alt="" coords="437,44,412,80,407,77,433,41"/>
-<area shape="rect" href="common_8h.html" title=" " alt="" coords="356,152,447,177"/>
-<area shape="poly" title=" " alt="" coords="475,114,419,154,416,150,472,110"/>
-<area shape="rect" href="design_8h.html" title=" " alt="" coords="557,372,635,397"/>
-<area shape="poly" title=" " alt="" coords="510,116,595,371,590,373,505,118"/>
-<area shape="rect" href="bayes_8h.html" title="MCMC base class." alt="" coords="307,445,381,471"/>
-<area shape="poly" title=" " alt="" coords="377,188,361,206,349,226,342,271,340,335,346,445,340,445,335,335,336,271,344,224,357,203,373,185"/>
-<area shape="rect" href="core_2forecaster_8h.html" title=" " alt="" coords="5,445,104,471"/>
-<area shape="poly" title=" " alt="" coords="344,183,292,200,234,225,176,258,125,300,98,337,78,379,59,446,54,444,73,377,93,335,121,297,173,254,231,220,290,195,342,178"/>
-<area shape="rect" href="optim_8h.html" title=" " alt="" coords="456,299,528,324"/>
-<area shape="poly" title=" " alt="" coords="426,186,458,224,478,264,491,298,486,299,474,266,454,227,422,189"/>
-<area shape="rect" href="progress_8h.html" title=" " alt="" coords="229,372,320,397"/>
-<area shape="poly" title=" " alt="" coords="354,185,325,203,301,227,283,265,276,306,274,344,276,372,271,372,269,344,270,305,278,263,296,224,322,198,352,181"/>
-<area shape="rect" href="random_8h.html" title=" " alt="" coords="359,225,443,251"/>
-<area shape="poly" title=" " alt="" coords="404,191,404,225,399,225,399,191"/>
-<area shape="rect" href="structural_8h.html" title=" " alt="" coords="1117,225,1213,251"/>
-<area shape="poly" title=" " alt="" coords="460,169,1117,230,1117,235,460,174"/>
-<area shape="rect" href="mniw_2config_8h.html" title=" " alt="" coords="307,519,381,544"/>
-<area shape="poly" title=" " alt="" coords="347,484,347,519,341,519,341,484"/>
-<area shape="rect" href="triangular_2config_8h.html" title="Headers including MCMC configuration structs." alt="" coords="693,519,766,544"/>
-<area shape="poly" title=" " alt="" coords="395,466,693,521,692,526,394,471"/>
-<area shape="rect" href="bayes_2forecaster_8h.html" title=" " alt="" coords="5,519,104,544"/>
-<area shape="poly" title=" " alt="" coords="294,474,102,521,101,516,293,469"/>
-<area shape="rect" href="minnesota_8h.html" title=" " alt="" coords="298,592,401,617"/>
-<area shape="poly" title=" " alt="" coords="349,558,351,592,346,592,343,558"/>
-<area shape="rect" href="bayes_2mniw_2forecaster_8h.html" title=" " alt="" coords="200,665,299,691"/>
-<area shape="poly" title=" " alt="" coords="324,627,267,667,264,663,321,623"/>
-<area shape="rect" href="bayes_2mniw_2spillover_8h.html" title=" " alt="" coords="394,665,483,691"/>
-<area shape="poly" title=" " alt="" coords="376,624,426,663,422,667,373,628"/>
-<area shape="rect" href="triangular_8h.html" title="Header including MCMC algorithm." alt="" coords="871,665,967,691"/>
-<area shape="poly" title=" " alt="" coords="757,551,905,663,902,667,754,555"/>
-<area shape="rect" href="bayes_2triangular_2forecaster_8h.html" title=" " alt="" coords="575,739,673,764"/>
-<area shape="poly" title=" " alt="" coords="859,696,672,741,671,736,858,691"/>
-<area shape="rect" href="bayes_2triangular_2spillover_8h.html" title=" " alt="" coords="1169,739,1258,764"/>
-<area shape="poly" title=" " alt="" coords="980,691,1169,737,1168,742,978,696"/>
-<area shape="rect" href="regforecaster_8h.html" title=" " alt="" coords="493,812,613,837"/>
-<area shape="poly" title=" " alt="" coords="605,776,567,814,563,810,601,772"/>
-<area shape="rect" href="svforecaster_8h.html" title=" " alt="" coords="637,812,752,837"/>
-<area shape="poly" title=" " alt="" coords="647,772,685,810,681,814,643,776"/>
-<area shape="rect" href="regspillover_8h.html" title=" " alt="" coords="1093,812,1203,837"/>
-<area shape="poly" title=" " alt="" coords="1195,776,1161,814,1157,810,1191,773"/>
-<area shape="rect" href="svspillover_8h.html" title=" " alt="" coords="1228,812,1332,837"/>
-<area shape="poly" title=" " alt="" coords="1236,773,1271,810,1267,814,1232,776"/>
-<area shape="poly" title=" " alt="" coords="69,555,88,587,115,624,149,660,189,688,220,700,263,711,369,728,482,739,575,745,574,750,481,744,368,733,262,716,219,706,187,693,146,664,111,627,84,590,65,558"/>
-<area shape="poly" title=" " alt="" coords="57,484,57,519,52,519,52,484"/>
-<area shape="rect" href="ols_2forecaster_8h.html" title=" " alt="" coords="179,519,277,544"/>
-<area shape="poly" title=" " alt="" coords="96,473,201,516,199,521,94,478"/>
-<area shape="rect" href="simulator_8h.html" title=" " alt="" coords="179,592,274,617"/>
-<area shape="poly" title=" " alt="" coords="230,558,230,592,224,592,225,558"/>
-<area shape="rect" href="tuning_8h.html" title=" " alt="" coords="635,445,709,471"/>
-<area shape="poly" title=" " alt="" coords="505,335,522,366,547,395,591,424,635,443,633,448,588,429,544,399,518,369,500,338"/>
-<area shape="poly" title=" " alt="" coords="635,479,376,594,374,590,633,474"/>
-<area shape="poly" title=" " alt="" coords="297,405,335,443,331,447,294,409"/>
-<area shape="poly" title=" " alt="" coords="280,410,286,440,297,469,314,496,334,517,330,520,310,499,292,472,281,441,275,412"/>
-<area shape="poly" title=" " alt="" coords="346,248,282,262,248,272,216,286,187,304,165,326,149,352,144,384,144,533,148,577,155,595,169,616,197,643,227,663,224,668,193,648,165,619,151,597,143,578,139,533,139,383,144,350,160,323,184,300,213,282,246,267,281,256,345,243"/>
-<area shape="poly" title=" " alt="" coords="409,264,417,318,421,383,421,459,429,579,439,665,434,665,423,580,416,459,416,383,412,319,404,265"/>
-<area shape="poly" title=" " alt="" coords="360,259,323,277,284,302,247,334,220,373,212,392,209,412,210,453,217,490,226,518,221,519,212,492,204,454,204,412,207,391,215,371,244,331,281,298,320,272,357,254"/>
-<area shape="rect" href="helper_8h.html" title=" " alt="" coords="1128,299,1203,324"/>
-<area shape="poly" title=" " alt="" coords="457,242,1128,304,1128,309,457,247"/>
-<area shape="rect" href="coef__helper_8h.html" title=" " alt="" coords="1175,372,1284,397"/>
-<area shape="poly" title=" " alt="" coords="1187,333,1221,370,1217,374,1183,336"/>
-<area shape="rect" href="dl__helper_8h.html" title=" " alt="" coords="1308,372,1401,397"/>
-<area shape="poly" title=" " alt="" coords="1209,326,1325,369,1323,374,1208,331"/>
-<area shape="rect" href="factor__helper_8h.html" title=" " alt="" coords="1426,372,1545,397"/>
-<area shape="poly" title=" " alt="" coords="1216,321,1435,369,1433,375,1215,326"/>
-<area shape="rect" href="gdp__helper_8h.html" title=" " alt="" coords="1569,372,1674,397"/>
-<area shape="poly" title=" " alt="" coords="1217,317,1558,369,1569,371,1568,377,1557,375,1216,323"/>
-<area shape="rect" href="hs__helper_8h.html" title=" " alt="" coords="1699,372,1795,397"/>
-<area shape="poly" title=" " alt="" coords="1217,315,1422,335,1687,369,1699,371,1698,377,1686,375,1422,341,1216,320"/>
-<area shape="rect" href="minn__helper_8h.html" title=" " alt="" coords="659,372,773,397"/>
-<area shape="poly" title=" " alt="" coords="1115,323,787,375,774,377,773,371,786,369,1114,318"/>
-<area shape="rect" href="ng__helper_8h.html" title=" " alt="" coords="798,372,895,397"/>
-<area shape="poly" title=" " alt="" coords="1115,327,896,375,895,370,1114,321"/>
-<area shape="rect" href="ssvs__helper_8h.html" title=" " alt="" coords="919,372,1030,397"/>
-<area shape="poly" title=" " alt="" coords="1123,331,1007,374,1005,369,1121,326"/>
-<area shape="rect" href="sv__helper_8h.html" title=" " alt="" coords="1055,372,1151,397"/>
-<area shape="poly" title=" " alt="" coords="1148,336,1115,374,1111,370,1144,333"/>
-<area shape="rect" href="draw_8h.html" title=" " alt="" coords="1005,445,1070,471"/>
-<area shape="poly" title=" " alt="" coords="1186,405,1070,448,1068,443,1185,400"/>
-<area shape="poly" title=" " alt="" coords="991,467,381,529,381,524,991,461"/>
-<area shape="poly" title=" " alt="" coords="992,473,779,521,767,524,766,519,778,516,990,467"/>
-<area shape="rect" href="dfm_2config_8h.html" title=" " alt="" coords="1001,519,1074,544"/>
-<area shape="poly" title=" " alt="" coords="1040,484,1040,519,1035,519,1035,484"/>
-<area shape="rect" href="shrinkage_2config_8h.html" title=" " alt="" coords="903,519,977,544"/>
-<area shape="poly" title=" " alt="" coords="1012,481,957,521,954,516,1009,477"/>
-<area shape="rect" href="augment_8h.html" title="Header including factor augmenters." alt="" coords="991,592,1083,617"/>
-<area shape="poly" title=" " alt="" coords="1040,558,1040,592,1035,592,1035,558"/>
-<area shape="poly" title=" " alt="" coords="1008,627,939,667,937,663,1005,622"/>
-<area shape="rect" href="shrinkage_8h.html" title=" " alt="" coords="870,592,967,617"/>
-<area shape="poly" title=" " alt="" coords="935,558,925,593,920,591,930,557"/>
-<area shape="poly" title=" " alt="" coords="921,631,921,665,916,665,916,631"/>
-<area shape="poly" title=" " alt="" coords="1295,402,1071,452,1070,447,1294,397"/>
-<area shape="poly" title=" " alt="" coords="1413,400,1071,454,1070,449,1412,395"/>
-<area shape="poly" title=" " alt="" coords="1555,400,1271,436,1071,456,1070,451,1271,430,1555,395"/>
-<area shape="poly" title=" " alt="" coords="1685,400,1500,422,1322,439,1070,457,1070,452,1321,434,1499,417,1685,395"/>
-<area shape="poly" title=" " alt="" coords="704,411,681,447,677,444,699,408"/>
-<area shape="poly" title=" " alt="" coords="781,398,1005,447,1004,452,780,403"/>
-<area shape="poly" title=" " alt="" coords="891,400,1007,443,1005,448,889,405"/>
-<area shape="poly" title=" " alt="" coords="996,406,1029,443,1025,447,992,409"/>
-<area shape="poly" title=" " alt="" coords="1085,409,1050,447,1046,443,1081,406"/>
-<area shape="poly" title=" " alt="" coords="1104,241,992,245,922,252,847,264,769,280,692,304,616,335,547,374,528,390,516,405,497,446,482,492,466,556,444,666,438,664,461,555,477,490,492,444,511,402,524,386,544,370,614,330,690,299,768,275,846,258,922,247,991,240,1104,235"/>
-<area shape="poly" title=" " alt="" coords="1227,236,1403,240,1511,247,1620,258,1722,276,1806,302,1838,318,1864,337,1880,359,1885,383,1885,606,1880,630,1864,651,1839,669,1807,685,1725,710,1627,728,1522,740,1419,748,1258,753,1258,747,1419,742,1522,735,1626,723,1724,705,1805,680,1837,664,1860,647,1875,628,1880,606,1880,384,1875,361,1860,341,1836,323,1804,307,1720,282,1620,264,1511,252,1403,245,1227,241"/>
-<area shape="poly" title=" " alt="" coords="1168,264,1168,299,1163,299,1163,264"/>
-<area shape="rect" href="ols_2spillover_8h.html" title=" " alt="" coords="790,519,879,544"/>
-<area shape="poly" title=" " alt="" coords="1227,241,1403,259,1509,272,1613,289,1705,310,1775,335,1799,349,1814,364,1818,381,1809,399,1778,426,1738,448,1690,465,1636,479,1512,497,1375,506,1101,510,984,513,892,521,880,523,879,518,892,516,984,508,1101,505,1374,501,1511,492,1635,474,1689,460,1736,443,1775,422,1805,396,1813,380,1809,367,1796,353,1773,340,1704,315,1612,295,1508,278,1402,264,1227,247"/>
-<area shape="poly" title=" " alt="" coords="598,412,591,443,584,459,574,473,540,492,489,507,382,527,381,522,487,502,538,487,570,469,580,456,586,441,593,411"/>
-<area shape="poly" title=" " alt="" coords="643,400,691,421,711,432,723,444,732,463,736,483,734,519,729,518,731,484,727,464,719,447,708,436,688,425,641,405"/>
-<area shape="poly" title=" " alt="" coords="620,405,661,443,658,447,616,409"/>
-<area shape="poly" title=" " alt="" coords="649,399,793,443,1007,516,1005,521,791,448,647,404"/>
-<area shape="poly" title=" " alt="" coords="638,400,745,443,915,516,913,521,743,448,636,405"/>
-<area shape="rect" href="ols_8h.html" title=" " alt="" coords="507,445,560,471"/>
-<area shape="poly" title=" " alt="" coords="579,409,545,447,541,443,575,406"/>
-<area shape="poly" title=" " alt="" coords="494,471,278,521,277,516,493,466"/>
-<area shape="poly" title=" " alt="" coords="574,466,790,517,789,522,573,471"/>
-<area shape="poly" title=" " alt="" coords="404,118,404,152,399,152,399,118"/>
+<area shape="rect" title="Common header." alt="" coords="1067,5,1185,31"/>
+<area shape="rect" href="eigen_8h.html" title=" " alt="" coords="1140,79,1211,104"/>
+<area shape="poly" title=" " alt="" coords="1144,41,1169,77,1165,80,1140,44"/>
+<area shape="rect" href="spdlog_8h.html" title=" " alt="" coords="1038,79,1115,104"/>
+<area shape="poly" title=" " alt="" coords="1112,44,1087,80,1082,77,1108,41"/>
+<area shape="rect" href="common_8h.html" title=" " alt="" coords="1031,152,1122,177"/>
+<area shape="poly" title=" " alt="" coords="1150,114,1094,154,1091,150,1147,110"/>
+<area shape="rect" href="design_8h.html" title=" " alt="" coords="1849,372,1926,397"/>
+<area shape="poly" title=" " alt="" coords="1224,93,1367,105,1553,130,1646,147,1731,168,1800,193,1827,208,1848,223,1862,240,1873,260,1886,302,1891,342,1891,372,1885,372,1885,342,1881,303,1868,262,1858,243,1844,227,1824,212,1798,198,1729,173,1645,152,1553,135,1367,111,1224,98"/>
+<area shape="rect" href="optim_8h.html" title=" " alt="" coords="1486,299,1558,324"/>
+<area shape="poly" title=" " alt="" coords="1126,179,1487,296,1486,301,1124,184"/>
+<area shape="rect" href="progress_8h.html" title=" " alt="" coords="421,372,511,397"/>
+<area shape="poly" title=" " alt="" coords="1033,184,499,374,497,369,1031,179"/>
+<area shape="rect" href="random_8h.html" title=" " alt="" coords="316,225,400,251"/>
+<area shape="poly" title=" " alt="" coords="1018,174,400,235,400,230,1017,169"/>
+<area shape="rect" href="rng_8h.html" title=" " alt="" coords="75,372,129,397"/>
+<area shape="poly" title=" " alt="" coords="1017,169,857,171,650,180,448,198,365,211,304,228,242,260,187,302,143,343,114,374,110,370,139,339,184,298,239,256,302,223,364,206,447,192,650,174,857,166,1017,163"/>
+<area shape="rect" href="structural_8h.html" title=" " alt="" coords="1738,225,1834,251"/>
+<area shape="poly" title=" " alt="" coords="1136,169,1738,229,1737,235,1135,175"/>
+<area shape="rect" href="tuning_8h.html" title=" " alt="" coords="1449,445,1523,471"/>
+<area shape="poly" title=" " alt="" coords="1572,317,1619,327,1664,343,1681,354,1692,367,1694,382,1686,399,1664,411,1622,425,1524,451,1523,445,1620,420,1662,406,1683,396,1689,381,1687,369,1677,358,1661,348,1618,332,1571,322"/>
+<area shape="rect" href="minnesota_8h.html" title=" " alt="" coords="392,592,495,617"/>
+<area shape="poly" title=" " alt="" coords="1457,480,1390,515,1349,533,1307,547,1234,561,1137,572,903,589,668,600,495,605,495,600,668,595,903,584,1136,567,1233,555,1305,541,1347,528,1387,511,1454,475"/>
+<area shape="rect" href="bayes_2mniw_2forecaster_8h.html" title=" " alt="" coords="131,665,230,691"/>
+<area shape="poly" title=" " alt="" coords="388,623,224,668,222,663,387,618"/>
+<area shape="rect" href="bayes_2mniw_2irf_8h.html" title=" " alt="" coords="511,665,557,691"/>
+<area shape="poly" title=" " alt="" coords="470,624,521,663,517,667,467,628"/>
+<area shape="rect" href="bayes_2mniw_2spillover_8h.html" title=" " alt="" coords="397,665,487,691"/>
+<area shape="poly" title=" " alt="" coords="445,631,445,665,439,665,440,631"/>
+<area shape="rect" href="bayes_8h.html" title="MCMC base class." alt="" coords="428,445,501,471"/>
+<area shape="poly" title=" " alt="" coords="468,411,467,445,462,445,463,411"/>
+<area shape="rect" href="mniw_2config_8h.html" title=" " alt="" coords="503,519,576,544"/>
+<area shape="poly" title=" " alt="" coords="488,406,515,444,531,484,540,518,534,519,526,486,510,447,484,409"/>
+<area shape="poly" title=" " alt="" coords="488,478,529,517,525,520,484,482"/>
+<area shape="rect" href="triangular_2config_8h.html" title="Headers including MCMC configuration structs." alt="" coords="1220,519,1293,544"/>
+<area shape="poly" title=" " alt="" coords="515,461,1220,524,1219,529,515,466"/>
+<area shape="rect" href="bayes_2forecaster_8h.html" title=" " alt="" coords="45,519,143,544"/>
+<area shape="poly" title=" " alt="" coords="415,472,144,523,143,518,414,466"/>
+<area shape="poly" title=" " alt="" coords="514,554,460,594,457,590,511,550"/>
+<area shape="rect" href="triangular_8h.html" title="Header including MCMC algorithm." alt="" coords="1623,665,1719,691"/>
+<area shape="poly" title=" " alt="" coords="1307,531,1364,536,1433,545,1506,563,1576,590,1604,606,1628,626,1664,663,1660,667,1625,630,1601,611,1574,594,1505,568,1432,551,1364,541,1307,537"/>
+<area shape="rect" href="bayes_2triangular_2forecaster_8h.html" title=" " alt="" coords="635,739,734,764"/>
+<area shape="poly" title=" " alt="" coords="1610,686,735,749,734,744,1609,681"/>
+<area shape="rect" href="bayes_2triangular_2irf_8h.html" title=" " alt="" coords="1549,739,1596,764"/>
+<area shape="poly" title=" " alt="" coords="1646,701,1590,741,1587,736,1643,696"/>
+<area shape="rect" href="bayes_2triangular_2spillover_8h.html" title=" " alt="" coords="1647,739,1736,764"/>
+<area shape="poly" title=" " alt="" coords="1681,703,1691,738,1685,739,1676,705"/>
+<area shape="rect" href="regforecaster_8h.html" title=" " alt="" coords="554,812,674,837"/>
+<area shape="poly" title=" " alt="" coords="665,776,627,814,623,810,661,772"/>
+<area shape="rect" href="svforecaster_8h.html" title=" " alt="" coords="698,812,813,837"/>
+<area shape="poly" title=" " alt="" coords="708,772,746,810,742,814,704,776"/>
+<area shape="rect" href="regspillover_8h.html" title=" " alt="" coords="1569,812,1680,837"/>
+<area shape="poly" title=" " alt="" coords="1673,776,1637,814,1633,810,1669,773"/>
+<area shape="rect" href="svspillover_8h.html" title=" " alt="" coords="1705,812,1809,837"/>
+<area shape="poly" title=" " alt="" coords="1713,773,1748,810,1744,814,1709,776"/>
+<area shape="poly" title=" " alt="" coords="92,558,90,589,92,624,101,660,110,675,121,689,147,700,197,711,342,728,504,739,635,746,635,751,504,745,342,733,197,716,146,706,118,693,105,678,96,661,87,625,85,589,87,558"/>
+<area shape="poly" title=" " alt="" coords="336,262,303,300,267,357,245,405,208,519,191,602,184,665,179,665,186,601,203,518,240,403,263,355,298,297,332,258"/>
+<area shape="poly" title=" " alt="" coords="363,264,380,357,396,414,418,469,439,505,462,530,485,555,508,591,524,631,534,665,529,666,519,632,503,593,481,558,458,534,435,508,413,472,391,416,375,358,358,265"/>
+<area shape="poly" title=" " alt="" coords="356,265,347,330,343,419,346,469,352,519,364,569,382,616,401,643,425,663,422,667,397,647,377,619,359,571,347,520,340,469,338,419,342,329,350,264"/>
+<area shape="rect" href="ols_2forecaster_8h.html" title=" " alt="" coords="218,519,317,544"/>
+<area shape="poly" title=" " alt="" coords="340,263,316,300,295,362,281,426,270,519,265,518,276,425,290,361,311,298,336,260"/>
+<area shape="rect" href="helper_8h.html" title=" " alt="" coords="1065,299,1139,324"/>
+<area shape="poly" title=" " alt="" coords="414,242,1064,304,1064,309,413,247"/>
+<area shape="rect" href="simulator_8h.html" title=" " alt="" coords="220,592,315,617"/>
+<area shape="poly" title=" " alt="" coords="270,558,270,592,265,592,265,558"/>
+<area shape="rect" href="coef__helper_8h.html" title=" " alt="" coords="791,372,901,397"/>
+<area shape="poly" title=" " alt="" coords="1052,329,888,374,886,369,1050,324"/>
+<area shape="rect" href="dl__helper_8h.html" title=" " alt="" coords="925,372,1018,397"/>
+<area shape="poly" title=" " alt="" coords="1070,333,994,374,991,369,1067,328"/>
+<area shape="rect" href="factor__helper_8h.html" title=" " alt="" coords="1043,372,1161,397"/>
+<area shape="poly" title=" " alt="" coords="1105,338,1105,372,1099,372,1099,338"/>
+<area shape="rect" href="gdp__helper_8h.html" title=" " alt="" coords="1185,372,1291,397"/>
+<area shape="poly" title=" " alt="" coords="1137,328,1217,369,1214,374,1134,333"/>
+<area shape="rect" href="hs__helper_8h.html" title=" " alt="" coords="1315,372,1411,397"/>
+<area shape="poly" title=" " alt="" coords="1153,324,1322,369,1320,375,1152,329"/>
+<area shape="rect" href="minn__helper_8h.html" title=" " alt="" coords="1558,372,1673,397"/>
+<area shape="poly" title=" " alt="" coords="1153,316,1546,369,1558,371,1557,376,1545,375,1152,322"/>
+<area shape="rect" href="ng__helper_8h.html" title=" " alt="" coords="1436,372,1533,397"/>
+<area shape="poly" title=" " alt="" coords="1153,319,1436,372,1435,377,1152,325"/>
+<area shape="rect" href="ssvs__helper_8h.html" title=" " alt="" coords="536,372,647,397"/>
+<area shape="poly" title=" " alt="" coords="1051,322,660,375,647,377,646,371,659,369,1051,316"/>
+<area shape="rect" href="sv__helper_8h.html" title=" " alt="" coords="671,372,767,397"/>
+<area shape="poly" title=" " alt="" coords="1051,325,780,375,768,377,767,372,779,369,1050,319"/>
+<area shape="rect" href="draw_8h.html" title=" " alt="" coords="1205,445,1271,471"/>
+<area shape="poly" title=" " alt="" coords="914,396,1206,448,1205,453,913,401"/>
+<area shape="poly" title=" " alt="" coords="1192,467,576,529,576,524,1191,461"/>
+<area shape="poly" title=" " alt="" coords="1247,483,1256,518,1251,519,1242,485"/>
+<area shape="rect" href="dfm_2config_8h.html" title=" " alt="" coords="1621,519,1695,544"/>
+<area shape="poly" title=" " alt="" coords="1285,465,1621,521,1620,526,1284,470"/>
+<area shape="rect" href="shrinkage_2config_8h.html" title=" " alt="" coords="1719,519,1792,544"/>
+<area shape="poly" title=" " alt="" coords="1285,461,1470,481,1708,516,1719,518,1718,523,1707,521,1470,486,1284,466"/>
+<area shape="rect" href="augment_8h.html" title="Header including factor augmenters." alt="" coords="1639,592,1731,617"/>
+<area shape="poly" title=" " alt="" coords="1670,556,1683,591,1678,593,1665,558"/>
+<area shape="poly" title=" " alt="" coords="1682,632,1676,666,1671,665,1677,631"/>
+<area shape="rect" href="shrinkage_8h.html" title=" " alt="" coords="1755,592,1852,617"/>
+<area shape="poly" title=" " alt="" coords="1773,554,1798,590,1793,593,1768,557"/>
+<area shape="poly" title=" " alt="" coords="1771,626,1694,667,1692,663,1769,621"/>
+<area shape="poly" title=" " alt="" coords="1028,398,1205,445,1204,450,1026,403"/>
+<area shape="poly" title=" " alt="" coords="1137,401,1217,443,1214,447,1134,406"/>
+<area shape="poly" title=" " alt="" coords="1241,411,1241,445,1235,445,1235,411"/>
+<area shape="poly" title=" " alt="" coords="1332,406,1260,447,1257,443,1330,402"/>
+<area shape="poly" title=" " alt="" coords="1583,406,1508,447,1506,443,1581,402"/>
+<area shape="poly" title=" " alt="" coords="1545,402,1271,453,1270,448,1544,397"/>
+<area shape="poly" title=" " alt="" coords="1432,404,1271,450,1270,445,1431,399"/>
+<area shape="poly" title=" " alt="" coords="661,395,982,431,1205,451,1205,457,981,436,660,400"/>
+<area shape="poly" title=" " alt="" coords="782,395,1028,429,1205,450,1205,456,1028,435,781,400"/>
+<area shape="poly" title=" " alt="" coords="81,409,56,438,33,473,26,492,23,510,25,527,34,542,79,554,176,569,392,595,391,600,176,574,78,559,31,546,20,528,18,510,21,490,28,471,52,435,77,405"/>
+<area shape="poly" title=" " alt="" coords="70,407,48,424,29,447,16,472,9,494,10,517,19,543,47,584,84,618,123,645,156,663,154,668,120,649,81,622,43,588,14,545,4,518,4,494,11,470,25,444,44,421,67,403"/>
+<area shape="poly" title=" " alt="" coords="143,391,428,447,427,452,142,397"/>
+<area shape="poly" title=" " alt="" coords="95,411,86,446,86,485,93,518,88,519,81,486,81,445,90,410"/>
+<area shape="rect" href="core_2forecaster_8h.html" title=" " alt="" coords="95,445,194,471"/>
+<area shape="poly" title=" " alt="" coords="118,408,140,444,135,447,114,411"/>
+<area shape="poly" title=" " alt="" coords="130,484,104,520,100,517,126,481"/>
+<area shape="poly" title=" " alt="" coords="177,475,248,516,246,521,175,480"/>
+<area shape="poly" title=" " alt="" coords="1782,265,1756,331,1735,367,1708,399,1666,430,1627,446,1586,456,1536,473,1449,514,1410,530,1359,547,1230,578,1120,599,1023,612,931,621,741,636,629,648,498,668,488,670,487,665,497,663,628,643,740,630,931,616,1022,607,1119,594,1229,573,1357,541,1408,525,1447,509,1534,468,1585,451,1626,441,1663,426,1704,395,1730,364,1751,328,1777,263"/>
+<area shape="poly" title=" " alt="" coords="1848,248,1903,265,1957,291,1981,309,2000,330,2012,355,2017,383,2017,606,2014,628,2008,648,1985,681,1951,706,1909,724,1864,737,1817,746,1736,752,1736,747,1817,740,1862,732,1907,719,1948,701,1981,677,2003,645,2009,627,2011,606,2011,384,2007,356,1995,333,1977,313,1954,296,1901,270,1846,253"/>
+<area shape="poly" title=" " alt="" coords="1724,248,1140,309,1139,303,1724,243"/>
+<area shape="rect" href="core_2irf_8h.html" title=" " alt="" coords="1700,445,1747,471"/>
+<area shape="poly" title=" " alt="" coords="1793,264,1796,326,1792,363,1782,398,1763,426,1741,447,1737,443,1759,423,1777,396,1787,362,1790,326,1787,264"/>
+<area shape="rect" href="ols_2spillover_8h.html" title=" " alt="" coords="1887,519,1976,544"/>
+<area shape="poly" title=" " alt="" coords="1821,255,1852,275,1885,301,1917,333,1940,371,1951,412,1951,454,1945,492,1938,519,1932,518,1940,491,1946,454,1946,413,1935,373,1912,336,1882,305,1849,279,1819,260"/>
+<area shape="rect" href="bayes_2irf_8h.html" title=" " alt="" coords="1516,592,1563,617"/>
+<area shape="poly" title=" " alt="" coords="1688,476,1650,496,1612,521,1575,559,1549,593,1545,590,1570,555,1608,517,1647,491,1685,472"/>
+<area shape="rect" href="ols_2irf_8h.html" title=" " alt="" coords="1816,519,1863,544"/>
+<area shape="poly" title=" " alt="" coords="1755,475,1822,516,1819,521,1752,480"/>
+<area shape="poly" title=" " alt="" coords="1503,619,1497,620,1355,640,1209,655,929,673,698,679,558,680,557,674,698,674,929,667,1208,649,1354,635,1496,615,1502,614"/>
+<area shape="poly" title=" " alt="" coords="1548,630,1572,738,1567,739,1542,632"/>
+<area shape="poly" title=" " alt="" coords="1836,397,1542,448,1524,451,1523,446,1541,443,1835,392"/>
+<area shape="poly" title=" " alt="" coords="1835,393,1716,411,1647,427,1580,448,1559,461,1536,473,1448,492,1330,506,1192,516,1045,524,766,531,576,533,576,527,766,526,1045,518,1192,511,1329,501,1447,486,1534,468,1556,456,1578,443,1646,422,1715,406,1834,388"/>
+<area shape="poly" title=" " alt="" coords="1838,404,1720,437,1580,473,1421,505,1294,527,1293,522,1420,500,1579,468,1719,432,1836,399"/>
+<area shape="poly" title=" " alt="" coords="1861,407,1761,473,1680,521,1677,516,1758,468,1858,403"/>
+<area shape="poly" title=" " alt="" coords="1869,410,1768,520,1764,517,1865,406"/>
+<area shape="rect" href="ols_8h.html" title=" " alt="" coords="1873,445,1926,471"/>
+<area shape="poly" title=" " alt="" coords="1894,411,1900,445,1895,446,1889,412"/>
+<area shape="poly" title=" " alt="" coords="1859,466,1759,473,1403,491,1125,500,847,508,490,521,317,530,317,525,490,516,847,503,1125,495,1402,486,1759,468,1859,460"/>
+<area shape="poly" title=" " alt="" coords="1882,483,1851,520,1847,517,1878,480"/>
+<area shape="poly" title=" " alt="" coords="1912,482,1928,517,1924,520,1908,484"/>
+<area shape="poly" title=" " alt="" coords="1079,118,1079,152,1074,152,1074,118"/>
 </map>
 </div>
 </div>
@@ -263,50 +307,70 @@ Namespaces</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
 Macros</h2></td></tr>
-<tr class="memitem:abc2ee0187a6d5ca2c32fe4873f941159" id="r_abc2ee0187a6d5ca2c32fe4873f941159"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#abc2ee0187a6d5ca2c32fe4873f941159">BVHAR_STOP</a>(...)&#160;&#160;&#160;Rcpp::stop(__VA_ARGS__)</td></tr>
+<tr class="memitem:ad1a8dcfa01b68407083e32d0682994dd" id="r_ad1a8dcfa01b68407083e32d0682994dd"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#ad1a8dcfa01b68407083e32d0682994dd">BVHAR_DBL_TOL</a>&#160;&#160;&#160;1e-8</td></tr>
+<tr class="separator:ad1a8dcfa01b68407083e32d0682994dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8e4a9517198518a9d4aff1bc419d6c6b" id="r_a8e4a9517198518a9d4aff1bc419d6c6b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#a8e4a9517198518a9d4aff1bc419d6c6b">BVHAR_DBL_MAX</a>&#160;&#160;&#160;1e+10</td></tr>
+<tr class="separator:a8e4a9517198518a9d4aff1bc419d6c6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac66f23a4818bd454ba9e7847a2bdb2cb" id="r_ac66f23a4818bd454ba9e7847a2bdb2cb"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#ac66f23a4818bd454ba9e7847a2bdb2cb">BVHAR_LIST</a>&#160;&#160;&#160;<a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a></td></tr>
+<tr class="separator:ac66f23a4818bd454ba9e7847a2bdb2cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a293837e81aa14759d76f6223b447290b" id="r_a293837e81aa14759d76f6223b447290b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#a293837e81aa14759d76f6223b447290b">BVHAR_LIST_OF_LIST</a>&#160;&#160;&#160;<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt;<a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a>&gt;</td></tr>
+<tr class="separator:a293837e81aa14759d76f6223b447290b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a27b16144b3c4b4a7bc90aa53bc5a8a8a" id="r_a27b16144b3c4b4a7bc90aa53bc5a8a8a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#a27b16144b3c4b4a7bc90aa53bc5a8a8a">BVHAR_PY_LIST</a>&#160;&#160;&#160;<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt;<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::any</a>&gt;</td></tr>
+<tr class="separator:a27b16144b3c4b4a7bc90aa53bc5a8a8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af2c302f79c5d287d6231ac45c5c77a31" id="r_af2c302f79c5d287d6231ac45c5c77a31"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#af2c302f79c5d287d6231ac45c5c77a31">BVHAR_WRAP</a>(value)&#160;&#160;&#160;value</td></tr>
+<tr class="separator:af2c302f79c5d287d6231ac45c5c77a31"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9d75dd3d2aabcb6daaf6019f07066f20" id="r_a9d75dd3d2aabcb6daaf6019f07066f20"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#a9d75dd3d2aabcb6daaf6019f07066f20">BVHAR_CAST</a>&#160;&#160;&#160;<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::any_cast</a></td></tr>
+<tr class="separator:a9d75dd3d2aabcb6daaf6019f07066f20"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1ab9da36aa44cd6602e514bb03acef34" id="r_a1ab9da36aa44cd6602e514bb03acef34"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#a1ab9da36aa44cd6602e514bb03acef34">BVHAR_CAST_DOUBLE</a>(value)&#160;&#160;&#160;<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::any_cast</a>&lt;double&gt;(value)</td></tr>
+<tr class="separator:a1ab9da36aa44cd6602e514bb03acef34"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4177c18b0400e151ad1994b45506d2e3" id="r_a4177c18b0400e151ad1994b45506d2e3"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#a4177c18b0400e151ad1994b45506d2e3">BVHAR_CAST_INT</a>(value)&#160;&#160;&#160;<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::any_cast</a>&lt;int&gt;(value)</td></tr>
+<tr class="separator:a4177c18b0400e151ad1994b45506d2e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad859f58a56e1b35247f8342b67353d10" id="r_ad859f58a56e1b35247f8342b67353d10"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#ad859f58a56e1b35247f8342b67353d10">BVHAR_CAST_BOOL</a>(value)&#160;&#160;&#160;<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::any_cast</a>&lt;bool&gt;(value)</td></tr>
+<tr class="separator:ad859f58a56e1b35247f8342b67353d10"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af1f7c04972b6cddafa5fb03529eacb75" id="r_af1f7c04972b6cddafa5fb03529eacb75"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#af1f7c04972b6cddafa5fb03529eacb75">BVHAR_CAST_LIST</a>(value)&#160;&#160;&#160;<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::any_cast</a>&lt;<a class="el" href="commondefs_8h.html#ac66f23a4818bd454ba9e7847a2bdb2cb">BVHAR_LIST</a>&gt;(value)</td></tr>
+<tr class="separator:af1f7c04972b6cddafa5fb03529eacb75"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0c1476b8a888ca9d680d34768ad147f8" id="r_a0c1476b8a888ca9d680d34768ad147f8"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#a0c1476b8a888ca9d680d34768ad147f8">BVHAR_CAST_PY_LIST</a>(value)&#160;&#160;&#160;<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::any_cast</a>&lt;<a class="el" href="commondefs_8h.html#a27b16144b3c4b4a7bc90aa53bc5a8a8a">BVHAR_PY_LIST</a>&gt;(value)</td></tr>
+<tr class="separator:a0c1476b8a888ca9d680d34768ad147f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9543a73b97369dccc2d027ad4b6b6059" id="r_a9543a73b97369dccc2d027ad4b6b6059"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#a9543a73b97369dccc2d027ad4b6b6059">BVHAR_CAST_LIST_OF_LIST</a>(value)&#160;&#160;&#160;<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::any_cast</a>&lt;<a class="el" href="commondefs_8h.html#a293837e81aa14759d76f6223b447290b">BVHAR_LIST_OF_LIST</a>&gt;(value)</td></tr>
+<tr class="separator:a9543a73b97369dccc2d027ad4b6b6059"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad8138fd8acb764be09d80aa5e1ca8555" id="r_ad8138fd8acb764be09d80aa5e1ca8555"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#ad8138fd8acb764be09d80aa5e1ca8555">BVHAR_CONTAINS</a>(container,  key)&#160;&#160;&#160;(container.find(key) != container.end())</td></tr>
+<tr class="separator:ad8138fd8acb764be09d80aa5e1ca8555"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a86293af7aa3cf903fa9801c05372fb3d" id="r_a86293af7aa3cf903fa9801c05372fb3d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#a86293af7aa3cf903fa9801c05372fb3d">BVHAR_CREATE_LIST</a>(...)&#160;&#160;&#160;<a class="el" href="commoncpp_8h.html#ac842ea2dba6bb003c7e424a64b8b9cd7">create_bvhar_list</a>(__VA_ARGS__)</td></tr>
+<tr class="separator:a86293af7aa3cf903fa9801c05372fb3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4dbf403a74e6329e48a04990858204ac" id="r_a4dbf403a74e6329e48a04990858204ac"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#a4dbf403a74e6329e48a04990858204ac">BVHAR_NAMED</a>&#160;&#160;&#160;<a class="el" href="structBvharNamed.html">BvharNamed</a></td></tr>
+<tr class="separator:a4dbf403a74e6329e48a04990858204ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6e37848193702189f52c4fb385c228b7" id="r_a6e37848193702189f52c4fb385c228b7"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#a6e37848193702189f52c4fb385c228b7">BVHAR_ACCESS_LIST</a>(iterator,  list)&#160;&#160;&#160;iterator.second</td></tr>
+<tr class="separator:a6e37848193702189f52c4fb385c228b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abc2ee0187a6d5ca2c32fe4873f941159" id="r_abc2ee0187a6d5ca2c32fe4873f941159"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#abc2ee0187a6d5ca2c32fe4873f941159">BVHAR_STOP</a>(...)&#160;&#160;&#160;<a class="el" href="commoncpp_8h.html#adacf829db8cd5009023221773384966c">stop_fmt</a>(__VA_ARGS__)</td></tr>
 <tr class="separator:abc2ee0187a6d5ca2c32fe4873f941159"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad6e2731cc0897497a69f8e094791b5aa" id="r_ad6e2731cc0897497a69f8e094791b5aa"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#ad6e2731cc0897497a69f8e094791b5aa">BVHAR_COUT</a>&#160;&#160;&#160;RcppThread::Rcout</td></tr>
+<tr class="memitem:ad6e2731cc0897497a69f8e094791b5aa" id="r_ad6e2731cc0897497a69f8e094791b5aa"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#ad6e2731cc0897497a69f8e094791b5aa">BVHAR_COUT</a>&#160;&#160;&#160;<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::cout</a></td></tr>
 <tr class="separator:ad6e2731cc0897497a69f8e094791b5aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad0f0138eb6a393adcba42e6377ade428" id="r_ad0f0138eb6a393adcba42e6377ade428"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#ad0f0138eb6a393adcba42e6377ade428">BVHAR_ENDL</a>&#160;&#160;&#160;&quot;\n&quot; &lt;&lt; std::flush</td></tr>
+<tr class="memitem:ad0f0138eb6a393adcba42e6377ade428" id="r_ad0f0138eb6a393adcba42e6377ade428"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#ad0f0138eb6a393adcba42e6377ade428">BVHAR_ENDL</a>&#160;&#160;&#160;<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::endl</a></td></tr>
 <tr class="separator:ad0f0138eb6a393adcba42e6377ade428"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aba6ed76e52975eaa379fe53a7ca886f6" id="r_aba6ed76e52975eaa379fe53a7ca886f6"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#aba6ed76e52975eaa379fe53a7ca886f6">BVHAR_FLUSH</a>&#160;&#160;&#160;RcppThread::Rcout &lt;&lt; std::flush</td></tr>
+<tr class="memitem:aba6ed76e52975eaa379fe53a7ca886f6" id="r_aba6ed76e52975eaa379fe53a7ca886f6"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#aba6ed76e52975eaa379fe53a7ca886f6">BVHAR_FLUSH</a>&#160;&#160;&#160;std::cout.flush()</td></tr>
 <tr class="separator:aba6ed76e52975eaa379fe53a7ca886f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8a001ba97f1e56f1e764cd07f80397fa" id="r_a8a001ba97f1e56f1e764cd07f80397fa"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#a8a001ba97f1e56f1e764cd07f80397fa">BVHAR_STRING</a>&#160;&#160;&#160;<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::string</a></td></tr>
 <tr class="separator:a8a001ba97f1e56f1e764cd07f80397fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac66f23a4818bd454ba9e7847a2bdb2cb" id="r_ac66f23a4818bd454ba9e7847a2bdb2cb"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#ac66f23a4818bd454ba9e7847a2bdb2cb">BVHAR_LIST</a>&#160;&#160;&#160;Rcpp::List</td></tr>
-<tr class="separator:ac66f23a4818bd454ba9e7847a2bdb2cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a293837e81aa14759d76f6223b447290b" id="r_a293837e81aa14759d76f6223b447290b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#a293837e81aa14759d76f6223b447290b">BVHAR_LIST_OF_LIST</a>&#160;&#160;&#160;Rcpp::List</td></tr>
-<tr class="separator:a293837e81aa14759d76f6223b447290b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a27b16144b3c4b4a7bc90aa53bc5a8a8a" id="r_a27b16144b3c4b4a7bc90aa53bc5a8a8a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#a27b16144b3c4b4a7bc90aa53bc5a8a8a">BVHAR_PY_LIST</a>&#160;&#160;&#160;Rcpp::List</td></tr>
-<tr class="separator:a27b16144b3c4b4a7bc90aa53bc5a8a8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af2c302f79c5d287d6231ac45c5c77a31" id="r_af2c302f79c5d287d6231ac45c5c77a31"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#af2c302f79c5d287d6231ac45c5c77a31">BVHAR_WRAP</a>(value)&#160;&#160;&#160;Rcpp::wrap(value)</td></tr>
-<tr class="separator:af2c302f79c5d287d6231ac45c5c77a31"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9d75dd3d2aabcb6daaf6019f07066f20" id="r_a9d75dd3d2aabcb6daaf6019f07066f20"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#a9d75dd3d2aabcb6daaf6019f07066f20">BVHAR_CAST</a>&#160;&#160;&#160;Rcpp::as</td></tr>
-<tr class="separator:a9d75dd3d2aabcb6daaf6019f07066f20"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1ab9da36aa44cd6602e514bb03acef34" id="r_a1ab9da36aa44cd6602e514bb03acef34"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#a1ab9da36aa44cd6602e514bb03acef34">BVHAR_CAST_DOUBLE</a>(value)&#160;&#160;&#160;value</td></tr>
-<tr class="separator:a1ab9da36aa44cd6602e514bb03acef34"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4177c18b0400e151ad1994b45506d2e3" id="r_a4177c18b0400e151ad1994b45506d2e3"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#a4177c18b0400e151ad1994b45506d2e3">BVHAR_CAST_INT</a>(value)&#160;&#160;&#160;value</td></tr>
-<tr class="separator:a4177c18b0400e151ad1994b45506d2e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad859f58a56e1b35247f8342b67353d10" id="r_ad859f58a56e1b35247f8342b67353d10"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#ad859f58a56e1b35247f8342b67353d10">BVHAR_CAST_BOOL</a>(value)&#160;&#160;&#160;value</td></tr>
-<tr class="separator:ad859f58a56e1b35247f8342b67353d10"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad8138fd8acb764be09d80aa5e1ca8555" id="r_ad8138fd8acb764be09d80aa5e1ca8555"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#ad8138fd8acb764be09d80aa5e1ca8555">BVHAR_CONTAINS</a>(container,  key)&#160;&#160;&#160;container.containsElementNamed(key)</td></tr>
-<tr class="separator:ad8138fd8acb764be09d80aa5e1ca8555"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a86293af7aa3cf903fa9801c05372fb3d" id="r_a86293af7aa3cf903fa9801c05372fb3d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#a86293af7aa3cf903fa9801c05372fb3d">BVHAR_CREATE_LIST</a>(...)&#160;&#160;&#160;Rcpp::List::create(__VA_ARGS__)</td></tr>
-<tr class="separator:a86293af7aa3cf903fa9801c05372fb3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4dbf403a74e6329e48a04990858204ac" id="r_a4dbf403a74e6329e48a04990858204ac"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#a4dbf403a74e6329e48a04990858204ac">BVHAR_NAMED</a>&#160;&#160;&#160;Rcpp::Named</td></tr>
-<tr class="separator:a4dbf403a74e6329e48a04990858204ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6e37848193702189f52c4fb385c228b7" id="r_a6e37848193702189f52c4fb385c228b7"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#a6e37848193702189f52c4fb385c228b7">BVHAR_ACCESS_LIST</a>(iterator,  list)&#160;&#160;&#160;iterator</td></tr>
-<tr class="separator:a6e37848193702189f52c4fb385c228b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2a1caa15b675140d4ddc6774355ecab4" id="r_a2a1caa15b675140d4ddc6774355ecab4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#a2a1caa15b675140d4ddc6774355ecab4">BVHAR_IS_MATRIX</a>(element)&#160;&#160;&#160;(Rcpp::is&lt;Rcpp::NumericMatrix&gt;(element) || Rcpp::is&lt;Rcpp::IntegerMatrix&gt;(element) || Rcpp::is&lt;Rcpp::LogicalMatrix&gt;(element))</td></tr>
+<tr class="memitem:a2a1caa15b675140d4ddc6774355ecab4" id="r_a2a1caa15b675140d4ddc6774355ecab4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#a2a1caa15b675140d4ddc6774355ecab4">BVHAR_IS_MATRIX</a>(element)&#160;&#160;&#160;(element.type() == typeid(Eigen::MatrixXd) || element.type() == typeid(Eigen::MatrixXi) || element.type() == typeid(Eigen::Matrix&lt;bool, Eigen::Dynamic, Eigen::Dynamic&gt;))</td></tr>
 <tr class="separator:a2a1caa15b675140d4ddc6774355ecab4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a213e05dec2f954b74e6194ed32bec8e3" id="r_a213e05dec2f954b74e6194ed32bec8e3"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#a213e05dec2f954b74e6194ed32bec8e3">BVHAR_IS_VECTOR</a>(element)&#160;&#160;&#160;(Rcpp::is&lt;Rcpp::NumericVector&gt;(element) || Rcpp::is&lt;Rcpp::IntegerVector&gt;(element) || Rcpp::is&lt;Rcpp::LogicalVector&gt;(element))</td></tr>
+<tr class="memitem:a213e05dec2f954b74e6194ed32bec8e3" id="r_a213e05dec2f954b74e6194ed32bec8e3"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#a213e05dec2f954b74e6194ed32bec8e3">BVHAR_IS_VECTOR</a>(element)&#160;&#160;&#160;(element.type() == typeid(Eigen::VectorXd) || element.type() == typeid(Eigen::VectorXi) || element.type() == typeid(Eigen::Matrix&lt;bool, Eigen::Dynamic, 1&gt;))</td></tr>
 <tr class="separator:a213e05dec2f954b74e6194ed32bec8e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:affdb7e50a6321b4947a418498dc0bc31" id="r_affdb7e50a6321b4947a418498dc0bc31"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#affdb7e50a6321b4947a418498dc0bc31">BVHAR_IS_LOGICAL</a>(element)&#160;&#160;&#160;Rcpp::is&lt;Rcpp::LogicalVector&gt;(element)</td></tr>
+<tr class="memitem:affdb7e50a6321b4947a418498dc0bc31" id="r_affdb7e50a6321b4947a418498dc0bc31"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#affdb7e50a6321b4947a418498dc0bc31">BVHAR_IS_LOGICAL</a>(element)&#160;&#160;&#160;(element.type() == typeid(bool))</td></tr>
 <tr class="separator:affdb7e50a6321b4947a418498dc0bc31"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2e3e36388a5650c7b3a36170c13cb9eb" id="r_a2e3e36388a5650c7b3a36170c13cb9eb"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#a2e3e36388a5650c7b3a36170c13cb9eb">BVHAR_CAST_VECTOR</a>(element)&#160;&#160;&#160;element</td></tr>
+<tr class="memitem:a2e3e36388a5650c7b3a36170c13cb9eb" id="r_a2e3e36388a5650c7b3a36170c13cb9eb"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#a2e3e36388a5650c7b3a36170c13cb9eb">BVHAR_CAST_VECTOR</a>(element)&#160;&#160;&#160;<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::any_cast</a>&lt;Eigen::VectorXd&gt;(element.eval())</td></tr>
 <tr class="separator:a2e3e36388a5650c7b3a36170c13cb9eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a62a09373e0a8b76e941172ad5f80c5d9" id="r_a62a09373e0a8b76e941172ad5f80c5d9"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#a62a09373e0a8b76e941172ad5f80c5d9">BVHAR_CAST_MATRIX</a>(element)&#160;&#160;&#160;element</td></tr>
+<tr class="memitem:a62a09373e0a8b76e941172ad5f80c5d9" id="r_a62a09373e0a8b76e941172ad5f80c5d9"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#a62a09373e0a8b76e941172ad5f80c5d9">BVHAR_CAST_MATRIX</a>(element)&#160;&#160;&#160;<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::any_cast</a>&lt;Eigen::MatrixXd&gt;(element.eval())</td></tr>
 <tr class="separator:a62a09373e0a8b76e941172ad5f80c5d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae71449b1cc6e6250b91f539153a7a0d3" id="r_ae71449b1cc6e6250b91f539153a7a0d3"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#ae71449b1cc6e6250b91f539153a7a0d3">M_PI</a>&#160;&#160;&#160;3.141592653589793238462643383280</td></tr>
+<tr class="separator:ae71449b1cc6e6250b91f539153a7a0d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a86aa4061d061f75e13a9eadc4d7db3c7" id="r_a86aa4061d061f75e13a9eadc4d7db3c7"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#a86aa4061d061f75e13a9eadc4d7db3c7">Rf_gammafn</a>(x)&#160;&#160;&#160;<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::tgamma</a>(x)</td></tr>
+<tr class="separator:a86aa4061d061f75e13a9eadc4d7db3c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a330f36e7dab4d2671359ce7f8e4f6b8a" id="r_a330f36e7dab4d2671359ce7f8e4f6b8a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#a330f36e7dab4d2671359ce7f8e4f6b8a">Rf_lgammafn</a>(x)&#160;&#160;&#160;<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::lgamma</a>(x)</td></tr>
+<tr class="separator:a330f36e7dab4d2671359ce7f8e4f6b8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a80355d2cc0a255b1c7e7183a2076e500" id="r_a80355d2cc0a255b1c7e7183a2076e500"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#a80355d2cc0a255b1c7e7183a2076e500">Rf_dgamma</a>(x,  shp,  scl,  lg)&#160;&#160;&#160;(lg ? <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::log</a>((shp - 1) * <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::log</a>(x) - x / scl - <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::lgamma</a>(shp) - shp * <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::log</a>(scl)) : <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::exp</a>((shp - 1) * <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::log</a>(x) - x / scl - <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::lgamma</a>(shp) - shp * <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::log</a>(scl)))</td></tr>
+<tr class="separator:a80355d2cc0a255b1c7e7183a2076e500"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6e11279b1fbe99dd8fbd6dfc6a3222bd" id="r_a6e11279b1fbe99dd8fbd6dfc6a3222bd"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commondefs_8h.html#a6e11279b1fbe99dd8fbd6dfc6a3222bd">BVHAR_IF_CONSTEXPR</a>(element)&#160;&#160;&#160;		if (<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::integral_constant</a>&lt;bool, element&gt;::value)</td></tr>
+<tr class="separator:a6e11279b1fbe99dd8fbd6dfc6a3222bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -318,74 +382,28 @@ Functions</h2></td></tr>
 <div class="textblock"><p>Common header. </p>
 <dl class="section author"><dt>Author</dt><dd>Young Geun Kim (<a href="#" onclick="location.href='mai'+'lto:'+'yge'+'un'+'kim'+'st'+'at@'+'gm'+'ail'+'.c'+'om'; return false;">ygeun<span class="obfuscator">.nosp@m.</span>kims<span class="obfuscator">.nosp@m.</span>tat@g<span class="obfuscator">.nosp@m.</span>mail<span class="obfuscator">.nosp@m.</span>.com</a>) </dd></dl>
 </div><h2 class="groupheader">Macro Definition Documentation</h2>
-<a id="abc2ee0187a6d5ca2c32fe4873f941159" name="abc2ee0187a6d5ca2c32fe4873f941159"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abc2ee0187a6d5ca2c32fe4873f941159">&#9670;&#160;</a></span>BVHAR_STOP</h2>
+<a id="ad1a8dcfa01b68407083e32d0682994dd" name="ad1a8dcfa01b68407083e32d0682994dd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad1a8dcfa01b68407083e32d0682994dd">&#9670;&#160;</a></span>BVHAR_DBL_TOL</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define BVHAR_STOP</td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>...</em></td><td>)</td>
-          <td>&#160;&#160;&#160;Rcpp::stop(__VA_ARGS__)</td>
+          <td class="memname">#define BVHAR_DBL_TOL&#160;&#160;&#160;1e-8</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="ad6e2731cc0897497a69f8e094791b5aa" name="ad6e2731cc0897497a69f8e094791b5aa"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad6e2731cc0897497a69f8e094791b5aa">&#9670;&#160;</a></span>BVHAR_COUT</h2>
+<a id="a8e4a9517198518a9d4aff1bc419d6c6b" name="a8e4a9517198518a9d4aff1bc419d6c6b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8e4a9517198518a9d4aff1bc419d6c6b">&#9670;&#160;</a></span>BVHAR_DBL_MAX</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define BVHAR_COUT&#160;&#160;&#160;RcppThread::Rcout</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="ad0f0138eb6a393adcba42e6377ade428" name="ad0f0138eb6a393adcba42e6377ade428"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad0f0138eb6a393adcba42e6377ade428">&#9670;&#160;</a></span>BVHAR_ENDL</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define BVHAR_ENDL&#160;&#160;&#160;&quot;\n&quot; &lt;&lt; std::flush</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="aba6ed76e52975eaa379fe53a7ca886f6" name="aba6ed76e52975eaa379fe53a7ca886f6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aba6ed76e52975eaa379fe53a7ca886f6">&#9670;&#160;</a></span>BVHAR_FLUSH</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define BVHAR_FLUSH&#160;&#160;&#160;RcppThread::Rcout &lt;&lt; std::flush</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a8a001ba97f1e56f1e764cd07f80397fa" name="a8a001ba97f1e56f1e764cd07f80397fa"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8a001ba97f1e56f1e764cd07f80397fa">&#9670;&#160;</a></span>BVHAR_STRING</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define BVHAR_STRING&#160;&#160;&#160;<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::string</a></td>
+          <td class="memname">#define BVHAR_DBL_MAX&#160;&#160;&#160;1e+10</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -399,7 +417,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define BVHAR_LIST&#160;&#160;&#160;Rcpp::List</td>
+          <td class="memname">#define BVHAR_LIST&#160;&#160;&#160;<a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -413,7 +431,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define BVHAR_LIST_OF_LIST&#160;&#160;&#160;Rcpp::List</td>
+          <td class="memname">#define BVHAR_LIST_OF_LIST&#160;&#160;&#160;<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt;<a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a>&gt;</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -427,7 +445,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define BVHAR_PY_LIST&#160;&#160;&#160;Rcpp::List</td>
+          <td class="memname">#define BVHAR_PY_LIST&#160;&#160;&#160;<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::vector</a>&lt;<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::any</a>&gt;</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -445,7 +463,7 @@ Functions</h2></td></tr>
           <td>(</td>
           <td class="paramtype">&#160;</td>
           <td class="paramname">value</td><td>)</td>
-          <td>&#160;&#160;&#160;Rcpp::wrap(value)</td>
+          <td>&#160;&#160;&#160;value</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -459,7 +477,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define BVHAR_CAST&#160;&#160;&#160;Rcpp::as</td>
+          <td class="memname">#define BVHAR_CAST&#160;&#160;&#160;<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::any_cast</a></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -477,7 +495,7 @@ Functions</h2></td></tr>
           <td>(</td>
           <td class="paramtype">&#160;</td>
           <td class="paramname">value</td><td>)</td>
-          <td>&#160;&#160;&#160;value</td>
+          <td>&#160;&#160;&#160;<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::any_cast</a>&lt;double&gt;(value)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -495,7 +513,7 @@ Functions</h2></td></tr>
           <td>(</td>
           <td class="paramtype">&#160;</td>
           <td class="paramname">value</td><td>)</td>
-          <td>&#160;&#160;&#160;value</td>
+          <td>&#160;&#160;&#160;<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::any_cast</a>&lt;int&gt;(value)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -513,7 +531,61 @@ Functions</h2></td></tr>
           <td>(</td>
           <td class="paramtype">&#160;</td>
           <td class="paramname">value</td><td>)</td>
-          <td>&#160;&#160;&#160;value</td>
+          <td>&#160;&#160;&#160;<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::any_cast</a>&lt;bool&gt;(value)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="af1f7c04972b6cddafa5fb03529eacb75" name="af1f7c04972b6cddafa5fb03529eacb75"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af1f7c04972b6cddafa5fb03529eacb75">&#9670;&#160;</a></span>BVHAR_CAST_LIST</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define BVHAR_CAST_LIST</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">value</td><td>)</td>
+          <td>&#160;&#160;&#160;<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::any_cast</a>&lt;<a class="el" href="commondefs_8h.html#ac66f23a4818bd454ba9e7847a2bdb2cb">BVHAR_LIST</a>&gt;(value)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a0c1476b8a888ca9d680d34768ad147f8" name="a0c1476b8a888ca9d680d34768ad147f8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0c1476b8a888ca9d680d34768ad147f8">&#9670;&#160;</a></span>BVHAR_CAST_PY_LIST</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define BVHAR_CAST_PY_LIST</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">value</td><td>)</td>
+          <td>&#160;&#160;&#160;<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::any_cast</a>&lt;<a class="el" href="commondefs_8h.html#a27b16144b3c4b4a7bc90aa53bc5a8a8a">BVHAR_PY_LIST</a>&gt;(value)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a9543a73b97369dccc2d027ad4b6b6059" name="a9543a73b97369dccc2d027ad4b6b6059"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9543a73b97369dccc2d027ad4b6b6059">&#9670;&#160;</a></span>BVHAR_CAST_LIST_OF_LIST</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define BVHAR_CAST_LIST_OF_LIST</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">value</td><td>)</td>
+          <td>&#160;&#160;&#160;<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::any_cast</a>&lt;<a class="el" href="commondefs_8h.html#a293837e81aa14759d76f6223b447290b">BVHAR_LIST_OF_LIST</a>&gt;(value)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -541,7 +613,7 @@ Functions</h2></td></tr>
         <tr>
           <td></td>
           <td>)</td>
-          <td></td><td>&#160;&#160;&#160;container.containsElementNamed(key)</td>
+          <td></td><td>&#160;&#160;&#160;(container.find(key) != container.end())</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -559,7 +631,7 @@ Functions</h2></td></tr>
           <td>(</td>
           <td class="paramtype">&#160;</td>
           <td class="paramname"><em>...</em></td><td>)</td>
-          <td>&#160;&#160;&#160;Rcpp::List::create(__VA_ARGS__)</td>
+          <td>&#160;&#160;&#160;<a class="el" href="commoncpp_8h.html#ac842ea2dba6bb003c7e424a64b8b9cd7">create_bvhar_list</a>(__VA_ARGS__)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -573,7 +645,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define BVHAR_NAMED&#160;&#160;&#160;Rcpp::Named</td>
+          <td class="memname">#define BVHAR_NAMED&#160;&#160;&#160;<a class="el" href="structBvharNamed.html">BvharNamed</a></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -601,7 +673,81 @@ Functions</h2></td></tr>
         <tr>
           <td></td>
           <td>)</td>
-          <td></td><td>&#160;&#160;&#160;iterator</td>
+          <td></td><td>&#160;&#160;&#160;iterator.second</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="abc2ee0187a6d5ca2c32fe4873f941159" name="abc2ee0187a6d5ca2c32fe4873f941159"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abc2ee0187a6d5ca2c32fe4873f941159">&#9670;&#160;</a></span>BVHAR_STOP</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define BVHAR_STOP</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>...</em></td><td>)</td>
+          <td>&#160;&#160;&#160;<a class="el" href="commoncpp_8h.html#adacf829db8cd5009023221773384966c">stop_fmt</a>(__VA_ARGS__)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ad6e2731cc0897497a69f8e094791b5aa" name="ad6e2731cc0897497a69f8e094791b5aa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad6e2731cc0897497a69f8e094791b5aa">&#9670;&#160;</a></span>BVHAR_COUT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define BVHAR_COUT&#160;&#160;&#160;<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::cout</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ad0f0138eb6a393adcba42e6377ade428" name="ad0f0138eb6a393adcba42e6377ade428"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad0f0138eb6a393adcba42e6377ade428">&#9670;&#160;</a></span>BVHAR_ENDL</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define BVHAR_ENDL&#160;&#160;&#160;<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::endl</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="aba6ed76e52975eaa379fe53a7ca886f6" name="aba6ed76e52975eaa379fe53a7ca886f6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aba6ed76e52975eaa379fe53a7ca886f6">&#9670;&#160;</a></span>BVHAR_FLUSH</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define BVHAR_FLUSH&#160;&#160;&#160;std::cout.flush()</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a8a001ba97f1e56f1e764cd07f80397fa" name="a8a001ba97f1e56f1e764cd07f80397fa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8a001ba97f1e56f1e764cd07f80397fa">&#9670;&#160;</a></span>BVHAR_STRING</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define BVHAR_STRING&#160;&#160;&#160;<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::string</a></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -619,7 +765,7 @@ Functions</h2></td></tr>
           <td>(</td>
           <td class="paramtype">&#160;</td>
           <td class="paramname">element</td><td>)</td>
-          <td>&#160;&#160;&#160;(Rcpp::is&lt;Rcpp::NumericMatrix&gt;(element) || Rcpp::is&lt;Rcpp::IntegerMatrix&gt;(element) || Rcpp::is&lt;Rcpp::LogicalMatrix&gt;(element))</td>
+          <td>&#160;&#160;&#160;(element.type() == typeid(Eigen::MatrixXd) || element.type() == typeid(Eigen::MatrixXi) || element.type() == typeid(Eigen::Matrix&lt;bool, Eigen::Dynamic, Eigen::Dynamic&gt;))</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -637,7 +783,7 @@ Functions</h2></td></tr>
           <td>(</td>
           <td class="paramtype">&#160;</td>
           <td class="paramname">element</td><td>)</td>
-          <td>&#160;&#160;&#160;(Rcpp::is&lt;Rcpp::NumericVector&gt;(element) || Rcpp::is&lt;Rcpp::IntegerVector&gt;(element) || Rcpp::is&lt;Rcpp::LogicalVector&gt;(element))</td>
+          <td>&#160;&#160;&#160;(element.type() == typeid(Eigen::VectorXd) || element.type() == typeid(Eigen::VectorXi) || element.type() == typeid(Eigen::Matrix&lt;bool, Eigen::Dynamic, 1&gt;))</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -655,7 +801,7 @@ Functions</h2></td></tr>
           <td>(</td>
           <td class="paramtype">&#160;</td>
           <td class="paramname">element</td><td>)</td>
-          <td>&#160;&#160;&#160;Rcpp::is&lt;Rcpp::LogicalVector&gt;(element)</td>
+          <td>&#160;&#160;&#160;(element.type() == typeid(bool))</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -673,7 +819,7 @@ Functions</h2></td></tr>
           <td>(</td>
           <td class="paramtype">&#160;</td>
           <td class="paramname">element</td><td>)</td>
-          <td>&#160;&#160;&#160;element</td>
+          <td>&#160;&#160;&#160;<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::any_cast</a>&lt;Eigen::VectorXd&gt;(element.eval())</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -691,7 +837,115 @@ Functions</h2></td></tr>
           <td>(</td>
           <td class="paramtype">&#160;</td>
           <td class="paramname">element</td><td>)</td>
-          <td>&#160;&#160;&#160;element</td>
+          <td>&#160;&#160;&#160;<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::any_cast</a>&lt;Eigen::MatrixXd&gt;(element.eval())</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ae71449b1cc6e6250b91f539153a7a0d3" name="ae71449b1cc6e6250b91f539153a7a0d3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae71449b1cc6e6250b91f539153a7a0d3">&#9670;&#160;</a></span>M_PI</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define M_PI&#160;&#160;&#160;3.141592653589793238462643383280</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a86aa4061d061f75e13a9eadc4d7db3c7" name="a86aa4061d061f75e13a9eadc4d7db3c7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a86aa4061d061f75e13a9eadc4d7db3c7">&#9670;&#160;</a></span>Rf_gammafn</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define Rf_gammafn</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">x</td><td>)</td>
+          <td>&#160;&#160;&#160;<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::tgamma</a>(x)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a330f36e7dab4d2671359ce7f8e4f6b8a" name="a330f36e7dab4d2671359ce7f8e4f6b8a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a330f36e7dab4d2671359ce7f8e4f6b8a">&#9670;&#160;</a></span>Rf_lgammafn</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define Rf_lgammafn</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">x</td><td>)</td>
+          <td>&#160;&#160;&#160;<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::lgamma</a>(x)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a80355d2cc0a255b1c7e7183a2076e500" name="a80355d2cc0a255b1c7e7183a2076e500"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a80355d2cc0a255b1c7e7183a2076e500">&#9670;&#160;</a></span>Rf_dgamma</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define Rf_dgamma</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">x, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">shp, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">scl, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">lg&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td>&#160;&#160;&#160;(lg ? <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::log</a>((shp - 1) * <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::log</a>(x) - x / scl - <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::lgamma</a>(shp) - shp * <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::log</a>(scl)) : <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::exp</a>((shp - 1) * <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::log</a>(x) - x / scl - <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::lgamma</a>(shp) - shp * <a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::log</a>(scl)))</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a6e11279b1fbe99dd8fbd6dfc6a3222bd" name="a6e11279b1fbe99dd8fbd6dfc6a3222bd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6e11279b1fbe99dd8fbd6dfc6a3222bd">&#9670;&#160;</a></span>BVHAR_IF_CONSTEXPR</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define BVHAR_IF_CONSTEXPR</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">element</td><td>)</td>
+          <td>&#160;&#160;&#160;		if (<a class="el" href="namespacestd.html#a03d5ca705e3360c607bf2586e9a9de3b">std::integral_constant</a>&lt;bool, element&gt;::value)</td>
         </tr>
       </table>
 </div><div class="memdoc">

@@ -8,5 +8,5 @@ var classbaecon_1_1bvhar_1_1MhMinnesota =
     [ "updateHyper", "classbaecon_1_1bvhar_1_1MhMinnesota.html#ac878d394423970d33ed04d26a3c5aa4c", null ],
     [ "updateMniw", "classbaecon_1_1bvhar_1_1MhMinnesota.html#a7a326554dc592d224687b8622171fc29", null ],
     [ "doPosteriorDraws", "classbaecon_1_1bvhar_1_1MhMinnesota.html#a177fdb803551d0f0d45ee84f57e0a643", null ],
-    [ "returnRecords", "classbaecon_1_1bvhar_1_1MhMinnesota.html#aee6118c606eafb502d0e1ff6cc73aa9e", null ]
+    [ "returnRecords", "classbaecon_1_1bvhar_1_1MhMinnesota.html#a7e608644a09a46d14d6c373a24c669d7", null ]
 ];
