@@ -413,47 +413,47 @@ BVAR(p).
 #> ====================================================
 #> Matrix Normal Mean for A1 part:
 #>           GVZCLS_1  OVXCLS_1  EVZCLS_1  VXFXICLS_1
-#> GVZCLS     2.15956   -0.0079   -0.0135     -0.0228
-#> OVXCLS     0.01361    0.1972    0.0697      0.0272
-#> EVZCLS    -0.00802   -0.0227    2.1845     -0.0173
-#> VXFXICLS   0.01551    0.0107    0.0206      0.1882
+#> GVZCLS     4.63361  -0.01685   -0.0310     -0.0473
+#> OVXCLS     0.00928   0.09403    0.0573      0.0213
+#> EVZCLS    -0.01292  -0.04268    4.2406     -0.0320
+#> VXFXICLS   0.01074   0.00891    0.0179      0.0379
 #> 
 #> 
 #> Matrix Normal Mean for A2 part:
 #>           GVZCLS_2  OVXCLS_2  EVZCLS_2  VXFXICLS_2
-#> GVZCLS    -0.01319  -0.00184  -0.00330    -0.00555
-#> OVXCLS     0.00344   0.02810   0.01732     0.00666
-#> EVZCLS    -0.00197  -0.00569  -0.00744    -0.00426
-#> VXFXICLS   0.00383   0.00261   0.00510     0.00825
+#> GVZCLS    -0.02276  -0.00392  -0.00757    -0.01153
+#> OVXCLS     0.00235   0.02082   0.01423     0.00522
+#> EVZCLS    -0.00317  -0.01070  -0.01474    -0.00786
+#> VXFXICLS   0.00265   0.00218   0.00442     0.00651
 #> 
 #> 
 #> Matrix Normal Mean for A3 part:
-#>            GVZCLS_3  OVXCLS_3  EVZCLS_3  VXFXICLS_3
-#> GVZCLS    -0.005576  -0.00074  -0.00143    -0.00242
-#> OVXCLS     0.001522   0.01238   0.00764     0.00292
-#> EVZCLS    -0.000857  -0.00253  -0.00324    -0.00184
-#> VXFXICLS   0.001648   0.00112   0.00224     0.00351
+#>           GVZCLS_3   OVXCLS_3  EVZCLS_3  VXFXICLS_3
+#> GVZCLS    -0.00967  -0.001589  -0.00328    -0.00503
+#> OVXCLS     0.00104   0.009175   0.00628     0.00229
+#> EVZCLS    -0.00138  -0.004758  -0.00644    -0.00341
+#> VXFXICLS   0.00114   0.000936   0.00194     0.00277
 #> 
 #> 
 #> Matrix Normal Mean for A4 part:
-#>            GVZCLS_4   OVXCLS_4   EVZCLS_4  VXFXICLS_4
-#> GVZCLS    -0.003009  -0.000373  -0.000784    -0.00133
-#> OVXCLS     0.000861   0.006914   0.004272     0.00165
-#> EVZCLS    -0.000475  -0.001428  -0.001798    -0.00102
-#> VXFXICLS   0.000896   0.000603   0.001245     0.00189
+#>            GVZCLS_4   OVXCLS_4  EVZCLS_4  VXFXICLS_4
+#> GVZCLS    -0.005234  -0.000812  -0.00179    -0.00277
+#> OVXCLS     0.000588   0.005125   0.00351     0.00129
+#> EVZCLS    -0.000765  -0.002679  -0.00357    -0.00189
+#> VXFXICLS   0.000623   0.000508   0.00108     0.00149
 #> 
 #> 
 #> Matrix Normal Mean for A5 part:
 #>            GVZCLS_5   OVXCLS_5   EVZCLS_5  VXFXICLS_5
-#> GVZCLS    -0.001862  -0.000217  -0.000489   -0.000841
-#> OVXCLS     0.000559   0.004403   0.002717    0.001066
-#> EVZCLS    -0.000298  -0.000913  -0.001135   -0.000643
-#> VXFXICLS   0.000557   0.000378   0.000789    0.001172
+#> GVZCLS    -0.003246  -0.000475  -0.001118   -0.001751
+#> OVXCLS     0.000380   0.003263   0.002232    0.000830
+#> EVZCLS    -0.000479  -0.001713  -0.002257   -0.001193
+#> VXFXICLS   0.000387   0.000318   0.000684    0.000925
 #> 
 #> 
 #> Matrix Normal Mean for constant part:
 #>   GVZCLS    OVXCLS    EVZCLS  VXFXICLS  
-#>   -19.52     19.15     -8.82     18.59  
+#>    -63.1      23.0     -25.8      22.6  
 #> 
 #> 
 #> dim(Matrix Normal precision matrix):
@@ -464,10 +464,10 @@ BVAR(p).
 #> ====================================================
 #> IW scale matrix:
 #>           GVZCLS  OVXCLS  EVZCLS  VXFXICLS
-#> GVZCLS     19232   -4244    2725     -4772
-#> OVXCLS     -4244   67041  -12978      6495
-#> EVZCLS      2725  -12978    5898     -3815
-#> VXFXICLS   -4772    6495   -3815      8451
+#> GVZCLS    170513  -16309   23055    -18766
+#> OVXCLS    -16309   84182  -41841      9055
+#> EVZCLS     23055  -41841   44231    -13036
+#> VXFXICLS  -18766    9055  -13036     11738
 #> 
 #> IW degrees of freedom:
 #> [1] 887
@@ -709,31 +709,31 @@ version.
 #> ====================================================
 #> Matrix Normal Mean for day:
 #>           GVZCLS_day  OVXCLS_day  EVZCLS_day  VXFXICLS_day
-#> GVZCLS       3.53516    -0.01145     -0.0371       -0.0314
-#> OVXCLS       0.00992     0.09391      0.1055        0.0201
-#> EVZCLS      -0.01028    -0.03293      3.5254       -0.0231
-#> VXFXICLS     0.01157     0.00864      0.0316        0.0359
+#> GVZCLS       2.63777     -0.0155     -0.0475       -0.0287
+#> OVXCLS       0.01145      0.1914      0.1884        0.0229
+#> EVZCLS      -0.00877     -0.0452      2.6012       -0.0199
+#> VXFXICLS     0.01612      0.0175      0.0626        0.0465
 #> 
 #> 
 #> Matrix Normal Mean for week:
 #>           GVZCLS_week  OVXCLS_week  EVZCLS_week  VXFXICLS_week
-#> GVZCLS       -0.01688     -0.00241     -0.00880       -0.00752
-#> OVXCLS        0.00251      0.02063      0.02603        0.00491
-#> EVZCLS       -0.00247     -0.00823     -0.02012       -0.00556
-#> VXFXICLS      0.00276      0.00203      0.00772        0.00598
+#> GVZCLS       -0.01604     -0.00313      -0.0112       -0.00686
+#> OVXCLS        0.00289      0.04454       0.0465        0.00559
+#> EVZCLS       -0.00209     -0.01132      -0.0257       -0.00477
+#> VXFXICLS      0.00383      0.00405       0.0153        0.00840
 #> 
 #> 
 #> Matrix Normal Mean for month:
 #>           GVZCLS_month  OVXCLS_month  EVZCLS_month  VXFXICLS_month
-#> GVZCLS       -0.006168     -0.000488      -0.00330        -0.00291
-#> OVXCLS        0.001263      0.008723       0.01082         0.00206
-#> EVZCLS       -0.000978     -0.003732      -0.00823        -0.00217
-#> VXFXICLS      0.001063      0.000811       0.00321         0.00198
+#> GVZCLS        -0.00583     -0.000409      -0.00413        -0.00266
+#> OVXCLS         0.00148      0.018775       0.01932         0.00236
+#> EVZCLS        -0.00081     -0.005192      -0.01047        -0.00186
+#> VXFXICLS       0.00147      0.001581       0.00635         0.00277
 #> 
 #> 
 #> Matrix Normal Mean for constant part:
 #>   GVZCLS    OVXCLS    EVZCLS  VXFXICLS  
-#>    -44.0      22.7     -20.1      22.6  
+#>    -27.5      17.9     -11.4      21.4  
 #> 
 #> 
 #> dim(Matrix Normal precision matrix):
@@ -744,10 +744,10 @@ version.
 #> ====================================================
 #> IW scale matrix:
 #>           GVZCLS  OVXCLS  EVZCLS  VXFXICLS
-#> GVZCLS     83916  -10987   11676    -12719
-#> OVXCLS    -10987   84070  -32287      8789
-#> EVZCLS     11676  -32287   25832     -9663
-#> VXFXICLS  -12719    8789   -9663     11559
+#> GVZCLS     36251   -5532    4495     -7772
+#> OVXCLS     -5532   69577  -16860      6864
+#> EVZCLS      4495  -16860    9824     -5587
+#> VXFXICLS   -7772    6864   -5587     11054
 ```
 
 This model is `bvharmn` class.
@@ -853,31 +853,31 @@ fit_bvhar_v2
 #> ====================================================
 #> Matrix Normal Mean for day:
 #>           GVZCLS_day  OVXCLS_day  EVZCLS_day  VXFXICLS_day
-#> GVZCLS       2.98029     -0.0172     -0.1202       -0.1976
-#> OVXCLS       0.00679      0.1592      0.1921        0.0621
-#> EVZCLS       0.00225      0.0090      0.1805        0.0249
-#> VXFXICLS     0.00784      0.0059      0.0524        0.1841
+#> GVZCLS      0.171880     0.00256      0.0197       0.02462
+#> OVXCLS      0.018517     0.17080      0.1793       0.04427
+#> EVZCLS      0.000983     0.00154      0.4958       0.00266
+#> VXFXICLS    0.023059     0.00678      0.0539       0.14056
 #> 
 #> 
 #> Matrix Normal Mean for week:
 #>           GVZCLS_week  OVXCLS_week  EVZCLS_week  VXFXICLS_week
-#> GVZCLS       1.299244     -0.00384      -0.0299       -0.04933
-#> OVXCLS       0.001707      0.06217       0.0474        0.01518
-#> EVZCLS       0.000527      0.00224       0.0770        0.00596
-#> VXFXICLS     0.001845      0.00136       0.0127        0.06911
+#> GVZCLS       0.072099     0.000486      0.00452       0.005879
+#> OVXCLS       0.004661     0.067362      0.04421       0.010807
+#> EVZCLS       0.000142     0.000359      0.24569       0.000537
+#> VXFXICLS     0.005449     0.001570      0.01312       0.052780
 #> 
 #> 
 #> Matrix Normal Mean for month:
 #>           GVZCLS_month  OVXCLS_month  EVZCLS_month  VXFXICLS_month
-#> GVZCLS        1.060163     -0.000836      -0.01193        -0.02063
-#> OVXCLS        0.000880      0.037323       0.01966         0.00652
-#> EVZCLS        0.000212      0.001023       0.04815         0.00234
-#> VXFXICLS      0.000705      0.000537       0.00525         0.03951
+#> GVZCLS        4.46e-02      5.94e-05       0.00168        0.002272
+#> OVXCLS        2.41e-03      4.06e-02       0.01834        0.004602
+#> EVZCLS        3.05e-05      1.62e-04       0.16330        0.000148
+#> VXFXICLS      2.09e-03      6.24e-04       0.00544        0.030169
 #> 
 #> 
 #> Matrix Normal Mean for constant part:
 #>   GVZCLS    OVXCLS    EVZCLS  VXFXICLS  
-#>   -70.76     16.52      5.01     16.40  
+#>   11.865    16.396     0.694    17.686  
 #> 
 #> 
 #> dim(Matrix Normal precision matrix):
@@ -888,8 +888,8 @@ fit_bvhar_v2
 #> ====================================================
 #> IW scale matrix:
 #>           GVZCLS  OVXCLS  EVZCLS  VXFXICLS
-#> GVZCLS    208287  -14435   -4299    -14930
-#> OVXCLS    -14435   58294    7543      5236
-#> EVZCLS     -4299    7543    2074      2091
-#> VXFXICLS  -14930    5236    2091      7410
+#> GVZCLS      7214    2419     234      3118
+#> OVXCLS      2419   55906    1282      5542
+#> EVZCLS       234    1282     201       426
+#> VXFXICLS    3118    5542     426      8305
 ```
