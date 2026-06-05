@@ -1,13 +1,13 @@
-## Minor version update
+## Patch version update
 
 In this version, we
 
-- Fixed C++20 error related to fmt library.
+- Fixed wrong algorithms.
 - Added some features.
 
 ## Test environments
 
-- Local: macOS 26.2 (x86_64-apple-darwin20), R 4.5.2
+- Local: macOS 26.5.1 (aarch64-apple-darwin20), R 4.5.2
 - Github actions
     - ubuntu-latest: R-devel, R-release, R-oldrel-1, R-oldrel-2, R-oldrel-3
     - macOS-latest: R-release
