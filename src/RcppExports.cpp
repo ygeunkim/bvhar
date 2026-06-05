@@ -646,6 +646,37 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// compute_var_irf
+Eigen::MatrixXd compute_var_irf(Eigen::MatrixXd coef_mat, int lag, Eigen::MatrixXd cov_mat, int step, bool orthogonal);
+RcppExport SEXP _bvhar_compute_var_irf(SEXP coef_matSEXP, SEXP lagSEXP, SEXP cov_matSEXP, SEXP stepSEXP, SEXP orthogonalSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type coef_mat(coef_matSEXP);
+    Rcpp::traits::input_parameter< int >::type lag(lagSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type cov_mat(cov_matSEXP);
+    Rcpp::traits::input_parameter< int >::type step(stepSEXP);
+    Rcpp::traits::input_parameter< bool >::type orthogonal(orthogonalSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_var_irf(coef_mat, lag, cov_mat, step, orthogonal));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compute_vhar_irf
+Eigen::MatrixXd compute_vhar_irf(Eigen::MatrixXd coef_mat, int week, int month, Eigen::MatrixXd cov_mat, int step, bool orthogonal);
+RcppExport SEXP _bvhar_compute_vhar_irf(SEXP coef_matSEXP, SEXP weekSEXP, SEXP monthSEXP, SEXP cov_matSEXP, SEXP stepSEXP, SEXP orthogonalSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type coef_mat(coef_matSEXP);
+    Rcpp::traits::input_parameter< int >::type week(weekSEXP);
+    Rcpp::traits::input_parameter< int >::type month(monthSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type cov_mat(cov_matSEXP);
+    Rcpp::traits::input_parameter< int >::type step(stepSEXP);
+    Rcpp::traits::input_parameter< bool >::type orthogonal(orthogonalSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_vhar_irf(coef_mat, week, month, cov_mat, step, orthogonal));
+    return rcpp_result_gen;
+END_RCPP
+}
 // compute_var_spillover
 Rcpp::List compute_var_spillover(Eigen::MatrixXd coef_mat, int lag, Eigen::MatrixXd cov_mat, int step);
 RcppExport SEXP _bvhar_compute_var_spillover(SEXP coef_matSEXP, SEXP lagSEXP, SEXP cov_matSEXP, SEXP stepSEXP) {
@@ -1783,6 +1814,39 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// compute_bvarldlt_irf
+Rcpp::List compute_bvarldlt_irf(int num_chains, int lag, int step, Rcpp::List fit_record, bool sparse, int nthreads);
+RcppExport SEXP _bvhar_compute_bvarldlt_irf(SEXP num_chainsSEXP, SEXP lagSEXP, SEXP stepSEXP, SEXP fit_recordSEXP, SEXP sparseSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type num_chains(num_chainsSEXP);
+    Rcpp::traits::input_parameter< int >::type lag(lagSEXP);
+    Rcpp::traits::input_parameter< int >::type step(stepSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type fit_record(fit_recordSEXP);
+    Rcpp::traits::input_parameter< bool >::type sparse(sparseSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_bvarldlt_irf(num_chains, lag, step, fit_record, sparse, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compute_bvharldlt_irf
+Rcpp::List compute_bvharldlt_irf(int num_chains, int week, int month, int step, Rcpp::List fit_record, bool sparse, int nthreads);
+RcppExport SEXP _bvhar_compute_bvharldlt_irf(SEXP num_chainsSEXP, SEXP weekSEXP, SEXP monthSEXP, SEXP stepSEXP, SEXP fit_recordSEXP, SEXP sparseSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type num_chains(num_chainsSEXP);
+    Rcpp::traits::input_parameter< int >::type week(weekSEXP);
+    Rcpp::traits::input_parameter< int >::type month(monthSEXP);
+    Rcpp::traits::input_parameter< int >::type step(stepSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type fit_record(fit_recordSEXP);
+    Rcpp::traits::input_parameter< bool >::type sparse(sparseSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_bvharldlt_irf(num_chains, week, month, step, fit_record, sparse, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
 // compute_varldlt_spillover
 Rcpp::List compute_varldlt_spillover(int lag, int step, Rcpp::List fit_record, bool sparse);
 RcppExport SEXP _bvhar_compute_varldlt_spillover(SEXP lagSEXP, SEXP stepSEXP, SEXP fit_recordSEXP, SEXP sparseSEXP) {
@@ -2484,6 +2548,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_expand_varx", (DL_FUNC) &_bvhar_expand_varx, 9},
     {"_bvhar_expand_vhar", (DL_FUNC) &_bvhar_expand_vhar, 8},
     {"_bvhar_expand_vharx", (DL_FUNC) &_bvhar_expand_vharx, 10},
+    {"_bvhar_compute_var_irf", (DL_FUNC) &_bvhar_compute_var_irf, 5},
+    {"_bvhar_compute_vhar_irf", (DL_FUNC) &_bvhar_compute_vhar_irf, 6},
     {"_bvhar_compute_var_spillover", (DL_FUNC) &_bvhar_compute_var_spillover, 4},
     {"_bvhar_compute_vhar_spillover", (DL_FUNC) &_bvhar_compute_vhar_spillover, 5},
     {"_bvhar_dynamic_var_spillover", (DL_FUNC) &_bvhar_dynamic_var_spillover, 7},
@@ -2513,6 +2579,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bvhar_expand_bvarxsv", (DL_FUNC) &_bvhar_expand_bvarxsv, 44},
     {"_bvhar_expand_bvharsv", (DL_FUNC) &_bvhar_expand_bvharsv, 40},
     {"_bvhar_expand_bvharxsv", (DL_FUNC) &_bvhar_expand_bvharxsv, 45},
+    {"_bvhar_compute_bvarldlt_irf", (DL_FUNC) &_bvhar_compute_bvarldlt_irf, 6},
+    {"_bvhar_compute_bvharldlt_irf", (DL_FUNC) &_bvhar_compute_bvharldlt_irf, 7},
     {"_bvhar_compute_varldlt_spillover", (DL_FUNC) &_bvhar_compute_varldlt_spillover, 4},
     {"_bvhar_compute_vharldlt_spillover", (DL_FUNC) &_bvhar_compute_vharldlt_spillover, 5},
     {"_bvhar_dynamic_bvarldlt_spillover", (DL_FUNC) &_bvhar_dynamic_bvarldlt_spillover, 25},

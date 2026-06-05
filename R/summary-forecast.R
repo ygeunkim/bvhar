@@ -420,12 +420,12 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test,
   num_draw <- nrow(object$param) # concatenate multiple chains
   # num_draw <- nrow(object$param) / num_chains
   if (lpl) {
-    # lpl_val <- res_mat$lpl
-    if (med) {
-      lpl_val <- apply(res_mat$lpl, 1, median)
-    } else {
-      lpl_val <- rowMeans(res_mat$lpl)
-    }
+    lpl_val <- res_mat$lpl
+    # if (med) {
+    #   lpl_val <- apply(res_mat$lpl, 2, median)
+    # } else {
+    #   lpl_val <- colMeans(res_mat$lpl)
+    # }
     res_mat$lpl <- NULL
   }
   # If path, res_mat$forecast = list(windows) -> list(chains) -> matrix(n_ahead, dim * draws)
@@ -440,10 +440,10 @@ forecast_roll.ldltmod <- function(object, n_ahead, y_test,
     med = med
   )
   # Temporarily same results when isPath = false
-  y_distn <- lapply(
-    y_distn,
-    function(x) x[,,dim(x)[3]]
-  )
+  # y_distn <- lapply(
+  #   y_distn,
+  #   function(x) x[,,dim(x)[3]]
+  # )
   res <- list(
     process = object$process,
     draws = res_mat$forecast,
@@ -658,12 +658,12 @@ forecast_roll.svmod <- function(object, n_ahead, y_test,
   num_draw <- nrow(object$param) # concatenate multiple chains
   # num_draw <- nrow(object$param) / num_chains
   if (lpl) {
-    # lpl_val <- res_mat$lpl
-    if (med) {
-      lpl_val <- apply(res_mat$lpl, 1, median)
-    } else {
-      lpl_val <- rowMeans(res_mat$lpl)
-    }
+    lpl_val <- res_mat$lpl
+    # if (med) {
+    #   lpl_val <- apply(res_mat$lpl, 2, median)
+    # } else {
+    #   lpl_val <- colMeans(res_mat$lpl)
+    # }
     res_mat$lpl <- NULL
   }
   y_distn <- process_forecast_draws(
@@ -1058,12 +1058,12 @@ forecast_expand.ldltmod <- function(object, n_ahead, y_test,
   num_draw <- nrow(object$param) # concatenate multiple chains
   # num_draw <- nrow(object$param) / num_chains
   if (lpl) {
-    # lpl_val <- res_mat$lpl
-    if (med) {
-      lpl_val <- apply(res_mat$lpl, 1, median)
-    } else {
-      lpl_val <- rowMeans(res_mat$lpl)
-    }
+    lpl_val <- res_mat$lpl
+    # if (med) {
+    #   lpl_val <- apply(res_mat$lpl, 2, median)
+    # } else {
+    #   lpl_val <- colMeans(res_mat$lpl)
+    # }
     res_mat$lpl <- NULL
   }
   y_distn <- process_forecast_draws(
@@ -1283,12 +1283,12 @@ forecast_expand.svmod <- function(object, n_ahead, y_test,
   num_draw <- nrow(object$param) # concatenate multiple chains
   # num_draw <- nrow(object$param) / num_chains
   if (lpl) {
-    # lpl_val <- res_mat$lpl
-    if (med) {
-      lpl_val <- apply(res_mat$lpl, 1, median)
-    } else {
-      lpl_val <- rowMeans(res_mat$lpl)
-    }
+    lpl_val <- res_mat$lpl
+    # if (med) {
+    #   lpl_val <- apply(res_mat$lpl, 2, median)
+    # } else {
+    #   lpl_val <- colMeans(res_mat$lpl)
+    # }
     res_mat$lpl <- NULL
   }
   y_distn <- process_forecast_draws(
@@ -1355,15 +1355,15 @@ mse.predbvhar <- function(x, y, ...) {
 #' @export
 mse.bvharcv <- function(x, y, ...) {
   y_test <- y[x$eval_id, ]
-  # if (length(dim(x$forecast)) == 3) {
-  #   return(
-  #     apply(
-  #       x$forecast, 3,
-  #       function(est) colMeans((est - y_test)^2)
-  #     ) |>
-  #       rowMeans()
-  #   )
-  # }
+  if (length(dim(x$forecast)) == 3) {
+    return(
+      apply(
+        x$forecast, 3,
+        function(est) colMeans((est - y_test)^2)
+      ) |>
+        rowMeans()
+    )
+  }
   (y_test - x$forecast)^2 |> 
     colMeans()
 }
@@ -1411,15 +1411,15 @@ mae.predbvhar <- function(x, y, ...) {
 #' @export
 mae.bvharcv <- function(x, y, ...) {
   y_test <- y[x$eval_id, ]
-  # if (length(dim(x$forecast)) == 3) {
-  #   return(
-  #     apply(
-  #       x$forecast, 3,
-  #       function(est) colMeans(abs(est - y_test))
-  #     ) |>
-  #       rowMeans()
-  #   )
-  # }
+  if (length(dim(x$forecast)) == 3) {
+    return(
+      apply(
+        x$forecast, 3,
+        function(est) colMeans(abs(est - y_test))
+      ) |>
+        rowMeans()
+    )
+  }
   apply(
     y_test - x$forecast,
     2,
@@ -1470,15 +1470,15 @@ mape.predbvhar <- function(x, y, ...) {
 #' @export
 mape.bvharcv <- function(x, y, ...) {
   y_test <- y[x$eval_id, ]
-  # if (length(dim(x$forecast)) == 3) {
-  #   return(
-  #     apply(
-  #       x$forecast, 3,
-  #       function(est) colMeans(abs(100 * (est - y_test) / y_test))
-  #     ) |>
-  #       rowMeans()
-  #   )
-  # }
+  if (length(dim(x$forecast)) == 3) {
+    return(
+      apply(
+        x$forecast, 3,
+        function(est) colMeans(abs(100 * (est - y_test) / y_test))
+      ) |>
+        rowMeans()
+    )
+  }
   apply(
     100 * (y_test - x$forecast) / y_test,
     2,
@@ -1545,15 +1545,15 @@ mase.bvharcv <- function(x, y, ...) {
     abs() |>
     colMeans()
   y_test <- y[x$eval_id,]
-  # if (length(dim(x$forecast)) == 3) {
-  #   return(
-  #     apply(
-  #       x$forecast, 3,
-  #       function(est) colMeans(abs(100 * (y_test - est) / scaled_err))
-  #     ) |>
-  #       rowMeans()
-  #   )
-  # }
+  if (length(dim(x$forecast)) == 3) {
+    return(
+      apply(
+        x$forecast, 3,
+        function(est) colMeans(abs(100 * (y_test - est) / scaled_err))
+      ) |>
+        rowMeans()
+    )
+  }
   apply(
     100 * (y_test - x$forecast) / scaled_err, 
     2, 
@@ -1618,9 +1618,9 @@ mrae.bvharcv <- function(x, pred_bench, y, ...) {
     stop("'pred_bench' should be 'bvharcv' class.")
   }
   y_test <- y[x$eval_id,]
-  # if (length(dim(x$forecast)) == 3) {
-  #   stop("Not defined yet")
-  # }
+  if (length(dim(x$forecast)) == 3) {
+    stop("Not defined yet")
+  }
   apply(
     (y_test - x$forecast) / (y_test - pred_bench$forecast),
     2,
@@ -1644,10 +1644,7 @@ alpl <- function(x, ...) {
 #' @rdname alpl
 #' @export 
 alpl.bvharcv <- function(x, ...) {
-  if (x$med) {
-    return(median(x$lpl))
-  }
-  mean(x$lpl)
+  colMeans(x$lpl)
 }
 
 #' Evaluate the Model Based on RelMAE (Relative MAE)

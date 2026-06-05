@@ -6,6 +6,7 @@
 // #include "../../math/design.h"
 // // #include <memory> // std::unique_ptr
 // #include "../../core/progress.h"
+#include "../../math/rng.h"
 #include "./config.h"
 #include "./tuning.h"
 
@@ -111,13 +112,13 @@ protected:
 	Eigen::MatrixXd scale; // IW scale
 };
 
-class McmcMniw {
+class McmcMniw : public RngState {
 public:
 	McmcMniw(int num_iter, const MinnFit& mn_fit, unsigned int seed)
-	: mn_fit(mn_fit),
+	: RngState(seed), mn_fit(mn_fit),
 		num_iter(num_iter), dim(mn_fit._coef.cols()), dim_design(mn_fit._coef.rows()),
 		mn_record(num_iter, dim, dim_design),
-		mniw(2), mcmc_step(0), rng(seed) {}
+		mniw(2), mcmc_step(0) {}
 	virtual ~McmcMniw() = default;
 	void addStep() { mcmc_step++; }
 	void updateRecords() { mn_record.assignRecords(mcmc_step, mniw); }
@@ -146,7 +147,6 @@ private:
 	MinnRecords mn_record;
 	std::vector<Eigen::MatrixXd> mniw;
 	std::atomic<int> mcmc_step; // MCMC step
-	BVHAR_BHRNG rng; // RNG instance for multi-chain
 	std::mutex mtx;
 };
 
@@ -329,16 +329,16 @@ private:
 	std::unique_ptr<Minnesota> _mn;
 };
 
-class MhMinnesota : Minnesota {
+class MhMinnesota : public Minnesota, public RngState {
 public:
 	MhMinnesota(
 		int num_iter, const MhMinnSpec& spec, const MhMinnInits& inits, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
 		const Eigen::MatrixXd& x_dummy, const Eigen::MatrixXd& y_dummy, unsigned int seed
 	)
-	: Minnesota(x, y, x_dummy, y_dummy),
+	: Minnesota(x, y, x_dummy, y_dummy), RngState(seed),
 		num_iter(num_iter),
 		mn_record(num_iter, dim, dim_design),
-		mniw(2), mcmc_step(0), rng(seed),
+		mniw(2), mcmc_step(0),
 		// Minnesota(num_iter, x, y, x_dummy, y_dummy, seed),
 		mh_record(num_iter, dim),
 		gamma_shp(spec._gam_rate), gamma_rate(spec._gam_shape),
@@ -372,7 +372,7 @@ public:
 			prevprior[0], prevprior.segment(1, dim), dim, num_design,
 			prior_prec, prior_scale, prior_shape, prec, scale, prior_shape + num_design, gamma_shp, gamma_rate, invgam_shp, invgam_scl
 		);
-		is_accept = ( log(unif_rand(rng)) < std::min(numerator - denom, 0.0) );
+		is_accept = ( log(1 - unif_rand(rng)) < std::min(numerator - denom, 0.0) );
 		if (is_accept) {
 			lambda = candprior[0];
 			psi = candprior.tail(dim);
@@ -411,7 +411,6 @@ private:
 	MinnRecords mn_record;
 	std::vector<Eigen::MatrixXd> mniw;
 	std::atomic<int> mcmc_step; // MCMC step
-	BVHAR_BHRNG rng; // RNG instance for multi-chain
 	std::mutex mtx;
 	MhMinnRecords mh_record;
 	double gamma_shp;

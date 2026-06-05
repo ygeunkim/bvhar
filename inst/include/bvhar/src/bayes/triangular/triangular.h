@@ -659,6 +659,76 @@ inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
 	return mcmc_ptr;
 }
 
+template <typename BaseMcmc = McmcReg, bool isGroup = true>
+inline std::vector<std::unique_ptr<BaseMcmc>> initialize_mcmc(
+	int num_chains, int num_iter, const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
+	BVHAR_LIST& param_reg, BVHAR_LIST& param_prior, BVHAR_LIST& param_intercept, int prior_type,
+	BVHAR_LIST& contem_prior, int contem_prior_type,
+  const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
+  bool include_mean, Eigen::Ref<const Eigen::VectorXi> seed_chain,
+	BVHAR_OPTIONAL<BVHAR_LIST> exogen_prior = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> exogen_prior_type = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> exogen_cols = BVHAR_NULLOPT,
+	BVHAR_OPTIONAL<BVHAR_LIST> factor_prior = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> factor_prior_type = BVHAR_NULLOPT,
+	BVHAR_OPTIONAL<int> size_factor = BVHAR_NULLOPT
+) {
+	using PARAMS = typename std::conditional<std::is_same<BaseMcmc, McmcReg>::value, RegParams, SvParams>::type;
+	using INITS = typename std::conditional<std::is_same<BaseMcmc, McmcReg>::value, LdltInits, SvInits>::type;
+	PARAMS base_params(
+		num_iter, x, y,
+		param_reg,
+		own_id, cross_id,
+		grp_id, grp_mat,
+		param_intercept, include_mean,
+		exogen_cols, size_factor
+	);
+	int dim = y.cols();
+	int num_design = y.rows();
+	int dim_design = x.cols();
+	int num_coef = dim * dim_design;
+	int num_alpha = include_mean ? num_coef - dim : num_coef;
+	int num_lowerchol = dim * (dim - 1) / 2;
+	int num_grp = base_params._grp_id.size();
+	std::vector<std::unique_ptr<BaseMcmc>> mcmc_ptr(num_chains);
+	std::vector<BVHAR_BHRNG> rng_vec(num_chains);
+	for (int i = 0; i < num_chains; ++i) {
+		rng_vec[i].seed(seed_chain[i]);
+		auto coef_updater = initialize_shrinkageupdater<isGroup>(num_iter, num_alpha, num_grp, param_prior, prior_type, rng_vec[i]);
+		coef_updater->initCoefMean(base_params._alpha_mean.head(base_params._num_alpha));
+		coef_updater->initCoefPrec(base_params._alpha_prec.head(base_params._num_alpha), base_params._grp_vec, base_params._cross_id);
+		int num_grp_contem = (contem_prior_type == 2 || contem_prior_type == 7) ? num_lowerchol : 1;
+		auto contem_updater = initialize_shrinkageupdater<false>(num_iter, num_lowerchol, num_grp_contem, contem_prior, contem_prior_type, rng_vec[i]);
+		contem_updater->initImpactPrec(base_params._chol_prec);
+		INITS ldlt_inits(dim, dim_design, num_lowerchol, num_design, rng_vec[i]);
+		BVHAR_OPTIONAL<std::unique_ptr<ShrinkageUpdater>> exogen_updater = BVHAR_NULLOPT;
+		BVHAR_OPTIONAL<std::unique_ptr<ShrinkageUpdater>> factor_updater = BVHAR_NULLOPT;
+		BVHAR_OPTIONAL<std::unique_ptr<FactorAugmenter>> favar_updater = BVHAR_NULLOPT;
+		if (exogen_prior) {
+			int num_exogen = (*exogen_cols) * dim;
+			int num_grp_exogen = (*exogen_prior_type == 2 || *exogen_prior_type == 7) ? num_exogen : 1;
+			exogen_updater = initialize_shrinkageupdater<false>(num_iter, num_exogen, num_grp_exogen, *exogen_prior, *exogen_prior_type, rng_vec[i]);
+			(*exogen_updater)->initCoefMean(base_params._alpha_mean.segment(base_params._num_endog, base_params._num_exogen));
+			(*exogen_updater)->initImpactPrec(base_params._alpha_prec.segment(base_params._num_endog, base_params._num_exogen));
+		}
+		if (factor_prior) {
+			int num_factor = (*size_factor) * dim;
+			int num_grp_factor = (*factor_prior_type == 2 || *factor_prior_type == 7) ? num_factor : 1;
+			factor_updater = initialize_shrinkageupdater<false>(num_iter, num_factor, num_grp_factor, *factor_prior, *factor_prior_type, rng_vec[i]);
+			(*factor_updater)->initCoefMean(base_params._alpha_mean.tail(base_params._num_factor));
+			(*factor_updater)->initImpactPrec(base_params._alpha_prec.tail(base_params._num_factor));
+			DfmParams dfm_params(0, *size_factor, base_params._dim);
+			favar_updater = std::make_unique<FactorNormalAugmenter>(num_iter, base_params._num_design, dfm_params);
+		}
+		mcmc_ptr[i] = std::make_unique<BaseMcmc>(
+			base_params, ldlt_inits,
+			std::move(coef_updater), std::move(contem_updater),
+			1,
+			std::move(exogen_updater),
+			std::move(favar_updater), std::move(factor_updater)
+		);
+		mcmc_ptr[i]->updateRng(rng_vec[i]);
+	}
+	return mcmc_ptr;
+}
+
 /**
  * @brief Class that conducts MCMC using CTA
  * 
@@ -694,6 +764,34 @@ public:
 			mcmc_ptr[i] = std::move(temp_mcmc[i]);
 		}
 	}
+
+	CtaRun(
+		int num_chains, int num_iter, int num_burn, int thin,
+    const Eigen::MatrixXd& x, const Eigen::MatrixXd& y,
+		BVHAR_LIST& param_cov, BVHAR_LIST& param_prior, BVHAR_LIST& param_intercept, int prior_type,
+		BVHAR_LIST& contem_prior, int contem_prior_type,
+    const Eigen::VectorXi& grp_id, const Eigen::VectorXi& own_id, const Eigen::VectorXi& cross_id, const Eigen::MatrixXi& grp_mat,
+    bool include_mean, const Eigen::VectorXi& seed_chain,
+		bool display_progress, int nthreads,
+		BVHAR_OPTIONAL<BVHAR_LIST> exogen_prior = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> exogen_prior_type = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> exogen_cols = BVHAR_NULLOPT,
+		BVHAR_OPTIONAL<BVHAR_LIST> factor_prior = BVHAR_NULLOPT, BVHAR_OPTIONAL<int> factor_prior_type = BVHAR_NULLOPT,
+		BVHAR_OPTIONAL<int> size_factor = BVHAR_NULLOPT
+	)
+	: McmcRun(num_chains, num_iter, num_burn, thin, display_progress, nthreads) {
+		auto temp_mcmc = initialize_mcmc<BaseMcmc, isGroup>(
+			num_chains, num_iter - num_burn, x, y,
+			param_cov, param_prior, param_intercept, prior_type,
+			contem_prior, contem_prior_type,
+			grp_id, own_id, cross_id, grp_mat,
+			include_mean, seed_chain,
+			exogen_prior, exogen_prior_type, exogen_cols,
+			factor_prior, factor_prior_type, size_factor
+		);
+		for (int i = 0; i < num_chains; ++i) {
+			mcmc_ptr[i] = std::move(temp_mcmc[i]);
+		}
+	}
+
 	virtual ~CtaRun() = default;
 };
 

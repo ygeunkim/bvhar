@@ -3,7 +3,6 @@
 
 #include "../../math/random.h"
 #include "../../math/structural.h"
-#include <set>
 #include <limits>
 
 namespace baecon {
@@ -51,7 +50,7 @@ inline void cut_param(Eigen::Ref<Eigen::VectorXd> param) {
 // 
 // @param dim Dimension (dim x dim) of L
 // @param lower_vec Vector a
-inline Eigen::MatrixXd build_inv_lower(int dim, Eigen::VectorXd lower_vec) {
+inline Eigen::MatrixXd build_inv_lower(int dim, Eigen::Ref<const Eigen::VectorXd> lower_vec) {
   Eigen::MatrixXd res = Eigen::MatrixXd::Identity(dim, dim);
   int id = 0;
   for (int i = 1; i < dim; i++) {

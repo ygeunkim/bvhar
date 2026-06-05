@@ -1,0 +1,87 @@
+#include <bvhar/ols>
+#include <bvhar/triangular>
+
+int main() {
+#ifdef _OPENMP
+  std::cout << "OpenMP threads: " << omp_get_max_threads() << std::endl;
+#else
+	std::cout << "OpenMP not available in this machine." << std::endl;
+#endif
+	int num_chains = 3;
+	int nthreads = 3;
+	int num_iter = 500;
+	int num_burn = 300;
+	int thin = 2;
+	int dim = 5;
+	int num_data = 50;
+	int lag = 3;
+	bool include_mean = true;
+	int dim_design = include_mean ? dim * lag + 1 : dim * lag;
+	int num_coef = dim * dim_design;
+	int num_alpha = include_mean ? num_coef - dim : num_coef;
+	int num_eta = dim * (dim - 1) / 2;
+	int seed = 1;
+	BVHAR_BHRNG dgp_rng(seed);
+	Eigen::MatrixXd var_coef(dim_design, dim);
+	for (int i = 0; i < dim_design * dim; ++i) {
+		var_coef(i) = baecon::bvhar::normal_rand(dgp_rng) / 5;
+	}
+	Eigen::MatrixXd var_cov = Eigen::MatrixXd::Identity(dim, dim) / 3;
+	auto dgp_run = std::make_unique<baecon::bvhar::OlsSimulator>(
+		num_data, 0, lag, Eigen::MatrixXd::Zero(lag, dim),
+		var_coef, var_cov, 2, 1
+	);
+	Eigen::MatrixXd time_series = dgp_run->returnDgp();
+	std::cout << "VAR(p=" << lag << ")\n"
+		<< "Coefficient:\n" << var_coef << "\n"
+		<< "Covariance:\n" << var_cov << "\n"
+		<< "Data:\n" << time_series << std::endl;
+	std::cout << "MCMC configuration\n"
+		<< "Chains: " << num_chains << "\n"
+		<< "Iteration: " << num_iter << "\n"
+		<< "Burn-in: " << num_burn << "\n"
+		<< "Thinning: " << thin << std::endl;
+  try {
+		Eigen::MatrixXd x = baecon::bvhar::build_x0(time_series, lag, include_mean);
+		Eigen::MatrixXd y = baecon::bvhar::build_y0(time_series, lag, lag + 1);
+		int group_type = 3;
+		Eigen::MatrixXi grp_mat = baecon::bvhar::build_grpmat(lag, dim, group_type);
+		Eigen::VectorXi grp_id = grp_mat.unique();
+		int num_grp = grp_id.size();
+		Eigen::VectorXi own_id = baecon::bvhar::build_own_id(lag, group_type);
+		Eigen::VectorXi cross_id = baecon::bvhar::build_cross_id(lag, group_type);
+		std::cout << "Group:\n" << grp_mat << "\n"
+			<< "Group id: " << grp_id.transpose() << "\n"
+			<< "Own id: " << own_id.transpose() << "\n"
+			<< "Cross id: " << cross_id.transpose() << std::endl;
+		BVHAR_LIST param_reg = BVHAR_CREATE_LIST(
+			BVHAR_NAMED("shape") = Eigen::VectorXd::Constant(dim, 3.0),
+			BVHAR_NAMED("scale") = Eigen::VectorXd::Constant(dim, 0.01)
+		);
+		int prior_type = 3;
+		int contem_prior_type = 3;
+		BVHAR_LIST param_prior{};
+		BVHAR_LIST contem_prior{};
+		BVHAR_LIST param_intercept = BVHAR_CREATE_LIST(
+			BVHAR_NAMED("mean_non") = Eigen::VectorXd::Zero(dim),
+			BVHAR_NAMED("sd_non") = .1
+		);
+		Eigen::VectorXi seed_chain = Eigen::VectorXi::Random(num_chains);
+		std::cout << "Initialzing MCMC..." << std::endl;
+		auto mcmc_run = std::make_unique<baecon::bvhar::CtaRun<baecon::bvhar::McmcReg, true>>(
+			num_chains, num_iter, num_burn, thin, x, y,
+			param_reg, param_prior, param_intercept, prior_type,
+			contem_prior, contem_prior_type,
+			grp_id, own_id, cross_id, grp_mat,
+			include_mean, seed_chain, true, nthreads
+		);
+		std::cout << "Running MCMC..." << std::endl;
+		// BVHAR_LIST result = BVHAR_CAST_LIST(mcmc_run->returnRecords());
+		BVHAR_LIST_OF_LIST result = mcmc_run->returnRecords();
+		std::cout << "MCMC result:\n" << result << std::endl;
+  } catch (const std::exception& e) {
+    std::cerr << "Caught an error: " << e.what() << std::endl;
+    return 1;
+  }
+	return 0;
+}

@@ -556,6 +556,7 @@ predict.bvarldlt <- function(object, n_ahead, level = .05, newxreg, stable = FAL
   colnames(est_se) <- var_names
   res <- list(
     process = object$process,
+    draws = pred_res,
     forecast = pred_mean,
     se = est_se,
     lower = lower_quantile,
@@ -709,6 +710,7 @@ predict.bvharldlt <- function(object, n_ahead, level = .05, newxreg, stable = FA
   colnames(est_se) <- var_names
   res <- list(
     process = object$process,
+    draws = pred_res,
     forecast = pred_mean,
     se = est_se,
     lower = lower_quantile,
@@ -867,6 +869,7 @@ predict.bvarsv <- function(object, n_ahead, level = .05, newxreg, stable = FALSE
   colnames(est_se) <- var_names
   res <- list(
     process = object$process,
+    draws = pred_res,
     forecast = pred_mean,
     se = est_se,
     lower = lower_quantile,
@@ -1024,6 +1027,7 @@ predict.bvharsv <- function(object, n_ahead, level = .05, newxreg, stable = FALS
   colnames(est_se) <- var_names
   res <- list(
     process = object$process,
+    draws = pred_res,
     forecast = pred_mean,
     se = est_se,
     lower = lower_quantile,

@@ -18,12 +18,10 @@ inline double horseshoe_global_sparsity(double global_latent, Eigen::Ref<const E
                                  				Eigen::Ref<Eigen::VectorXd> coef_vec, const double& prior_var, BVHAR_BHRNG& rng) {
   int dim = coef_vec.size();
 	// double invgam_scl = 1 / global_latent + (coef_vec.array().square() / (2 * prior_var * local_hyperparam.array().square())).sum();
-	return sqrt(
-		1 / gamma_rand(
-			(dim + 1) / 2,
-			1 / (1 / global_latent + (coef_vec.array().square() / (2 * prior_var * local_hyperparam.array().square())).sum()),
-			rng
-		)
+	return 1 / gamma_rand(
+		(dim + 1) / 2,
+		1 / (1 / global_latent + (coef_vec.array().square() / (2 * prior_var * local_hyperparam.array())).sum()),
+		rng
 	);
 }
 
@@ -91,12 +89,12 @@ inline void horseshoe_mn_sparsity(Eigen::VectorXd& group_lev, Eigen::VectorXi& g
 inline void horseshoe_latent(Eigen::VectorXd& latent, Eigen::VectorXd& hyperparam, BVHAR_BHRNG& rng) {
   int dim = hyperparam.size();
   for (int i = 0; i < dim; i++) {
-		latent[i] = 1 / gamma_rand(1.0, 1 / (1 + 1 / (hyperparam[i] * hyperparam[i])), rng);
+		latent[i] = 1 / gamma_rand(1.0, 1 / (1 + 1 / hyperparam[i]), rng);
   }
 }
 // overloading
 inline void horseshoe_latent(double& latent, double& hyperparam, BVHAR_BHRNG& rng) {
-  latent = 1 / gamma_rand(1.0, 1 / (1 + 1 / (hyperparam * hyperparam)), rng);
+  latent = 1 / gamma_rand(1.0, 1 / (1 + 1 / hyperparam), rng);
 }
 
 // Generating the Squared Grouped Local Sparsity Hyperparameters Vector in Horseshoe Gibbs Sampler
@@ -110,9 +108,9 @@ inline void horseshoe_latent(double& latent, double& hyperparam, BVHAR_BHRNG& rn
 inline void horseshoe_local_sparsity(Eigen::VectorXd& local_lev, Eigen::VectorXd& local_latent, Eigen::VectorXd& global_hyperparam,
                             				 Eigen::Ref<Eigen::VectorXd> coef_vec, const double& prior_var, BVHAR_BHRNG& rng) {
   int dim = coef_vec.size();
-	Eigen::VectorXd invgam_scl = (1 / local_latent.array() + coef_vec.array().square() / (2 * prior_var * global_hyperparam.array().square())).cwiseInverse();
+	Eigen::VectorXd invgam_scl = (1 / local_latent.array() + coef_vec.array().square() / (2 * prior_var * global_hyperparam.array())).cwiseInverse();
   for (int i = 0; i < dim; i++) {
-		local_lev[i] = sqrt(1 / gamma_rand(1.0, invgam_scl[i], rng));
+		local_lev[i] = 1 / gamma_rand(1.0, invgam_scl[i], rng);
   }
 }
 

@@ -98,6 +98,67 @@ inline Eigen::MatrixXd build_vhar(int dim, int week, int month, bool include_mea
   return HARtrans.topLeftCorner(3 * dim, month * dim);
 }
 
+/**
+ * @brief Build Minnesota-type Group Matrix
+ * 
+ * @param lag 
+ * @param dim 
+ * @param group_type 1: no group, 2: short-run 3: long-run
+ * @return Eigen::MatrixXi 
+ */
+inline Eigen::MatrixXi build_grpmat(int lag, int dim, int group_type = 3) {
+	Eigen::MatrixXi grp_mat = Eigen::MatrixXi::Zero(lag * dim, dim);
+	switch (group_type) {
+		case 1: {
+			grp_mat.setOnes();
+			return grp_mat;
+		}
+		case 2: {
+			grp_mat.topRows(dim).setIdentity();
+			grp_mat.topRows(dim).array() += 1;
+			for (int i = 1; i < lag; ++i) {
+				grp_mat.middleRows(i * dim, dim).setOnes();
+				grp_mat.middleRows(i * dim, dim).array() += i + 1;
+			}
+			return grp_mat;
+		}
+		case 3: {
+			for (int i = 0; i < lag; ++i) {
+				grp_mat.middleRows(i * dim, dim).setIdentity();
+				grp_mat.middleRows(i * dim, dim).array() += 2 * i + 1;
+			}
+		}
+	}
+	return grp_mat;
+}
+
+inline Eigen::VectorXi build_own_id(int lag, int group_type = 3) {
+	Eigen::VectorXi own_id = Eigen::VectorXi::LinSpaced(lag, 2, 2 * lag);
+	if (group_type == 1) {
+		own_id.resize(1);
+		own_id = Eigen::VectorXi::Ones(1);
+	} else if (group_type == 2) {
+		own_id.resize(1);
+		own_id = Eigen::VectorXi::Constant(1, 2);
+	}
+	return own_id;
+}
+
+inline Eigen::VectorXi build_cross_id(int lag, int group_type = 3) {
+	Eigen::VectorXi cross_id = Eigen::VectorXi::LinSpaced(lag, 1, 2 * lag);
+	if (group_type == 1) {
+		cross_id.resize(1);
+		cross_id = Eigen::VectorXi::Constant(1, 2);
+	} else if (group_type == 2) {
+		cross_id[0] = 1;
+		int id_val = 3;
+		for (int i = 1; i < lag; ++i) {
+			cross_id[i] = id_val++;
+		}
+	}
+	return cross_id;
+}
+
 inline Eigen::MatrixXd build_ydummy(int p, const Eigen::VectorXd& sigma, double lambda,
 																		const Eigen::VectorXd& daily, const Eigen::VectorXd& weekly, const Eigen::VectorXd& monthly,
 																		bool include_mean) {

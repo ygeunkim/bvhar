@@ -164,18 +164,25 @@ split_chain <- function(x, chain = 1, varname = "alpha") {
       # split.data.frame(t(x), gl(num_var, 1, ncol(x))) |>
       # lapply(t) |>
       split.data.frame(x, gl(chain, num_row)) |>
-      unlist() |>
-      array(
-        # dim = c(nrow(x), chain, num_var),
-        dim = c(num_row, chain, ncol(x)),
-        dimnames = list(
-          # iteration = seq_len(nrow(x)),
-          iteration = seq_len(num_row),
-          chain = seq_len(chain),
-          # variable = paste0(varname, "[", seq_len(num_var), "]")
-          variable = paste0(varname, "[", seq_len(ncol(x)), "]")
-        )
-      )
+      # unlist() |>
+      # array(
+      #   # dim = c(nrow(x), chain, num_var),
+      #   dim = c(num_row, chain, ncol(x)),
+      #   dimnames = list(
+      #     # iteration = seq_len(nrow(x)),
+      #     iteration = seq_len(num_row),
+      #     chain = seq_len(chain),
+      #     # variable = paste0(varname, "[", seq_len(num_var), "]")
+      #     variable = paste0(varname, "[", seq_len(ncol(x)), "]")
+      #   )
+      # )
+      simplify2array() |>
+      aperm(c(1, 3, 2))
+    dimnames(res) <- list(
+      iteration = seq_len(num_row),
+      chain = seq_len(chain),
+      variable = paste0(varname, "[", seq_len(ncol(x)), "]")
+    )
   }
   res
 }
@@ -625,6 +632,58 @@ process_forecast_draws <- function(draws, n_ahead, dim_data, num_draw, var_names
     sd = pred_se,
     lower = pred_lower,
     upper = pred_upper
+  )
+}
+
+#' Compute Summaries from IRF Draws
+#' 
+#' @param draws Matrix in forms of rbind(step) x cbind(draws)
+#' @param dim_data Dimension
+#' @param lag_max Maximum lag
+#' @param num_draw MCMC draws
+#' @param var_names Variable names
+#' @param impulse_var Impulse variables character vector.
+#' @param response_var Response variables character vector.
+#' @param level level for lower and upper quantiles
+#' @param med Get median instead of mean?
+#' 
+#' @noRd 
+process_irf_draws <- function(draws,
+                              dim_data,
+                              lag_max,
+                              num_draw,
+                              var_names,
+                              impulse_var,
+                              response_var,
+                              level,
+                              med = FALSE) {
+  impulse_name <- rep(var_names, lag_max + 1)
+  period_name <- rep(seq_len(lag_max + 1) - 1, each = dim_data)
+  irf_distn <- process_forecast_draws(
+    draws,
+    n_ahead = dim_data * (lag_max + 1),
+    dim_data = dim_data,
+    num_draw = num_draw,
+    var_names = var_names,
+    level = level,
+    roll = FALSE,
+    med = med
+  ) |>
+  lapply(function(mat) {
+    rownames(mat) <- paste(impulse_name, period_name, sep = "_")
+    mat
+  })
+  irf_long <-
+    join_long_spillover(irf_distn, prefix = "value") |>
+    separate(series, into = c("series", "period"), sep = "_", convert = TRUE) |>
+    rename(c(impulse = "series", response = "shock")) |>
+    filter(impulse %in% impulse_var, response %in% response_var)
+  list(
+    coefficients = irf_distn$mean,
+    se = irf_distn$sd,
+    lower = irf_distn$lower,
+    upper = irf_distn$upper,
+    df_long = irf_long
   )
 }
 

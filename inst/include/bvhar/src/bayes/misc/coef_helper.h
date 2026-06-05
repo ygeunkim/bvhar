@@ -26,15 +26,21 @@ inline void draw_coef(Eigen::Ref<Eigen::VectorXd> coef, Eigen::Ref<const Eigen::
 		(prior_prec.asDiagonal().toDenseMatrix() + x.transpose() * x).selfadjointView<Eigen::Lower>()
 	);
 	double temp_penalty = .0001;
-	do {
+	while (llt_of_prec.info() != Eigen::Success && temp_penalty < .1) {
 		llt_of_prec.compute(
 			(prior_prec.asDiagonal().toDenseMatrix() + x.transpose() * x + temp_penalty * Eigen::MatrixXd::Identity(dim, dim)).selfadjointView<Eigen::Lower>()
 		);
 		temp_penalty *= 2;
-	} while (llt_of_prec.info() != Eigen::Success && temp_penalty < .1);
-	if (llt_of_prec.info() != Eigen::Success) {
-		eigen_assert("LLT failed in precision sampler.");
 	}
+	// do {
+	// 	llt_of_prec.compute(
+	// 		(prior_prec.asDiagonal().toDenseMatrix() + x.transpose() * x + temp_penalty * Eigen::MatrixXd::Identity(dim, dim)).selfadjointView<Eigen::Lower>()
+	// 	);
+	// 	temp_penalty *= 2;
+	// } while (llt_of_prec.info() != Eigen::Success && temp_penalty < .1);
+	// if (llt_of_prec.info() != Eigen::Success) {
+	// 	eigen_assert("LLT failed in precision sampler.");
+	// }
   Eigen::VectorXd post_mean = llt_of_prec.solve(prior_prec.cwiseProduct(prior_mean) + x.transpose() * y);
 	coef = post_mean + llt_of_prec.matrixU().solve(res);
 	// Eigen::MatrixXd pos_def = (prior_prec.asDiagonal().toDenseMatrix() + x.transpose() * x).selfadjointView<Eigen::Lower>();

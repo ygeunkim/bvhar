@@ -24,3 +24,6 @@ flags:
   python:
     paths:
       - python
+  cpp:
+    paths:
+      - inst

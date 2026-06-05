@@ -1,3 +1,25 @@
+# bvhar 2.4.1
+
+* Fixed Average LPL computation process in pseudo out-of-sample forecasting.
+
+* Added IRF classes in C++.
+
+## R
+
+* Fixed wrong post-processing of MCMC posterior draws. This can change the results of post-analysis of the old code.
+
+## Python
+
+* `-DBVHAR_USE_PYBIND11` macro is required to use the header with Pybind11.
+
+## C++
+
+* Added boost.Random-based constructor for each MCMC initial values struct.
+
+* Now header-only C++ library is available.
+
+* Use [`Catch2`](https://github.com/catchorg/Catch2) for C++ unit tests.
+
 # bvhar 2.4.0
 
 ## Important changes

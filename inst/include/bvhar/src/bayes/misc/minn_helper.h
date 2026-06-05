@@ -2,7 +2,6 @@
 #define BVHAR_BAYES_MISC_MINN_HELPER_H_H
 
 #include "./helper.h"
-#include <set>
 
 namespace baecon {
 namespace bvhar {
@@ -87,7 +86,6 @@ inline void minnesota_lambda(double& lambda, double& shape, double& rate, Eigen:
 	// double gig_chi = (coef - coef_mean).squaredNorm();
 	double gig_chi = ((coef - coef_mean).array().square() * coef_prec.array()).sum();
 	lambda = sim_gig(shape - coef.size() / 2, 2 * rate, gig_chi, rng);
-	cut_param(lambda);
 	coef_prec.array() /= lambda;
 }
 

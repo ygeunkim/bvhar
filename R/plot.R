@@ -537,6 +537,12 @@ autoplot.bvharirf <- function(object, ...) {
     unite("term", impulse, response, c("impulse", "response"), sep = "->") |> 
     ggplot(aes(x = period, y = value)) +
     geom_path(...) +
+    # importFrom utils hasName
+    # {
+    #   \(x) if (hasName(irf_df, "value_lower")) {
+    #     ggplot2::geom_ribbon(aes(ymin = value_lower, ymax = value_upper))
+    #   }
+    # }() +
     scale_x_continuous(breaks = 0:(object$lag_max)) +
     # facet_grid(response ~ impulse) + # y ~ x: impulse (x) -> response (y)
     facet_wrap(vars(term), scales = "free_y") + # better be transposed

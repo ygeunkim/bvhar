@@ -544,11 +544,19 @@ inline double invgamma_dens(double x, double shp, double scl, bool lg) {
 }
 
 // RNG----------------------------------------
+inline void cut_positive_param(double& param) {
+	if (param < BVHAR_DBL_TOL || std::isnan(param)) {
+		param = BVHAR_DBL_TOL;
+	} else if (param > BVHAR_DBL_MAX || std::isinf(param)) {
+		param = BVHAR_DBL_MAX;
+	}
+}
+
 inline void cut_param(double& param) {
-	if (param < std::numeric_limits<double>::min() || std::isnan(param)) {
-		param = std::numeric_limits<double>::min();
-	} else if (param > std::numeric_limits<double>::max() || std::isinf(param)) {
-		param = std::numeric_limits<double>::max();
+	if (abs(param) < BVHAR_DBL_TOL || std::isnan(param)) {
+		param = param >= 0 ? BVHAR_DBL_TOL : -BVHAR_DBL_TOL;
+	} else if (abs(param) > BVHAR_DBL_MAX || std::isinf(param)) {
+		param = param >= 0 ? BVHAR_DBL_MAX : -BVHAR_DBL_MAX;
 	}
 }
 
@@ -585,7 +593,8 @@ inline double chisq_rand(double df, BVHAR_BHRNG& rng) {
 }
 
 inline double gamma_rand(double shp, double scl, BVHAR_BHRNG& rng) {
-	cut_param(scl);
+	cut_positive_param(shp);
+	cut_positive_param(scl);
 	boost::random::gamma_distribution<> rdist(shp, scl); // 2nd: scale
 	return rdist(rng);
 }
@@ -637,5 +646,84 @@ inline double quantile_upper(const Eigen::Ref<Eigen::VectorXd>& x, double prob) 
 
 } // namespace bvhar
 } // namespace baecon
+
+#if !defined(BVHAR_USE_RCPP) && !defined(BVHAR_USE_PYBIND11)
+
+inline std::ostream& operator<<(std::ostream& os, const BVHAR_LIST& dict) {
+  os << "List of " << dict.size() << "\n";
+  for (const auto& elem : dict) {
+    os << " $ " << elem.first << ": ";
+    const std::any& val = elem.second;
+    if (!val.has_value()) {
+      os << "NULL";
+    } else if (val.type() == typeid(int)) {
+      os << std::any_cast<int>(val);
+    } else if (val.type() == typeid(double)) {
+      os << std::any_cast<double>(val);
+    } else if (val.type() == typeid(bool)) {
+      os << (std::any_cast<bool>(val) ? "TRUE" : "FALSE");
+    } else if (val.type() == typeid(std::string)) {
+      os << "\"" << std::any_cast<std::string>(val) << "\"";
+    } else if (val.type() == typeid(Eigen::MatrixXd)) {
+      auto mat = std::any_cast<Eigen::MatrixXd>(val);
+      os << "Eigen::MatrixXd(" << mat.rows() << ", " << mat.cols() << ")";
+    } else if (val.type() == typeid(Eigen::VectorXd)) {
+      auto vec = std::any_cast<Eigen::VectorXd>(val);
+      os << "Eigen::VectorXd(" << vec.size() << ")";
+    } else if (val.type() == typeid(Eigen::MatrixXi)) {
+      auto mat = std::any_cast<Eigen::MatrixXi>(val);
+      os << "Eigen::MatrixXi(" << mat.rows() << ", " << mat.cols() << ")";
+    } else if (val.type() == typeid(Eigen::VectorXi)) {
+      auto vec = std::any_cast<Eigen::VectorXi>(val);
+      os << "Eigen::VectorXi(" << vec.size() << ")";
+    }	else if (val.type() == typeid(baecon::bvhar::VectorXb)) {
+      auto vec = std::any_cast<baecon::bvhar::VectorXb>(val);
+      os << "Eigen::Matrix<bool, Eigen::Dynamic, 1>(" << vec.size() << ")";
+    } else if (val.type() == typeid(std::vector<std::any>)) {
+      os << "BVHAR_PY_LIST " << std::any_cast<std::vector<std::any>>(val).size();
+    } else if (val.type() == typeid(BvharList)) {
+      os << "BVHAR_LIST " << std::any_cast<BvharList>(val).size();
+    } else if (val.type() == typeid(std::vector<BvharList>)) {
+      os << "BVHAR_LIST_OF_LIST " << std::any_cast<std::vector<BvharList>>(val).size();
+    } else {
+      os << "Unknown C++ Type " << val.type().name();
+    }
+    os << "\n";
+  }
+  return os;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const BVHAR_LIST_OF_LIST& dict_vec) {
+  os << "List of " << dict_vec.size() << "\n";
+	int len = dict_vec.size();
+  for (int i = 0; i < len; ++i) {
+		os << "[" << i << "] " << dict_vec[i] << "\n";
+  }
+  return os;
+}
+
+namespace baecon {
+namespace bvhar {
+
+// BVHAR_LIST_OF_LIST into BVHAR_LIST of BVHAR_PY_LIST
+// Will be used when changing MCMC records format into forecaster input
+inline BVHAR_LIST transpose_dict(BVHAR_LIST_OF_LIST& dict_vec) {
+	std::map<std::string, std::vector<std::any>> py_list;
+  for (const auto& row : dict_vec) {
+    for (const auto& [key, value] : row) {
+      py_list[key].push_back(value);
+    }
+  }
+  BVHAR_LIST res;
+  for (auto& [key, vec_of_any] : py_list) {
+    res[key] = std::move(vec_of_any);
+  }
+	return res;
+}
+
+} // namespace bvhar
+} // namespace baecon
+
+#endif
 
 #endif // BVHAR_CORE_COMMON_H

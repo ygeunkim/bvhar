@@ -215,6 +215,9 @@ protected:
 		last_pvec = Eigen::VectorXd::Zero(dim_design);
 		point_forecast = Eigen::VectorXd::Zero(dim);
 		pred_save = Eigen::MatrixXd::Zero(step, num_sim * dim);
+		if (save_mean) {
+			mean_save = Eigen::MatrixXd::Zero(step, num_sim * dim);
+		}
 		tmp_vec = Eigen::VectorXd::Zero((lag - 1) * dim);
 		last_pvec[dim_design - 1] = 1.0; // valid when include_mean = true
 		last_pvec.head(lag * dim) = vectorize_eigen(response.colwise().reverse().topRows(lag).transpose().eval()); // [y_T^T, y_(T - 1)^T, ... y_(T - lag + 1)^T]
@@ -237,6 +240,9 @@ protected:
 		BVHAR_DEBUG_LOG(debug_logger, "updatePred(h={}, i={}) called", h, i);
 		computeMean();
 		updateVariance();
+		if (save_mean) {
+			mean_save.block(h, i * dim, 1, dim) = point_forecast.transpose();
+		}
 		if (exogen_updater) {
 			exogen_updater->appendForecast(point_forecast, h);
 		}
@@ -255,6 +261,9 @@ protected:
 	void forecastIn(const int i, const Eigen::MatrixXd& design) override {
 		BVHAR_DEBUG_LOG(debug_logger, "forecastIn(i={}, design) called", i);
 		Eigen::MatrixXd point_pred = design.leftCols(num_coef / dim) * coef_mat;
+		if (save_mean) {
+			mean_save.middleCols(i * dim, dim) = point_pred;
+		}
 		for (int h = 0; h < this->step; ++h) {
 			updateVariance();
 			point_pred.row(h) += contem_mat.triangularView<Eigen::UnitLower>().solve(standard_normal).transpose();
@@ -328,15 +337,17 @@ protected:
 
 	void updateVariance() override {
 		BVHAR_DEBUG_LOG(debug_logger, "updateVariance() called");
-		for (int j = 0; j < dim; ++j) {
-			standard_normal[j] = normal_rand(rng);
-		}
-		standard_normal.array() *= sv_update.array(); // D^(1/2) Z ~ N(0, D)
+		// for (int j = 0; j < dim; ++j) {
+		// 	standard_normal[j] = normal_rand(rng);
+		// }
+		// standard_normal.array() *= sv_update.array(); // D^(1/2) Z ~ N(0, D)
+		reg_record->forecastInnov(dim, standard_normal, sv_update, rng);
 	}
 
-	void updateLpl(int h, const Eigen::VectorXd& valid_vec) override {
+	void updateLpl(int h, int i, const Eigen::VectorXd& valid_vec) override {
 		BVHAR_DEBUG_LOG(debug_logger, "updateLpl(h={}, valid_vec) called", h);
-		lpl[h] += sv_update.array().log().sum() - dim * log(2 * M_PI) / 2 - sv_update.cwiseInverse().cwiseProduct(contem_mat * (point_forecast - valid_vec)).squaredNorm() / 2;
+		// lpl[h] += sv_update.array().log().sum() - dim * log(2 * M_PI) / 2 - sv_update.cwiseInverse().cwiseProduct(contem_mat * (point_forecast - valid_vec)).squaredNorm() / 2;
+		lpl(h, i) = -sv_update.array().log().sum() - dim * log(2 * M_PI) / 2 - sv_update.cwiseInverse().cwiseProduct(contem_mat * (point_forecast - valid_vec)).squaredNorm() / 2;
 	}
 };
 
@@ -381,22 +392,24 @@ protected:
 
 	void updateVariance() override {
 		BVHAR_DEBUG_LOG(debug_logger, "updateVariance() called");
-		if (sv) {
-			for (int j = 0; j < dim; j++) {
-				standard_normal[j] = normal_rand(rng);
-			}
-			standard_normal.array() *= sv_sig.array(); // sig_h Z ~ N(0, sig_h^2)
-			sv_update.array() += standard_normal.array();
-		}
-		for (int j = 0; j < dim; j++) {
-			standard_normal[j] = normal_rand(rng);
-		}
-		standard_normal.array() *= (sv_update / 2).array().exp(); // D^(1/2) Z ~ N(0, D)
+		// if (sv) {
+		// 	for (int j = 0; j < dim; j++) {
+		// 		standard_normal[j] = normal_rand(rng);
+		// 	}
+		// 	standard_normal.array() *= sv_sig.array(); // sig_h Z ~ N(0, sig_h^2)
+		// 	sv_update.array() += standard_normal.array();
+		// }
+		// for (int j = 0; j < dim; j++) {
+		// 	standard_normal[j] = normal_rand(rng);
+		// }
+		// standard_normal.array() *= (sv_update / 2).array().exp(); // D^(1/2) Z ~ N(0, D)
+		reg_record->forecastInnov(dim, standard_normal, sv_update, sv_sig, rng);
 	}
 
-	void updateLpl(int h, const Eigen::VectorXd& valid_vec) override {
+	void updateLpl(int h, int i, const Eigen::VectorXd& valid_vec) override {
 		BVHAR_DEBUG_LOG(debug_logger, "updateLpl(h={}, valid_vec) called", h);
-		lpl[h] += sv_update.sum() / 2 - dim * log(2 * M_PI) / 2 - ((-sv_update / 2).array().exp() * (contem_mat * (point_forecast - valid_vec)).array()).matrix().squaredNorm() / 2;
+		// lpl[h] += sv_update.sum() / 2 - dim * log(2 * M_PI) / 2 - ((-sv_update / 2).array().exp() * (contem_mat * (point_forecast - valid_vec)).array()).matrix().squaredNorm() / 2;
+		lpl(h, i) = -sv_update.sum() / 2 - dim * log(2 * M_PI) / 2 - ((-sv_update / 2).array().exp() * (contem_mat * (point_forecast - valid_vec)).array()).matrix().squaredNorm() / 2;
 	}
 
 private:
@@ -978,8 +991,9 @@ protected:
 		if (use_fit) {
 			initForecaster(fit_record);
 		}
-		using is_mcmc = std::integral_constant<bool, isUpdate>;
-		if (is_mcmc::value) {
+		// using is_mcmc = std::integral_constant<bool, isUpdate>;
+		// if (is_mcmc::value) {
+		BVHAR_IF_CONSTEXPR(isUpdate) {
 			initMcmc(
 				param_reg, param_prior, param_intercept, param_init, prior_type,
 				contem_prior, contem_init, contem_prior_type,
@@ -1322,8 +1336,9 @@ protected:
 
 	void initForecaster(BVHAR_LIST& fit_record) override {
 		BVHAR_DEBUG_LOG(debug_logger, "initForecaster(fit_record) called");
-		using is_mcmc = std::integral_constant<bool, isUpdate>;
-		if (is_mcmc::value) {
+		// using is_mcmc = std::integral_constant<bool, isUpdate>;
+		// if (is_mcmc::value) {
+		BVHAR_IF_CONSTEXPR(isUpdate) {
 			auto temp_forecaster = initialize_ctaforecaster<BaseForecaster>(
 				num_chains, lag, step, roll_y0[0], sparse, level,
 				fit_record, seed_forecast, include_mean,
@@ -1484,8 +1499,9 @@ protected:
 
 	void initForecaster(BVHAR_LIST& fit_record) override {
 		BVHAR_DEBUG_LOG(debug_logger, "initForecaster(fit_record) called");
-		using is_mcmc = std::integral_constant<bool, isUpdate>;
-		if (is_mcmc::value) {
+		// using is_mcmc = std::integral_constant<bool, isUpdate>;
+		// if (is_mcmc::value) {
+		BVHAR_IF_CONSTEXPR(isUpdate) {
 			auto temp_forecaster = initialize_ctaforecaster<BaseForecaster>(
 				num_chains, lag, step, roll_y0[0], sparse, level,
 				fit_record, seed_forecast, include_mean,

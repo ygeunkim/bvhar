@@ -179,6 +179,9 @@ struct HierminnInits : public ShrinkageInits {
 
 	HierminnInits(BVHAR_LIST& init, int num_design)
 	: ShrinkageInits(init, num_design), _own_lambda(BVHAR_CAST_DOUBLE(init["own_lambda"])), _cross_lambda(BVHAR_CAST_DOUBLE(init["cross_lambda"])) {}
+
+	HierminnInits(BVHAR_BHRNG& rng)
+	: _own_lambda(1 - unif_rand(0, 1, rng)), _cross_lambda(1 - unif_rand(0, 1, rng)) {}
 };
 
 /**
@@ -202,6 +205,35 @@ struct SsvsInits : public ShrinkageInits {
 		_weight(BVHAR_CAST<Eigen::VectorXd>(init["mixture"])),
 		_slab(BVHAR_CAST<Eigen::VectorXd>(init["slab"])),
 		_spike_scl(BVHAR_CAST_DOUBLE(init["spike_scl"])) {}
+
+	SsvsInits(int num_param, int num_grp, BVHAR_BHRNG& rng)
+	: _dummy(Eigen::VectorXd::Zero(num_param)),
+		_weight(Eigen::VectorXd::Zero(num_grp)),
+		_slab(Eigen::VectorXd::Zero(num_param)),
+		_spike_scl(1 - unif_rand(0, 1, rng)) {
+		std::generate_n(
+			_dummy.data(),
+			num_param,
+			[&]() {
+				return ber_rand(.5, rng);
+			}
+		);
+		std::generate_n(
+			_weight.data(),
+			num_grp,
+			[&]() {
+				double x = unif_rand(-1, 1, rng);
+				return exp(x) / (1 + exp(x));
+			}
+		);
+		std::generate_n(
+			_slab.data(),
+			num_param,
+			[&]() {
+				return exp(unif_rand(-1, 1, rng));
+			}
+		);
+	}
 };
 
 /**
@@ -221,6 +253,18 @@ struct GlInits : public ShrinkageInits {
 	: ShrinkageInits(init, num_design),
 		_local(BVHAR_CAST<Eigen::VectorXd>(init["local_sparsity"])),
 		_global(BVHAR_CAST_DOUBLE(init["global_sparsity"])) {}
+
+	GlInits(int num_param, BVHAR_BHRNG& rng)
+	: _local(Eigen::VectorXd::Zero(num_param)),
+		_global(exp(unif_rand(-1, 1, rng))) {
+		std::generate_n(
+			_local.data(),
+			num_param,
+			[&]() {
+				return exp(unif_rand(-1, 1, rng));
+			}
+		);
+	}
 };
 
 /**
@@ -237,6 +281,18 @@ struct HorseshoeInits : public GlInits {
 	HorseshoeInits(BVHAR_LIST& init, int num_design)
 	: GlInits(init, num_design),
 		_group(BVHAR_CAST<Eigen::VectorXd>(init["group_sparsity"])) {}
+	
+	HorseshoeInits(int num_param, int num_grp, BVHAR_BHRNG& rng)
+	: GlInits(num_param, rng),
+		_group(Eigen::VectorXd::Zero(num_grp)) {
+		std::generate_n(
+			_group.data(),
+			num_grp,
+			[&]() {
+				return exp(unif_rand(-1, 1, rng));
+			}
+		);
+	}
 };
 
 /**
@@ -253,6 +309,18 @@ struct NgInits : public HorseshoeInits {
 	NgInits(BVHAR_LIST& init, int num_design)
 	: HorseshoeInits(init, num_design),
 		_local_shape(BVHAR_CAST<Eigen::VectorXd>(init["local_shape"])) {}
+	
+	NgInits(int num_param, int num_grp, BVHAR_BHRNG& rng)
+	: HorseshoeInits(num_param, num_grp, rng),
+		_local_shape(Eigen::VectorXd::Zero(num_grp)) {
+		std::generate_n(
+			_local_shape.data(),
+			num_grp,
+			[&]() {
+				return 1 - unif_rand(0, 1, rng);
+			}
+		);
+	}
 };
 
 /**
@@ -274,6 +342,27 @@ struct GdpInits : public ShrinkageInits {
 		_local(BVHAR_CAST<Eigen::VectorXd>(init["local_sparsity"])),
 		_group_rate(BVHAR_CAST<Eigen::VectorXd>(init["group_rate"])),
 		_gamma_shape(BVHAR_CAST_DOUBLE(init["gamma_shape"])), _gamma_rate(BVHAR_CAST_DOUBLE(init["gamma_rate"])) {}
+
+	GdpInits(int num_param, int num_grp, BVHAR_BHRNG& rng)
+	: _local(Eigen::VectorXd::Zero(num_param)),
+		_group_rate(Eigen::VectorXd::Zero(num_grp)),
+		_gamma_shape(1 - unif_rand(0, 1, rng)),
+		_gamma_rate(1 - unif_rand(0, 1, rng)) {
+		std::generate_n(
+			_local.data(),
+			num_param,
+			[&]() {
+				return exp(unif_rand(-1, 1, rng));
+			}
+		);
+		std::generate_n(
+			_group_rate.data(),
+			num_grp,
+			[&]() {
+				return exp(unif_rand(-1, 1, rng));
+			}
+		);
+	}
 };
 
 } // namespace bvhar

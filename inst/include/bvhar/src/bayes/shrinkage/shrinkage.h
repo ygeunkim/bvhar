@@ -238,7 +238,8 @@ public:
 		ssvs_scl_griddy(spike_scl, grid_size, contem_coef, slab, rng);
 		ssvs_dummy(dummy, contem_coef, slab, spike_scl * slab, weight, rng);
 		ssvs_weight(weight, dummy, s1[0], s2[0], rng);
-		prior_chol_prec = 1 / build_ssvs_sd(spike_scl * slab, slab, dummy).array().square();
+		// prior_chol_prec = 1 / build_ssvs_sd(spike_scl * slab, slab, dummy).array().square();
+		prior_chol_prec = 1 / (spike_scl * (1 - dummy.array()) * slab.array() + dummy.array() * slab.array());
 	}
 
 	void updateRecords(int id) override {
@@ -299,13 +300,14 @@ public:
 			);
 		}
 		horseshoe_latent(latent_local, local_lev, rng);
-		using is_group = std::integral_constant<bool, isGroup>;
-		if (is_group::value) {
+		// using is_group = std::integral_constant<bool, isGroup>;
+		// if (is_group::value) {
+		BVHAR_IF_CONSTEXPR(isGroup) {
 			horseshoe_latent(latent_global, global_lev, rng);
 			global_lev = horseshoe_global_sparsity(latent_global, coef_var.array() * local_lev.array(), coef_vec, 1, rng);
 		}
-		horseshoe_local_sparsity(local_lev, latent_local, coef_var, coef_vec, global_lev * global_lev, rng);
-		prior_alpha_prec = 1 / (global_lev * coef_var.array() * local_lev.array()).square();
+		horseshoe_local_sparsity(local_lev, latent_local, coef_var, coef_vec, global_lev, rng);
+		prior_alpha_prec = 1 / (global_lev * coef_var.array() * local_lev.array());
 		shrink_fac = 1 / (1 + prior_alpha_prec.array());
 	}
 
@@ -320,7 +322,7 @@ public:
 		horseshoe_local_sparsity(local_lev, latent_local, coef_var, contem_coef, 1, rng);
 		group_lev[0] = horseshoe_global_sparsity(latent_group[0], latent_local, contem_coef, 1, rng);
 		prior_chol_prec.setZero();
-		prior_chol_prec = 1 / (coef_var.array() * local_lev.array()).square();
+		prior_chol_prec = 1 / (coef_var.array() * local_lev.array());
 	}
 
 	void updateRecords(int id) override {
@@ -390,12 +392,13 @@ public:
 				local_shape_fac
 			);
 		}
-		using is_group = std::integral_constant<bool, isGroup>;
-		if (is_group::value) {
+		// using is_group = std::integral_constant<bool, isGroup>;
+		// if (is_group::value) {
+		BVHAR_IF_CONSTEXPR(isGroup) {
 			global_lev = ng_global_sparsity(local_lev.array() / coef_var.array(), local_shape_fac, global_shape, global_scl, rng);
 		}
 		ng_local_sparsity(local_lev, local_shape_fac, coef_vec, global_lev * coef_var, rng);
-		prior_alpha_prec = 1 / local_lev.array().square();
+		prior_alpha_prec = 1 / local_lev.array();
 	}
 
 	void updateImpactPrec(
@@ -406,7 +409,7 @@ public:
 		local_shape[0] = ng_shape_jump(local_shape[0], local_lev, group_lev[0], mh_sd, rng);
 		group_lev[0] = ng_global_sparsity(local_lev, local_shape[0], group_shape, group_scl, rng);
 		ng_local_sparsity(coef_var, local_shape[0], contem_coef, group_lev.replicate(1, prior_chol_prec.size()).reshaped(), rng);
-		prior_chol_prec = 1 / local_lev.array().square();
+		prior_chol_prec = 1 / local_lev.array();
 	}
 
 	void updateRecords(int id) override {
@@ -443,7 +446,7 @@ class DlUpdater : public ShrinkageUpdater {
 public:
 	DlUpdater(int num_iter, const DlParams& params, const HorseshoeInits& inits)
 	: ShrinkageUpdater(num_iter, params, inits),
-		dir_concen(0.0), shape(params._shape), scl(params._scl), grid_size(params._grid_size),
+		dir_concen(.5), shape(params._shape), scl(params._scl), grid_size(params._grid_size),
 		local_lev(inits._local), group_lev(inits._group), global_lev(isGroup ? inits._global : 1.0),
 		latent_local(Eigen::VectorXd::Zero(local_lev.size())),
 		coef_var(Eigen::VectorXd::Zero(local_lev.size())),
@@ -465,13 +468,16 @@ public:
 			);
 		}
 		dl_dir_griddy(dir_concen, grid_size, local_lev, global_lev, rng);
-		dl_local_sparsity(local_lev, dir_concen, coef_vec.array() / coef_var.array(), rng);
-		using is_group = std::integral_constant<bool, isGroup>;
-		if (is_group::value) {
-			global_lev = dl_global_sparsity(local_lev.array() * coef_var.array(), dir_concen, coef_vec, rng);
+		dl_local_sparsity(local_lev, dir_concen, coef_vec.array() * coef_var.array(), rng);
+		// using is_group = std::integral_constant<bool, isGroup>;
+		// if (is_group::value) {
+		BVHAR_IF_CONSTEXPR(isGroup) {
+			global_lev = dl_global_sparsity(local_lev.array() / coef_var.array(), dir_concen, coef_vec, rng);
 		}
-		dl_latent(latent_local, global_lev * local_lev.array() * coef_var.array(), coef_vec, rng);
-		prior_alpha_prec = 1 / ((global_lev * local_lev.array() * coef_var.array()).square() * latent_local.array());
+		dl_latent(latent_local, global_lev * local_lev.array() / coef_var.array(), coef_vec, rng);
+		// prior_alpha_prec = 1 / ((global_lev * local_lev.array() * coef_var.array()).square() * latent_local.array());
+		// prior_alpha_prec = (latent_local.array() * coef_var.array().square()) / (global_lev * local_lev.array()).square();
+		prior_alpha_prec = latent_local.array() * (coef_var.array() / (global_lev * local_lev.array())).square();
 	}
 
 	void updateImpactPrec(
@@ -484,7 +490,8 @@ public:
 		group_lev[0] = dl_global_sparsity(local_lev, dir_concen, contem_coef, rng);
 		// dl_latent(latent_local, local_lev, contem_coef, rng);
 		dl_latent(latent_local, group_lev[0] * local_lev, contem_coef, rng);
-		prior_chol_prec = 1 / ((group_lev[0] * local_lev.array()).square() * latent_local.array());
+		// prior_chol_prec = 1 / ((group_lev[0] * local_lev.array()).square() * latent_local.array());
+		prior_chol_prec =  latent_local.array() / (group_lev[0] * local_lev.array()).square();
 	}
 
 	void updateRecords(int id) override {
@@ -541,7 +548,7 @@ public:
 			);
 		}
 		gdp_local_sparsity(local_lev, group_rate_fac, coef_vec, rng);
-		prior_alpha_prec = 1 / local_lev.array();
+		prior_alpha_prec = local_lev.array();
 	}
 
 	void updateImpactPrec(
@@ -553,7 +560,7 @@ public:
 		gdp_rate_griddy(gamma_rate, gamma_shape, rate_grid, contem_coef, rng);
 		gdp_exp_rate(group_rate, gamma_shape, gamma_rate, contem_coef, rng);
 		gdp_local_sparsity(local_lev, group_rate, contem_coef, rng);
-		prior_chol_prec = 1 / local_lev.array();
+		prior_chol_prec = local_lev.array();
 	}
 
 private:
@@ -630,6 +637,71 @@ inline std::unique_ptr<ShrinkageUpdater> initialize_shrinkageupdater(int num_ite
 		case 7: {
 			GdpParams params(param_prior);
 			GdpInits inits(param_init);
+			shrinkage_ptr = std::make_unique<GdpUpdater<isGroup>>(num_iter, params, inits);
+			return shrinkage_ptr;
+		}
+	}
+	return shrinkage_ptr;
+}
+
+template <bool isGroup = true>
+inline std::unique_ptr<ShrinkageUpdater> initialize_shrinkageupdater(
+	int num_iter, int num_param, int num_grp, BVHAR_LIST& param_prior, int prior_type,
+	BVHAR_BHRNG& rng
+) {
+	std::unique_ptr<ShrinkageUpdater> shrinkage_ptr;
+	switch (prior_type) {
+		case 1: {
+			std::unique_ptr<MinnParams> params_ptr;
+			if (BVHAR_CONTAINS(param_prior, "p")) {
+				// p is only in coef_prior
+				params_ptr = std::make_unique<MinnParams>(param_prior);
+			} else {
+				// append num_lowerchol to param_prior when contem
+				params_ptr = std::make_unique<MinnParams>(param_prior, num_param);
+			}
+			ShrinkageInits inits;
+			shrinkage_ptr = std::make_unique<MinnUpdater>(num_iter, *params_ptr, inits);
+			return shrinkage_ptr;
+		}
+		case 2: {
+			SsvsParams params(param_prior);
+			SsvsInits inits(num_param, num_grp, rng);
+			shrinkage_ptr = std::make_unique<SsvsUpdater>(num_iter, params, inits);
+			return shrinkage_ptr;
+		}
+		case 3: {
+			ShrinkageParams params(param_prior);
+			HorseshoeInits inits(num_param, num_grp, rng);
+			shrinkage_ptr = std::make_unique<HorseshoeUpdater<isGroup>>(num_iter, params, inits);
+			return shrinkage_ptr;
+		}
+		case 4: {
+			std::unique_ptr<HierminnParams> params_ptr;
+			if (BVHAR_CONTAINS(param_prior, "p")) {
+				params_ptr = std::make_unique<HierminnParams>(param_prior);
+			} else {
+				params_ptr = std::make_unique<HierminnParams>(param_prior, num_param);
+			}
+			HierminnInits inits(rng);
+			shrinkage_ptr = std::make_unique<HierminnUpdater>(num_iter, *params_ptr, inits);
+			return shrinkage_ptr;
+		}
+		case 5: {
+			NgParams params(param_prior);
+			NgInits inits(num_param, num_grp, rng);
+			shrinkage_ptr = std::make_unique<NgUpdater<isGroup>>(num_iter, params, inits);
+			return shrinkage_ptr;
+		}
+		case 6: {
+			DlParams params(param_prior);
+			HorseshoeInits inits(num_param, num_grp, rng);
+			shrinkage_ptr = std::make_unique<DlUpdater<isGroup>>(num_iter, params, inits);
+			return shrinkage_ptr;
+		}
+		case 7: {
+			GdpParams params(param_prior);
+			GdpInits inits(num_param, num_grp, rng);
 			shrinkage_ptr = std::make_unique<GdpUpdater<isGroup>>(num_iter, params, inits);
 			return shrinkage_ptr;
 		}

@@ -15,7 +15,7 @@ namespace bvhar {
 inline void gdp_local_sparsity(Eigen::Ref<Eigen::VectorXd> local_param, Eigen::Ref<const Eigen::VectorXd> local_shape,
 															 Eigen::Ref<Eigen::VectorXd> coef, BVHAR_BHRNG& rng) {
 	for (int i = 0; i < local_param.size(); ++i) {
-		local_param[i] = 1 / sim_invgauss(abs(local_shape[i] / coef[i]), local_shape[i] * local_shape[i], rng);
+		local_param[i] = sim_invgauss(abs(local_shape[i] / coef[i]), local_shape[i] * local_shape[i], rng);
 		// local_param[i] = 1 / (local_shape[i] * sim_invgauss(1 / abs(coef[i]), local_shape[i], rng));
 	}
 }
@@ -50,7 +50,7 @@ inline void gdp_exp_rate(Eigen::Ref<Eigen::VectorXd> group_rate, double prior_sh
     Eigen::VectorXd mn_local(mn_size);
 		for (int j = 0, k = 0; j < num_coef; ++j) {
 			if (group_id[j]) {
-				mn_local[k++] = coef[j];
+				mn_local[k++] = abs(coef[j]);
 			}
 		}
 		group_rate[i] = gamma_rand(prior_shape + mn_size, 1 / (prior_rate + mn_local.lpNorm<1>()), rng);
@@ -64,12 +64,12 @@ inline void gdp_exp_rate(Eigen::Ref<Eigen::VectorXd> group_rate, double prior_sh
 // @param rate
 inline double gdp_logdens_shape(double cand, Eigen::Ref<Eigen::VectorXd> coef, double rate) {
 	int num_coef = coef.size();
-	return num_coef * (log(1 - cand) - log(cand)) - (coef.array() / rate).log1p().sum() / cand;
+	return num_coef * (log(1 - cand) - log(cand)) - (coef.cwiseAbs().array() / rate).log1p().sum() / cand;
 }
 
 inline double gdp_logdens_rate(double cand, Eigen::Ref<Eigen::VectorXd> coef, double shape) {
 	int num_coef = coef.size();
-	return num_coef * (log(cand) - log(1 - cand)) - (shape + 1) * (coef.array() * cand / (1 - cand)).log1p().sum();
+	return num_coef * (log(cand) - log(1 - cand)) - (shape + 1) * (coef.cwiseAbs().array() * cand / (1 - cand)).log1p().sum();
 }
 
 // Griddy Gibbs for Hyperparameter of Gamma Prior in GDP

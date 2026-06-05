@@ -1391,6 +1391,21 @@ Rcpp::List expand_bvharxsv(Eigen::MatrixXd y, int week, int month, int num_chain
 	return forecaster->returnForecast();
 }
 
+//' @noRd
+// [[Rcpp::export]]
+Rcpp::List compute_bvarldlt_irf(int num_chains, int lag, int step, Rcpp::List fit_record, bool sparse, int nthreads) {
+	auto irf = std::make_unique<baecon::bvhar::CtaIrfRun<baecon::bvhar::LdltRecords>>(num_chains, lag, step, fit_record, sparse, nthreads);
+	return Rcpp::wrap(irf->returnIrf());
+}
+
+//' @noRd
+// [[Rcpp::export]]
+Rcpp::List compute_bvharldlt_irf(int num_chains, int week, int month, int step, Rcpp::List fit_record, bool sparse, int nthreads) {
+	auto irf = std::make_unique<baecon::bvhar::CtaIrfRun<baecon::bvhar::LdltRecords>>(num_chains, week, month, step, fit_record, sparse, nthreads);
+	return Rcpp::wrap(irf->returnIrf());
+}
+
+//' @noRd
 // [[Rcpp::export]]
 Rcpp::List compute_varldlt_spillover(int lag, int step, Rcpp::List fit_record, bool sparse) {
 	// auto spillover = baecon::bvhar::initialize_spillover<baecon::bvhar::LdltRecords>(0, lag, step, fit_record, sparse, 0);
@@ -1399,6 +1414,7 @@ Rcpp::List compute_varldlt_spillover(int lag, int step, Rcpp::List fit_record, b
 	return spillover->returnSpillover();
 }
 
+//' @noRd
 // [[Rcpp::export]]
 Rcpp::List compute_vharldlt_spillover(int week, int month, int step, Rcpp::List fit_record, bool sparse) {
 	// auto spillover = baecon::bvhar::initialize_spillover<baecon::bvhar::LdltRecords>(0, month, step, fit_record, sparse, 0, BVHAR_NULLOPT, week);
@@ -1407,6 +1423,7 @@ Rcpp::List compute_vharldlt_spillover(int week, int month, int step, Rcpp::List 
 	return spillover->returnSpillover();
 }
 
+//' @noRd
 // [[Rcpp::export]]
 Rcpp::List dynamic_bvarldlt_spillover(Eigen::MatrixXd y, int window, int step, int num_chains, int num_iter, int num_burn, int thin, bool sparse,
 																			int lag, Rcpp::List param_reg, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init,
@@ -1424,6 +1441,7 @@ Rcpp::List dynamic_bvarldlt_spillover(Eigen::MatrixXd y, int window, int step, i
 	return spillover->returnSpillover();
 }
 
+//' @noRd
 // [[Rcpp::export]]
 Rcpp::List dynamic_bvharldlt_spillover(Eigen::MatrixXd y, int window, int step, int num_chains, int num_iter, int num_burn, int thin, bool sparse,
 																			 int week, int month, Rcpp::List param_reg, Rcpp::List param_prior, Rcpp::List param_intercept, Rcpp::List param_init,
