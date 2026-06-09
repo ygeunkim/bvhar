@@ -68,7 +68,7 @@ with various priors.
 #> ====================================================
 #> 
 #> Parameter Record:
-#> # A draws_df: 10 iterations, 1 chains, and 90 variables
+#> # A draws_df: 10 iterations, 1 chains, and 123 variables
 #>       phi[1]    phi[2]   phi[3]    phi[4]   phi[5]   phi[6]    phi[7]   phi[8]
 #> 1   -0.12653   0.33809  -0.4063   0.83450  -0.0837   0.0786  -0.06567   0.1567
 #> 2    0.14062   0.20715  -0.4043   0.06268   0.1470   0.0134   0.66528  -0.0353
@@ -80,7 +80,7 @@ with various priors.
 #> 8    0.24950   0.53442  -0.2132  -2.09965  -0.6910  -0.2955   2.07689   2.0892
 #> 9    0.03687  -0.02904   0.0204  -1.24057  -0.2383  -0.4127   1.08957   0.9673
 #> 10  -0.00362  -0.07775   0.0124  -1.39975   0.1540  -0.5541   1.77939   1.6711
-#> # ... with 82 more variables
+#> # ... with 115 more variables
 #> # ... hidden reserved variables {'.chain', '.iteration', '.draw'}
 ```
 
@@ -119,7 +119,7 @@ autoplot(fit_ssvs)
 #> ====================================================
 #> 
 #> Parameter Record:
-#> # A draws_df: 10 iterations, 2 chains, and 124 variables
+#> # A draws_df: 10 iterations, 2 chains, and 128 variables
 #>      phi[1]    phi[2]    phi[3]    phi[4]     phi[5]     phi[6]    phi[7]
 #> 1    0.3966   0.06624  -0.04871   0.38894  -0.073796   0.060807  -0.11783
 #> 2   -0.0702   0.05350  -0.02313   0.01625   0.102949  -0.083444   0.23774
@@ -142,7 +142,7 @@ autoplot(fit_ssvs)
 #> 8    0.483
 #> 9    0.514
 #> 10   0.290
-#> # ... with 10 more draws, and 116 more variables
+#> # ... with 10 more draws, and 120 more variables
 #> # ... hidden reserved variables {'.chain', '.iteration', '.draw'}
 ```
 
@@ -206,7 +206,7 @@ autoplot(fit_hs)
 #> ====================================================
 #> 
 #> Parameter Record:
-#> # A draws_df: 10 iterations, 2 chains, and 97 variables
+#> # A draws_df: 10 iterations, 2 chains, and 101 variables
 #>      phi[1]    phi[2]    phi[3]     phi[4]    phi[5]    phi[6]  phi[7]
 #> 1    0.0673  -0.08938   0.03863   0.002067   0.18437  -0.00885   0.528
 #> 2    0.0876   0.08196  -0.02062  -0.000971  -0.02574  -0.04645  -0.043
@@ -229,7 +229,7 @@ autoplot(fit_hs)
 #> 8    0.40169
 #> 9    0.52747
 #> 10   0.33785
-#> # ... with 10 more draws, and 89 more variables
+#> # ... with 10 more draws, and 93 more variables
 #> # ... hidden reserved variables {'.chain', '.iteration', '.draw'}
 ```
 
@@ -250,7 +250,7 @@ autoplot(fit_hs)
 #> ====================================================
 #> 
 #> Parameter Record:
-#> # A draws_df: 10 iterations, 2 chains, and 91 variables
+#> # A draws_df: 10 iterations, 2 chains, and 95 variables
 #>       phi[1]     phi[2]    phi[3]     phi[4]     phi[5]   phi[6]     phi[7]
 #> 1   -0.00239   1.68e-04   0.02170   0.422482   0.000518  -0.0159  -0.495052
 #> 2   -0.11489  -1.01e-04  -0.09058  -0.161925   0.001962   0.0260   0.288790
@@ -273,7 +273,7 @@ autoplot(fit_hs)
 #> 8   -0.211
 #> 9    0.533
 #> 10   0.648
-#> # ... with 10 more draws, and 83 more variables
+#> # ... with 10 more draws, and 87 more variables
 #> # ... hidden reserved variables {'.chain', '.iteration', '.draw'}
 ```
 

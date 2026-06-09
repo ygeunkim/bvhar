@@ -75,7 +75,7 @@ set_sv()
 #> ====================================================
 #> 
 #> Parameter Record:
-#> # A draws_df: 10 iterations, 2 chains, and 177 variables
+#> # A draws_df: 10 iterations, 2 chains, and 210 variables
 #>      phi[1]   phi[2]   phi[3]  phi[4]    phi[5]    phi[6]  phi[7]    phi[8]
 #> 1    0.8983  -0.0599   0.0916  -1.865  -0.08285  -0.65925  -0.223   1.60857
 #> 2    0.1141   0.4634  -0.0177  -0.455  -0.02866  -0.70327   0.301   1.19827
@@ -87,7 +87,7 @@ set_sv()
 #> 8    0.0203   0.0580  -0.0556   0.453   0.36827  -0.09601   0.103   0.04103
 #> 9   -0.0478   0.0260  -0.0415   0.386  -0.01221  -0.17503   0.219  -0.00532
 #> 10   0.0488   0.0445  -0.0428   0.024   0.00395  -0.06741   0.288   0.20163
-#> # ... with 10 more draws, and 169 more variables
+#> # ... with 10 more draws, and 202 more variables
 #> # ... hidden reserved variables {'.chain', '.iteration', '.draw'}
 ```
 
@@ -108,7 +108,7 @@ set_sv()
 #> ====================================================
 #> 
 #> Parameter Record:
-#> # A draws_df: 10 iterations, 2 chains, and 211 variables
+#> # A draws_df: 10 iterations, 2 chains, and 215 variables
 #>      phi[1]   phi[2]   phi[3]   phi[4]     phi[5]    phi[6]   phi[7]   phi[8]
 #> 1    0.2362   0.1463  -0.0517  -0.0742  -1.66e-03  -0.06187   0.1833   0.1611
 #> 2    0.1831   0.1819  -0.1090   0.1610   8.89e-03  -0.00887   0.0232   0.1321
@@ -120,7 +120,7 @@ set_sv()
 #> 8    0.0232  -0.0412  -0.1501   0.3045  -2.18e-04  -0.13582   0.0191  -0.0158
 #> 9    0.0504   0.1025  -0.1617   0.2406   9.16e-05   0.00157  -0.0346   0.2380
 #> 10   0.0223   0.0831  -0.1558   0.1374  -1.42e-04  -0.01194   0.0992   0.1018
-#> # ... with 10 more draws, and 203 more variables
+#> # ... with 10 more draws, and 207 more variables
 #> # ... hidden reserved variables {'.chain', '.iteration', '.draw'}
 ```
 
@@ -141,7 +141,7 @@ set_sv()
 #> ====================================================
 #> 
 #> Parameter Record:
-#> # A draws_df: 10 iterations, 2 chains, and 184 variables
+#> # A draws_df: 10 iterations, 2 chains, and 188 variables
 #>       phi[1]    phi[2]    phi[3]   phi[4]   phi[5]    phi[6]   phi[7]  phi[8]
 #> 1   -0.12129   0.46645   0.00633  -0.2542   0.0983  -0.12326   0.8472   1.195
 #> 2   -0.06070  -0.03576   0.26003   0.3627  -0.0493   0.10581  -0.6588  -0.233
@@ -153,7 +153,7 @@ set_sv()
 #> 8    0.00444  -0.18934   0.07036   0.4606   0.3786   0.07076   0.0405   0.923
 #> 9   -0.00374   0.07720  -0.05009  -0.0199  -0.1694   0.08192  -0.0237   1.378
 #> 10  -0.04211  -0.07598   0.11729  -0.0914   0.0158   0.00741  -0.0348   1.455
-#> # ... with 10 more draws, and 176 more variables
+#> # ... with 10 more draws, and 180 more variables
 #> # ... hidden reserved variables {'.chain', '.iteration', '.draw'}
 ```
 
@@ -174,7 +174,7 @@ set_sv()
 #> ====================================================
 #> 
 #> Parameter Record:
-#> # A draws_df: 10 iterations, 2 chains, and 178 variables
+#> # A draws_df: 10 iterations, 2 chains, and 182 variables
 #>       phi[1]    phi[2]     phi[3]    phi[4]    phi[5]    phi[6]   phi[7]
 #> 1    0.16969  -0.24454  -0.126475  -0.06212  -0.00613   0.10133   0.2047
 #> 2    0.13486  -0.04642  -0.148850   0.29445  -0.00510   0.03525   0.1231
@@ -197,7 +197,7 @@ set_sv()
 #> 8    5.26e-01
 #> 9    4.34e-01
 #> 10   3.80e-01
-#> # ... with 10 more draws, and 170 more variables
+#> # ... with 10 more draws, and 174 more variables
 #> # ... hidden reserved variables {'.chain', '.iteration', '.draw'}
 ```
 

@@ -4,6 +4,8 @@
 
 ## bvhar 2.4.1
 
+CRAN release: 2026-06-05
+
 - Fixed Average LPL computation process in pseudo out-of-sample
   forecasting.
 
