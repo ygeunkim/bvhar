@@ -207,6 +207,7 @@ public:
 		spike_scl(inits._spike_scl), dummy(inits._dummy), weight(inits._weight), slab(inits._slab),
 		slab_weight(Eigen::VectorXd::Ones(slab.size())),
 		dummy_record(Eigen::MatrixXd::Ones(num_iter + 1, dummy.size())),
+		slab_record(Eigen::MatrixXd::Ones(num_iter + 1, slab.size())),
 		weight_record(Eigen::MatrixXd::Zero(num_iter + 1, weight.size())) {}
 	virtual ~SsvsUpdater() = default;
 	
@@ -244,11 +245,18 @@ public:
 
 	void updateRecords(int id) override {
 		dummy_record.row(id) = dummy;
+		slab_record.row(id) = slab;
 		weight_record.row(id) = weight;
 	}
 
 	void appendCoefRecords(BVHAR_LIST& list) override {
 		list["gamma_record"] = dummy_record;
+		list["tau_record"] = slab_record;
+	}
+
+	void appendContemRecords(BVHAR_LIST& list) override {
+		list["omega_record"] = dummy_record;
+		list["kappa_record"] = slab_record;
 	}
 
 private:
@@ -260,7 +268,7 @@ private:
 	Eigen::VectorXd weight;
 	Eigen::VectorXd slab;
 	Eigen::VectorXd slab_weight; // pij vector
-	Eigen::MatrixXd dummy_record, weight_record;
+	Eigen::MatrixXd dummy_record, slab_record, weight_record;
 };
 
 /**
@@ -337,6 +345,11 @@ public:
 		list["eta_record"] = group_record;
 		list["tau_record"] = global_record;
 		list["kappa_record"] = shrink_record;
+	}
+
+	void appendContemRecords(BVHAR_LIST& list) override {
+		list["xi_record"] = local_record;
+		list["zeta_record"] = group_record;
 	}
 
 private:
@@ -424,6 +437,11 @@ public:
 		list["tau_record"] = global_record;
 	}
 
+	void appendContemRecords(BVHAR_LIST& list) override {
+		list["xi_record"] = local_record;
+		list["zeta_record"] = group_record;
+	}
+
 private:
 	double mh_sd;
 	double group_shape, group_scl, global_shape, global_scl;
@@ -451,7 +469,8 @@ public:
 		latent_local(Eigen::VectorXd::Zero(local_lev.size())),
 		coef_var(Eigen::VectorXd::Zero(local_lev.size())),
 		global_record(Eigen::VectorXd::Zero(num_iter + 1)),
-		local_record(Eigen::MatrixXd::Zero(num_iter + 1, local_lev.size())) {}
+		local_record(Eigen::MatrixXd::Zero(num_iter + 1, local_lev.size())),
+		group_record(Eigen::MatrixXd::Zero(num_iter + 1, group_lev.size())) {}
 	virtual ~DlUpdater() = default;
 	
 	void updateCoefPrec(
@@ -496,12 +515,18 @@ public:
 
 	void updateRecords(int id) override {
 		local_record.row(id) = local_lev;
+		group_record.row(id) = group_lev;
 		global_record[id] = global_lev;
 	}
 
 	void appendCoefRecords(BVHAR_LIST& list) override {
 		list["lambda_record"] = local_record;
 		list["tau_record"] = global_record;
+	}
+
+	void appendContemRecords(BVHAR_LIST& list) override {
+		list["xi_record"] = local_record;
+		list["zeta_record"] = group_record;
 	}
 
 private:
@@ -513,7 +538,7 @@ private:
 	Eigen::VectorXd latent_local;
 	Eigen::VectorXd coef_var;
 	Eigen::VectorXd global_record;
-	Eigen::MatrixXd local_record;
+	Eigen::MatrixXd local_record, group_record;
 };
 
 /**
@@ -529,7 +554,8 @@ public:
 		shape_grid(params._grid_shape), rate_grid(params._grid_rate),
 		group_rate(inits._group_rate), group_rate_fac(Eigen::VectorXd::Ones(inits._local.size())),
 		gamma_shape(inits._gamma_shape), gamma_rate(inits._gamma_rate),
-		local_lev(inits._local) {}
+		local_lev(inits._local),
+		local_record(Eigen::MatrixXd::Zero(num_iter + 1, local_lev.size())) {}
 	virtual ~GdpUpdater() = default;
 	
 	void updateCoefPrec(
@@ -563,11 +589,24 @@ public:
 		prior_chol_prec = local_lev.array();
 	}
 
+	void updateRecords(int id) override {
+		local_record.row(id) = local_lev;
+	}
+
+	void appendCoefRecords(BVHAR_LIST& list) override {
+		list["lambda_record"] = local_record;
+	}
+
+	void appendContemRecords(BVHAR_LIST& list) override {
+		list["xi_record"] = local_record;
+	}
+
 private:
 	int shape_grid, rate_grid;
 	Eigen::VectorXd group_rate, group_rate_fac;
 	double gamma_shape, gamma_rate;
 	Eigen::VectorXd local_lev;
+	Eigen::MatrixXd local_record;
 };
 
 /**
