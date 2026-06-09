@@ -135,6 +135,15 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a8ddae283b0256f290f99f4e09d8f6154" id="r_a8ddae283b0256f290f99f4e09d8f6154"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1GdpUpdater.html#a8ddae283b0256f290f99f4e09d8f6154">updateImpactPrec</a> (Eigen::Ref&lt; Eigen::VectorXd &gt; prior_chol_prec, Eigen::Ref&lt; Eigen::VectorXd &gt; contem_coef, boost::random::mixmax &amp;rng) override</td></tr>
 <tr class="memdesc:a8ddae283b0256f290f99f4e09d8f6154"><td class="mdescLeft">&#160;</td><td class="mdescRight">Draw precision of contemporaneous coefficient based on each shrinkage priors.  <br /></td></tr>
 <tr class="separator:a8ddae283b0256f290f99f4e09d8f6154"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a61c2d4ec25e66d919b3ffb8639212475" id="r_a61c2d4ec25e66d919b3ffb8639212475"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1GdpUpdater.html#a61c2d4ec25e66d919b3ffb8639212475">updateRecords</a> (int id) override</td></tr>
+<tr class="memdesc:a61c2d4ec25e66d919b3ffb8639212475"><td class="mdescLeft">&#160;</td><td class="mdescRight">Save MCMC records.  <br /></td></tr>
+<tr class="separator:a61c2d4ec25e66d919b3ffb8639212475"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7b9fe7907ce77ccbec69b7db32d9f774" id="r_a7b9fe7907ce77ccbec69b7db32d9f774"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1GdpUpdater.html#a7b9fe7907ce77ccbec69b7db32d9f774">appendCoefRecords</a> (<a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;list) override</td></tr>
+<tr class="memdesc:a7b9fe7907ce77ccbec69b7db32d9f774"><td class="mdescLeft">&#160;</td><td class="mdescRight">Append coefficient shrinkage prior's parameter record to the result <code>BVHAR_LIST</code>  <br /></td></tr>
+<tr class="separator:a7b9fe7907ce77ccbec69b7db32d9f774"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae0c057c00ef01982a9d12f22c7091657" id="r_ae0c057c00ef01982a9d12f22c7091657"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1GdpUpdater.html#ae0c057c00ef01982a9d12f22c7091657">appendContemRecords</a> (<a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;list) override</td></tr>
+<tr class="memdesc:ae0c057c00ef01982a9d12f22c7091657"><td class="mdescLeft">&#160;</td><td class="mdescRight">Append contemporaneous coefficient shrinkage prior's parameter record to the result <code>BVHAR_LIST</code>  <br /></td></tr>
+<tr class="separator:ae0c057c00ef01982a9d12f22c7091657"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classbaecon_1_1bvhar_1_1ShrinkageUpdater"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classbaecon_1_1bvhar_1_1ShrinkageUpdater')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classbaecon_1_1bvhar_1_1ShrinkageUpdater.html">baecon::bvhar::ShrinkageUpdater</a></td></tr>
 <tr class="memitem:af9abd2b146a44cc50f36a07d83b9bfcc inherit pub_methods_classbaecon_1_1bvhar_1_1ShrinkageUpdater" id="r_af9abd2b146a44cc50f36a07d83b9bfcc"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1ShrinkageUpdater.html#af9abd2b146a44cc50f36a07d83b9bfcc">ShrinkageUpdater</a> (int num_iter, const <a class="el" href="structbaecon_1_1bvhar_1_1ShrinkageParams.html">ShrinkageParams</a> &amp;params, const <a class="el" href="structbaecon_1_1bvhar_1_1ShrinkageInits.html">ShrinkageInits</a> &amp;inits)</td></tr>
 <tr class="separator:af9abd2b146a44cc50f36a07d83b9bfcc inherit pub_methods_classbaecon_1_1bvhar_1_1ShrinkageUpdater"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -149,15 +158,6 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a4ddcf9de60376450083e73fc9e3bfedd inherit pub_methods_classbaecon_1_1bvhar_1_1ShrinkageUpdater" id="r_a4ddcf9de60376450083e73fc9e3bfedd"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1ShrinkageUpdater.html#a4ddcf9de60376450083e73fc9e3bfedd">initImpactPrec</a> (Eigen::Ref&lt; Eigen::VectorXd &gt; prior_chol_prec)</td></tr>
 <tr class="memdesc:a4ddcf9de60376450083e73fc9e3bfedd inherit pub_methods_classbaecon_1_1bvhar_1_1ShrinkageUpdater"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build contemporaneous coefficient precision structure.  <br /></td></tr>
 <tr class="separator:a4ddcf9de60376450083e73fc9e3bfedd inherit pub_methods_classbaecon_1_1bvhar_1_1ShrinkageUpdater"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8f4a37e780ecd1cb510be3322b9b038c inherit pub_methods_classbaecon_1_1bvhar_1_1ShrinkageUpdater" id="r_a8f4a37e780ecd1cb510be3322b9b038c"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1ShrinkageUpdater.html#a8f4a37e780ecd1cb510be3322b9b038c">updateRecords</a> (int id)</td></tr>
-<tr class="memdesc:a8f4a37e780ecd1cb510be3322b9b038c inherit pub_methods_classbaecon_1_1bvhar_1_1ShrinkageUpdater"><td class="mdescLeft">&#160;</td><td class="mdescRight">Save MCMC records.  <br /></td></tr>
-<tr class="separator:a8f4a37e780ecd1cb510be3322b9b038c inherit pub_methods_classbaecon_1_1bvhar_1_1ShrinkageUpdater"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5c92995eb22907674402d5c06d5e8b34 inherit pub_methods_classbaecon_1_1bvhar_1_1ShrinkageUpdater" id="r_a5c92995eb22907674402d5c06d5e8b34"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1ShrinkageUpdater.html#a5c92995eb22907674402d5c06d5e8b34">appendCoefRecords</a> (<a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;list)</td></tr>
-<tr class="memdesc:a5c92995eb22907674402d5c06d5e8b34 inherit pub_methods_classbaecon_1_1bvhar_1_1ShrinkageUpdater"><td class="mdescLeft">&#160;</td><td class="mdescRight">Append coefficient shrinkage prior's parameter record to the result <code>BVHAR_LIST</code>  <br /></td></tr>
-<tr class="separator:a5c92995eb22907674402d5c06d5e8b34 inherit pub_methods_classbaecon_1_1bvhar_1_1ShrinkageUpdater"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aec2a3f7ae9495c8681391efa9b31e361 inherit pub_methods_classbaecon_1_1bvhar_1_1ShrinkageUpdater" id="r_aec2a3f7ae9495c8681391efa9b31e361"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaecon_1_1bvhar_1_1ShrinkageUpdater.html#aec2a3f7ae9495c8681391efa9b31e361">appendContemRecords</a> (<a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;list)</td></tr>
-<tr class="memdesc:aec2a3f7ae9495c8681391efa9b31e361 inherit pub_methods_classbaecon_1_1bvhar_1_1ShrinkageUpdater"><td class="mdescLeft">&#160;</td><td class="mdescRight">Append contemporaneous coefficient shrinkage prior's parameter record to the result <code>BVHAR_LIST</code>  <br /></td></tr>
-<tr class="separator:aec2a3f7ae9495c8681391efa9b31e361 inherit pub_methods_classbaecon_1_1bvhar_1_1ShrinkageUpdater"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><div class="compoundTemplParams">template&lt;bool isGroup = true&gt;<br />
@@ -421,6 +421,114 @@ Here is the call graph for this function:</div>
 <area shape="poly" title=" " alt="" coords="400,215,434,215,434,220,400,220"/>
 </map>
 </div>
+
+</div>
+</div>
+<a id="a61c2d4ec25e66d919b3ffb8639212475" name="a61c2d4ec25e66d919b3ffb8639212475"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a61c2d4ec25e66d919b3ffb8639212475">&#9670;&#160;</a></span>updateRecords()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;bool isGroup = true&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbaecon_1_1bvhar_1_1GdpUpdater.html">baecon::bvhar::GdpUpdater</a>&lt; isGroup &gt;::updateRecords </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>id</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Save MCMC records. </p>
+
+<p>Reimplemented from <a class="el" href="classbaecon_1_1bvhar_1_1ShrinkageUpdater.html#a8f4a37e780ecd1cb510be3322b9b038c">baecon::bvhar::ShrinkageUpdater</a>.</p>
+
+</div>
+</div>
+<a id="a7b9fe7907ce77ccbec69b7db32d9f774" name="a7b9fe7907ce77ccbec69b7db32d9f774"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7b9fe7907ce77ccbec69b7db32d9f774">&#9670;&#160;</a></span>appendCoefRecords()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;bool isGroup = true&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbaecon_1_1bvhar_1_1GdpUpdater.html">baecon::bvhar::GdpUpdater</a>&lt; isGroup &gt;::appendCoefRecords </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;&#160;</td>
+          <td class="paramname"><em>list</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Append coefficient shrinkage prior's parameter record to the result <code>BVHAR_LIST</code> </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">list</td><td>Contains MCMC record result </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Reimplemented from <a class="el" href="classbaecon_1_1bvhar_1_1ShrinkageUpdater.html#a5c92995eb22907674402d5c06d5e8b34">baecon::bvhar::ShrinkageUpdater</a>.</p>
+
+</div>
+</div>
+<a id="ae0c057c00ef01982a9d12f22c7091657" name="ae0c057c00ef01982a9d12f22c7091657"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae0c057c00ef01982a9d12f22c7091657">&#9670;&#160;</a></span>appendContemRecords()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;bool isGroup = true&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbaecon_1_1bvhar_1_1GdpUpdater.html">baecon::bvhar::GdpUpdater</a>&lt; isGroup &gt;::appendContemRecords </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="commoncpp_8h.html#a27ccf3148de56cc60fe2da5c280e0510">BvharList</a> &amp;&#160;</td>
+          <td class="paramname"><em>list</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Append contemporaneous coefficient shrinkage prior's parameter record to the result <code>BVHAR_LIST</code> </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">list</td><td>Contains MCMC record result </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Reimplemented from <a class="el" href="classbaecon_1_1bvhar_1_1ShrinkageUpdater.html#aec2a3f7ae9495c8681391efa9b31e361">baecon::bvhar::ShrinkageUpdater</a>.</p>
 
 </div>
 </div>

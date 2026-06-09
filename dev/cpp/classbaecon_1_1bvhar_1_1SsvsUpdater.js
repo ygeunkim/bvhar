@@ -5,5 +5,6 @@ var classbaecon_1_1bvhar_1_1SsvsUpdater =
     [ "updateCoefPrec", "classbaecon_1_1bvhar_1_1SsvsUpdater.html#af671bb64b23a1284106106be9b29ceaa", null ],
     [ "updateImpactPrec", "classbaecon_1_1bvhar_1_1SsvsUpdater.html#a2a72ca92fde1e48278fcb3ba016f4e39", null ],
     [ "updateRecords", "classbaecon_1_1bvhar_1_1SsvsUpdater.html#a8200e187ae2fdb369e222db80535b51f", null ],
-    [ "appendCoefRecords", "classbaecon_1_1bvhar_1_1SsvsUpdater.html#ab031cd93a9ca0d725c73734546f58139", null ]
+    [ "appendCoefRecords", "classbaecon_1_1bvhar_1_1SsvsUpdater.html#ab031cd93a9ca0d725c73734546f58139", null ],
+    [ "appendContemRecords", "classbaecon_1_1bvhar_1_1SsvsUpdater.html#a3d080e181e1e550a799981ae8f12c972", null ]
 ];
