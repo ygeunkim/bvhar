@@ -110,9 +110,9 @@ inline double ng_shape_jump(double& gamma_hyper, Eigen::VectorXd& local_param,
 	double log_ratio = log(cand) - log(gamma_hyper) + num_coef * (lgammafn(gamma_hyper) - lgammafn(cand));
 	log_ratio += num_coef * (cand * log(cand) - gamma_hyper * log(gamma_hyper));
 	log_ratio -= num_coef * (cand - gamma_hyper) * log(global_param);
-	log_ratio += (cand - gamma_hyper) * local_param.array().log().sum() / 2;
+	log_ratio += (cand - gamma_hyper) * local_param.array().log().sum();
 	// log_ratio += (gamma_hyper - cand) * local_param.array().sum() / (2 * global_param);
-	log_ratio += (gamma_hyper - cand) * local_param.array().sum() / global_param;
+	log_ratio += (gamma_hyper - cand) * (local_param.array().sum() / global_param + 1);
 	if (log(1 - unif_rand(rng)) < std::min(log_ratio, 0.0)) { // unif_rand has [0, 1) -> change to (0, 1]
 		return cand;
 	}
