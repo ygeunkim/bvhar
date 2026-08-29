@@ -26,7 +26,7 @@
  <tr id="projectrow">
   <td id="projectlogo"><img alt="Logo" src="apple-touch-icon.png"/></td>
   <td id="projectalign">
-   <div id="projectname">bvhar<span id="projectnumber">&#160;2.4.1.9000</span>
+   <div id="projectname">bvhar<span id="projectnumber">&#160;2.4.1.9001</span>
    </div>
    <div id="projectbrief">C++ headers by bvhar package</div>
   </td>
@@ -209,7 +209,7 @@ $(document).ready(function(){initNavTree('ssvs__helper_8h_source.html',''); init
 <div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; coef_vec.size(); ++i) {</div>
 <div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>    slab_param[i] = 1 / gamma_rand(</div>
 <div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>      shp + .5,</div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>      1 / (scl + coef_vec[i] * coef_vec[i] / (dummy_param[i] + (1 - dummy_param[i]) * spike_scl)),</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>      1 / (scl + coef_vec[i] * coef_vec[i] / (2 * (dummy_param[i] + (1 - dummy_param[i]) * spike_scl))),</div>
 <div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>      rng</div>
 <div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>    );</div>
 <div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>  }</div>
@@ -217,39 +217,40 @@ $(document).ready(function(){initNavTree('ssvs__helper_8h_source.html',''); init
 </div>
 <div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span> </div>
 <div class="foldopen" id="foldopen00108" data-start="{" data-end="}">
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#aef7460c7ead7043a4fb891cc0674dd7f">  108</a></span><span class="keyword">inline</span> <span class="keywordtype">double</span> <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#aef7460c7ead7043a4fb891cc0674dd7f">ssvs_logdens_scl</a>(<span class="keywordtype">double</span>&amp; cand, Eigen::Ref&lt;Eigen::VectorXd&gt; coef_vec, Eigen::Ref&lt;Eigen::VectorXd&gt; slab_sd) {</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#a0a430c9a76d134927bc3a44f98766182">  108</a></span><span class="keyword">inline</span> <span class="keywordtype">double</span> <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a0a430c9a76d134927bc3a44f98766182">ssvs_logdens_scl</a>(<span class="keywordtype">double</span>&amp; cand, Eigen::Ref&lt;Eigen::VectorXd&gt; coef_vec, Eigen::Ref&lt;Eigen::VectorXd&gt; slab_param, Eigen::Ref&lt;Eigen::VectorXd&gt; dummy) {</div>
 <div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>  <span class="comment">// return -(coef_vec.array() / slab_sd.array()).square().sum() / (2 * cand * cand) - coef_vec.size() * log(cand);</span></div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>  <span class="keywordflow">return</span> -(coef_vec.array().square() / slab_sd.array()).sum() / (2 * cand) - coef_vec.size() * log(cand) / 2;</div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>}</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>  <span class="comment">// return -(coef_vec.array().square() / slab_sd.array()).sum() / (2 * cand) - coef_vec.size() * log(cand) / 2;</span></div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>  <span class="keywordflow">return</span> -((1 - dummy.array()) * (log(cand) + coef_vec.array().square() / (cand * slab_param.array()))).sum() / 2;</div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>}</div>
 </div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span> </div>
-<div class="foldopen" id="foldopen00113" data-start="{" data-end="}">
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#a868c03e5c7a5608838ce28961fc53fe7">  113</a></span><span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a868c03e5c7a5608838ce28961fc53fe7">ssvs_scl_griddy</a>(<span class="keywordtype">double</span>&amp; spike_scl, <span class="keywordtype">int</span> grid_size,</div>
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>                            Eigen::Ref&lt;Eigen::VectorXd&gt; coef_vec, Eigen::Ref&lt;Eigen::VectorXd&gt; slab_param, <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
-<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>  Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size + 2, 0.0, 1.0).segment(1, grid_size);</div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>  Eigen::VectorXd log_wt(grid_size);</div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; grid_size; ++i) {</div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>    log_wt[i] = <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#aef7460c7ead7043a4fb891cc0674dd7f">ssvs_logdens_scl</a>(grid[i], coef_vec, slab_param);</div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>  }</div>
-<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>  Eigen::VectorXd weight = (log_wt.array() - log_wt.maxCoeff()).exp();</div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>  weight /= weight.sum();</div>
-<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>  spike_scl = grid[cat_rand(weight, rng)];</div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>}</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span> </div>
+<div class="foldopen" id="foldopen00114" data-start="{" data-end="}">
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno"><a class="line" href="namespacebaecon_1_1bvhar.html#a3604dedc87db8848ba95ecefad53462d">  114</a></span><span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a3604dedc87db8848ba95ecefad53462d">ssvs_scl_griddy</a>(<span class="keywordtype">double</span>&amp; spike_scl, <span class="keywordtype">int</span> grid_size,</div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>                            Eigen::Ref&lt;Eigen::VectorXd&gt; coef_vec, Eigen::Ref&lt;Eigen::VectorXd&gt; slab_param, Eigen::Ref&lt;Eigen::VectorXd&gt; dummy, <a class="code hl_define" href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a>&amp; rng) {</div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>  Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size + 2, 0.0, 1.0).segment(1, grid_size);</div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>  Eigen::VectorXd log_wt(grid_size);</div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; grid_size; ++i) {</div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>    log_wt[i] = <a class="code hl_function" href="namespacebaecon_1_1bvhar.html#a0a430c9a76d134927bc3a44f98766182">ssvs_logdens_scl</a>(grid[i], coef_vec, slab_param, dummy);</div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>  }</div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>  Eigen::VectorXd weight = (log_wt.array() - log_wt.maxCoeff()).exp();</div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>  weight /= weight.sum();</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>  spike_scl = grid[cat_rand(weight, rng)];</div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>}</div>
 </div>
-<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span> </div>
-<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>} <span class="comment">// namespace bvhar</span></div>
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>} <span class="comment">// namespace baecon</span></div>
-<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span> </div>
-<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span><span class="preprocessor">#endif </span><span class="comment">// BVHAR_BAYES_MISC_SSVS_HELPER_H</span></div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span> </div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>} <span class="comment">// namespace bvhar</span></div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>} <span class="comment">// namespace baecon</span></div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span> </div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span><span class="preprocessor">#endif </span><span class="comment">// BVHAR_BAYES_MISC_SSVS_HELPER_H</span></div>
 <div class="ttc" id="acommon_8h_html_a6cf9f648a944e66c2478fa29468b7ac0"><div class="ttname"><a href="common_8h.html#a6cf9f648a944e66c2478fa29468b7ac0">BVHAR_BHRNG</a></div><div class="ttdeci">#define BVHAR_BHRNG</div><div class="ttdef"><b>Definition</b> common.h:34</div></div>
 <div class="ttc" id="ahelper_8h_html"><div class="ttname"><a href="helper_8h.html">helper.h</a></div></div>
+<div class="ttc" id="anamespacebaecon_1_1bvhar_html_a0a430c9a76d134927bc3a44f98766182"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a0a430c9a76d134927bc3a44f98766182">baecon::bvhar::ssvs_logdens_scl</a></div><div class="ttdeci">double ssvs_logdens_scl(double &amp;cand, Eigen::Ref&lt; Eigen::VectorXd &gt; coef_vec, Eigen::Ref&lt; Eigen::VectorXd &gt; slab_param, Eigen::Ref&lt; Eigen::VectorXd &gt; dummy)</div><div class="ttdef"><b>Definition</b> ssvs_helper.h:108</div></div>
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_a162527454774e6f5a0b0aac1e43317b9"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a162527454774e6f5a0b0aac1e43317b9">baecon::bvhar::ssvs_mn_weight</a></div><div class="ttdeci">void ssvs_mn_weight(Eigen::VectorXd &amp;weight, Eigen::VectorXi &amp;grp_vec, Eigen::VectorXi &amp;grp_id, Eigen::VectorXd &amp;param_obs, Eigen::VectorXd &amp;prior_s1, Eigen::VectorXd &amp;prior_s2, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> ssvs_helper.h:69</div></div>
+<div class="ttc" id="anamespacebaecon_1_1bvhar_html_a3604dedc87db8848ba95ecefad53462d"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a3604dedc87db8848ba95ecefad53462d">baecon::bvhar::ssvs_scl_griddy</a></div><div class="ttdeci">void ssvs_scl_griddy(double &amp;spike_scl, int grid_size, Eigen::Ref&lt; Eigen::VectorXd &gt; coef_vec, Eigen::Ref&lt; Eigen::VectorXd &gt; slab_param, Eigen::Ref&lt; Eigen::VectorXd &gt; dummy, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> ssvs_helper.h:114</div></div>
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_a7bd59821ef1d47fbb2a53d95d8735746"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a7bd59821ef1d47fbb2a53d95d8735746">baecon::bvhar::ssvs_dummy</a></div><div class="ttdeci">void ssvs_dummy(Eigen::VectorXd &amp;dummy, Eigen::VectorXd param_obs, Eigen::VectorXd &amp;sd_numer, Eigen::Ref&lt; const Eigen::VectorXd &gt; sd_denom, Eigen::VectorXd &amp;slab_weight, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> ssvs_helper.h:30</div></div>
-<div class="ttc" id="anamespacebaecon_1_1bvhar_html_a868c03e5c7a5608838ce28961fc53fe7"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#a868c03e5c7a5608838ce28961fc53fe7">baecon::bvhar::ssvs_scl_griddy</a></div><div class="ttdeci">void ssvs_scl_griddy(double &amp;spike_scl, int grid_size, Eigen::Ref&lt; Eigen::VectorXd &gt; coef_vec, Eigen::Ref&lt; Eigen::VectorXd &gt; slab_param, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> ssvs_helper.h:113</div></div>
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_aaa5fee09536bd21e7a2de6ee4fdfbe22"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#aaa5fee09536bd21e7a2de6ee4fdfbe22">baecon::bvhar::build_ssvs_sd</a></div><div class="ttdeci">Eigen::VectorXd build_ssvs_sd(Eigen::VectorXd spike_sd, Eigen::VectorXd slab_sd, Eigen::VectorXd mixture_dummy)</div><div class="ttdef"><b>Definition</b> ssvs_helper.h:16</div></div>
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_abd74c0e9e1c38fea27f7b3b04e188cdc"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#abd74c0e9e1c38fea27f7b3b04e188cdc">baecon::bvhar::ssvs_weight</a></div><div class="ttdeci">void ssvs_weight(Eigen::VectorXd &amp;weight, Eigen::VectorXd param_obs, double prior_s1, double prior_s2, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> ssvs_helper.h:51</div></div>
 <div class="ttc" id="anamespacebaecon_1_1bvhar_html_ac07b4de52da13574b8e24bff45da5c33"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#ac07b4de52da13574b8e24bff45da5c33">baecon::bvhar::ssvs_local_slab</a></div><div class="ttdeci">void ssvs_local_slab(Eigen::VectorXd &amp;slab_param, Eigen::VectorXd &amp;dummy_param, Eigen::Ref&lt; Eigen::VectorXd &gt; coef_vec, double &amp;shp, double &amp;scl, double &amp;spike_scl, boost::random::mixmax &amp;rng)</div><div class="ttdef"><b>Definition</b> ssvs_helper.h:97</div></div>
-<div class="ttc" id="anamespacebaecon_1_1bvhar_html_aef7460c7ead7043a4fb891cc0674dd7f"><div class="ttname"><a href="namespacebaecon_1_1bvhar.html#aef7460c7ead7043a4fb891cc0674dd7f">baecon::bvhar::ssvs_logdens_scl</a></div><div class="ttdeci">double ssvs_logdens_scl(double &amp;cand, Eigen::Ref&lt; Eigen::VectorXd &gt; coef_vec, Eigen::Ref&lt; Eigen::VectorXd &gt; slab_sd)</div><div class="ttdef"><b>Definition</b> ssvs_helper.h:108</div></div>
 <div class="ttc" id="anamespacebaecon_html"><div class="ttname"><a href="namespacebaecon.html">baecon</a></div><div class="ttdef"><b>Definition</b> bayes.h:16</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->

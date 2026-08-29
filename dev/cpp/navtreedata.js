@@ -70,7 +70,7 @@ var NAVTREEINDEX =
 "classbaecon_1_1bvhar_1_1OlsOutforecastRun.html",
 "classbaecon_1_1bvhar_1_1OptimLbfgsb.html#a1af7c7caa9a7beae0fc1727f9ac43833",
 "common_8h.html#a6ea615b0e29a9b35870fb8662f0e1291",
-"namespacebaecon_1_1bvhar.html#a277ab59b07bcba6f4e85a560bc5538c0",
+"namespacebaecon_1_1bvhar.html#a24455367e038368878d3d9f7abf59191",
 "structbaecon_1_1bvhar_1_1DfmRecords.html#a9641141051d08a55cbd680e662437250",
 "structbaecon_1_1bvhar_1_1OlsFit.html#a5c8702ac10a47b164a3844119a9050d9",
 "structbaecon_1_1bvhar_1_1SvRecords.html#a8e5a33b367cddeeb1760d33b89986dfb"
