@@ -1,5 +1,7 @@
 # bvhar (development version)
 
+* Fixed some wrong posteriors in NG and SSVS.
+
 # bvhar 2.4.1
 
 * Fixed Average LPL computation process in pseudo out-of-sample forecasting.
