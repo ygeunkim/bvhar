@@ -15,7 +15,7 @@ Source:
 Kim Y, Baek C (2023). *bvhar: Bayesian Vector Heterogeneous
 Autoregressive Modeling*.
 [doi:10.32614/CRAN.package.bvhar](https://doi.org/10.32614/CRAN.package.bvhar).
-R package version 2.4.1.9000,
+R package version 2.4.1.9001,
 <https://cran.r-project.org/package=bvhar>.
 
     @Manual{,
@@ -23,7 +23,7 @@ R package version 2.4.1.9000,
       author = {Young Geun Kim and Changryong Baek},
       year = {2023},
       doi = {10.32614/CRAN.package.bvhar},
-      note = {R package version 2.4.1.9000},
+      note = {R package version 2.4.1.9001},
       url = {https://cran.r-project.org/package=bvhar},
     }
 

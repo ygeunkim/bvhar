@@ -2,6 +2,8 @@
 
 ## bvhar (development version)
 
+- Fixed some wrong posteriors in NG and SSVS.
+
 ## bvhar 2.4.1
 
 CRAN release: 2026-06-05
