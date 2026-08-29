@@ -99,7 +99,7 @@ inline void ssvs_local_slab(Eigen::VectorXd& slab_param, Eigen::VectorXd& dummy_
 	for (int i = 0; i < coef_vec.size(); ++i) {
 		slab_param[i] = 1 / gamma_rand(
 			shp + .5,
-			1 / (scl + coef_vec[i] * coef_vec[i] / (dummy_param[i] + (1 - dummy_param[i]) * spike_scl)),
+			1 / (scl + coef_vec[i] * coef_vec[i] / (2 * (dummy_param[i] + (1 - dummy_param[i]) * spike_scl))),
 			rng
 		);
 	}
