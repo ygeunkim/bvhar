@@ -224,7 +224,7 @@ public:
 				slab_weight
 			);
 		}
-		ssvs_scl_griddy(spike_scl, grid_size, coef_vec, slab, rng);
+		ssvs_scl_griddy(spike_scl, grid_size, coef_vec, dummy, slab, rng);
 		ssvs_dummy(dummy, coef_vec, slab, spike_scl * slab, slab_weight, rng);
 		ssvs_mn_weight(weight, grp_vec, grp_id, dummy, s1, s2, rng);
 		prior_alpha_prec.array() = 1 / (spike_scl * (1 - dummy.array()) * slab.array() + dummy.array() * slab.array());
@@ -236,7 +236,7 @@ public:
 		BVHAR_BHRNG& rng
 	) override {
 		ssvs_local_slab(slab, dummy, contem_coef, ig_shape, ig_scl, spike_scl, rng);
-		ssvs_scl_griddy(spike_scl, grid_size, contem_coef, slab, rng);
+		ssvs_scl_griddy(spike_scl, grid_size, contem_coef, slab, dummy, rng);
 		ssvs_dummy(dummy, contem_coef, slab, spike_scl * slab, weight, rng);
 		ssvs_weight(weight, dummy, s1[0], s2[0], rng);
 		// prior_chol_prec = 1 / build_ssvs_sd(spike_scl * slab, slab, dummy).array().square();

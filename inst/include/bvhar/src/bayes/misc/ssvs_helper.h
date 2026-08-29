@@ -99,23 +99,24 @@ inline void ssvs_local_slab(Eigen::VectorXd& slab_param, Eigen::VectorXd& dummy_
 	for (int i = 0; i < coef_vec.size(); ++i) {
 		slab_param[i] = 1 / gamma_rand(
 			shp + .5,
-			1 / (scl + coef_vec[i] * coef_vec[i] / (dummy_param[i] + (1 - dummy_param[i]) * spike_scl)),
+			1 / (scl + coef_vec[i] * coef_vec[i] / (2 * (dummy_param[i] + (1 - dummy_param[i]) * spike_scl))),
 			rng
 		);
 	}
 }
 
-inline double ssvs_logdens_scl(double& cand, Eigen::Ref<Eigen::VectorXd> coef_vec, Eigen::Ref<Eigen::VectorXd> slab_sd) {
+inline double ssvs_logdens_scl(double& cand, Eigen::Ref<Eigen::VectorXd> coef_vec, Eigen::Ref<Eigen::VectorXd> slab_param, Eigen::Ref<Eigen::VectorXd> dummy) {
 	// return -(coef_vec.array() / slab_sd.array()).square().sum() / (2 * cand * cand) - coef_vec.size() * log(cand);
-	return -(coef_vec.array().square() / slab_sd.array()).sum() / (2 * cand) - coef_vec.size() * log(cand) / 2;
+	// return -(coef_vec.array().square() / slab_sd.array()).sum() / (2 * cand) - coef_vec.size() * log(cand) / 2;
+	return -((1 - dummy.array()) * (log(cand) + coef_vec.array().square() / (cand * slab_param.array()))).sum() / 2;
 }
 
 inline void ssvs_scl_griddy(double& spike_scl, int grid_size,
-														Eigen::Ref<Eigen::VectorXd> coef_vec, Eigen::Ref<Eigen::VectorXd> slab_param, BVHAR_BHRNG& rng) {
+														Eigen::Ref<Eigen::VectorXd> coef_vec, Eigen::Ref<Eigen::VectorXd> slab_param, Eigen::Ref<Eigen::VectorXd> dummy, BVHAR_BHRNG& rng) {
 	Eigen::VectorXd grid = Eigen::VectorXd::LinSpaced(grid_size + 2, 0.0, 1.0).segment(1, grid_size);
 	Eigen::VectorXd log_wt(grid_size);
 	for (int i = 0; i < grid_size; ++i) {
-		log_wt[i] = ssvs_logdens_scl(grid[i], coef_vec, slab_param);
+		log_wt[i] = ssvs_logdens_scl(grid[i], coef_vec, slab_param, dummy);
 	}
 	Eigen::VectorXd weight = (log_wt.array() - log_wt.maxCoeff()).exp();
 	weight /= weight.sum();
