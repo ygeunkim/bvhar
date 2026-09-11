@@ -41,9 +41,9 @@ public:
 	 */
 	virtual void updateCoef(
 		TriangularState& state,
-		std::unique_ptr<FactorAugmenter>& favar_updater,
-		std::unique_ptr<ShrinkageUpdater>& exogen_updater,
-		std::unique_ptr<ShrinkageUpdater>& factor_updater,
+		FactorAugmenter* favar_updater,
+		ShrinkageUpdater* exogen_updater,
+		ShrinkageUpdater* factor_updater,
 		BVHAR_BHRNG& rng
 	) = 0;
 };
@@ -59,9 +59,9 @@ public:
 
 	void updateCoef(
 		TriangularState& state,
-		std::unique_ptr<FactorAugmenter>& favar_updater,
-		std::unique_ptr<ShrinkageUpdater>& exogen_updater,
-		std::unique_ptr<ShrinkageUpdater>& factor_updater,
+		FactorAugmenter* favar_updater,
+		ShrinkageUpdater* exogen_updater,
+		ShrinkageUpdater* factor_updater,
 		BVHAR_BHRNG& rng
 	) override {
 		if (favar_updater) {

@@ -427,7 +427,13 @@ protected:
 		// 	}
 		// 	draw_mn_savs(sparse_coef.col(j), coef_mat.col(j), x, penalty_j);
 		// }
-		coef_draw->updateCoef(state, favar_updater, exogen_updater, factor_updater, rng);
+		coef_draw->updateCoef(
+			state,
+			favar_updater.get(),
+			exogen_updater.get(),
+			factor_updater.get(),
+			rng
+		);
 	}
 
 	/**
