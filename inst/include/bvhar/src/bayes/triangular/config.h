@@ -232,32 +232,10 @@ struct SvInits : public RegInits {
 };
 
 /**
- * @brief Mutable, per-iteration quantities shared by the coefficient, impact, and variance updaters
- *
- * This is a non-owning view over `McmcTriangular`'s member state: `McmcTriangular` builds one fresh
- * (via `buildState()`) before each pipeline step and passes it by reference, so every field here
- * aliases the corresponding `McmcTriangular` member instead of copying it.
+ * @brief Members of `McmcTriangular`
+ * 
  */
 struct TriangularState {
-	// const bool& include_mean;
-	// const int& dim, dim_design, num_design, nrow_coef;
-	// const int& num_alpha, num_endog, num_exogen, nrow_endog, nrow_exogen;
-	// const int& size_factor, num_factor;
-	// Eigen::MatrixXd& x;
-	// const Eigen::MatrixXd& y;
-	// Eigen::MatrixXd& coef_mat;
-	// Eigen::VectorXd& coef_vec;
-	// Eigen::VectorXd& contem_coef;
-	// Eigen::MatrixXd& chol_lower;
-	// Eigen::MatrixXd& latent_innov;
-	// Eigen::MatrixXd& sqrt_sv;
-	// Eigen::MatrixXd& sparse_coef;
-	// Eigen::VectorXd& sparse_contem;
-	// Eigen::VectorXd& alpha_penalty;
-	// Eigen::VectorXd& prior_alpha_mean;
-	// Eigen::VectorXd& prior_alpha_prec;
-	// Eigen::VectorXd& prior_chol_mean;
-	// Eigen::VectorXd& prior_chol_prec;
 	bool include_mean;
 	Eigen::MatrixXd x;
 	Eigen::MatrixXd y;

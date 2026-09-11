@@ -63,24 +63,24 @@ public:
 		// response_contem(Eigen::VectorXd::Zero(num_design)),
 		// sqrt_sv(Eigen::MatrixXd::Zero(num_design, dim)),
 		// prior_sig_shp(params._sig_shp), prior_sig_scl(params._sig_scl) {
-		// BVHAR_DEBUG_LOG(
-		// 	debug_logger,
-		// 	"McmcTriangular Constructor: dim={}, dim_design={}, num_design={}, num_lowerchol={}, num_coef={}, num_alpha={}, nrow_coef={}",
-		// 	dim, dim_design, num_design, num_lowerchol, num_coef, num_alpha, nrow_coef
-		// );
-		// BVHAR_DEBUG_LOG(
-		// 	debug_logger,
-		// 	"McmcTriangular Constructor: nrow_exogen={}, num_exogen={}, size_factor={}, num_factor={}, num_endog={}, nrow_endog={}, nrow_varx={}",
-		// 	nrow_exogen, num_exogen,
-		// 	size_factor, num_factor,
-		// 	num_endog, nrow_endog, nrow_varx
-		// );
-		// BVHAR_DEBUG_LOG(
-		// 	debug_logger,
-		// 	"McmcTriangular Constructor: coef_mat: {}x{}, prior_alpha_mean: {}, prior_alpha_prec: {}",
-		// 	coef_mat.rows(), coef_mat.cols(),
-		// 	prior_alpha_mean.size(), prior_alpha_prec.size()
-		// );
+		BVHAR_DEBUG_LOG(
+			debug_logger,
+			"McmcTriangular Constructor: dim={}, dim_design={}, num_design={}, num_lowerchol={}, num_coef={}, num_alpha={}, nrow_coef={}",
+			state.dim, state.dim_design, state.num_design, state.num_lowerchol, state.num_coef, state.num_alpha, state.nrow_coef
+		);
+		BVHAR_DEBUG_LOG(
+			debug_logger,
+			"McmcTriangular Constructor: nrow_exogen={}, num_exogen={}, size_factor={}, num_factor={}, num_endog={}, nrow_endog={}, nrow_varx={}",
+			state.nrow_exogen, state.num_exogen,
+			state.size_factor, state.num_factor,
+			state.num_endog, state.nrow_endog, state.nrow_varx
+		);
+		BVHAR_DEBUG_LOG(
+			debug_logger,
+			"McmcTriangular Constructor: coef_mat: {}x{}, prior_alpha_mean: {}, prior_alpha_prec: {}",
+			state.coef_mat.rows(), state.coef_mat.cols(),
+			state.prior_alpha_mean.size(), state.prior_alpha_prec.size()
+		);
 		// if (include_mean) {
 		// 	prior_alpha_mean.segment(num_alpha, dim) = params._mean_non;
 		// 	prior_alpha_prec.segment(num_alpha, dim) = 1 / (params._sd_non * Eigen::VectorXd::Ones(dim)).array().square();
@@ -504,13 +504,13 @@ public:
 	}
 	virtual ~McmcReg() = default;
 
-protected:
-	// void updateState() override { reg_ldlt_diag(diag_vec, prior_sig_shp, prior_sig_scl, latent_innov * chol_lower.transpose(), rng); }
-	// void updateSv() override { sqrt_sv = diag_vec.cwiseSqrt().transpose().replicate(num_design, 1); }
-	// void updateCoefRecords() override {
-	// 	reg_record->assignRecords(mcmc_step, coef_vec, contem_coef, diag_vec);
-	// 	sparse_record.assignRecords(mcmc_step, num_alpha, dim, nrow_coef, num_exogen, nrow_exogen, sparse_coef, sparse_contem);
-	// }
+// protected:
+// 	void updateState() override { reg_ldlt_diag(diag_vec, prior_sig_shp, prior_sig_scl, latent_innov * chol_lower.transpose(), rng); }
+// 	void updateSv() override { sqrt_sv = diag_vec.cwiseSqrt().transpose().replicate(num_design, 1); }
+// 	void updateCoefRecords() override {
+// 		reg_record->assignRecords(mcmc_step, coef_vec, contem_coef, diag_vec);
+// 		sparse_record.assignRecords(mcmc_step, num_alpha, dim, nrow_coef, num_exogen, nrow_exogen, sparse_coef, sparse_contem);
+// 	}
 
 // private:
 // 	Eigen::VectorXd diag_vec; // inverse of d_i

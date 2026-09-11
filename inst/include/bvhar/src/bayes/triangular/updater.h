@@ -22,11 +22,8 @@ class LdltVarianceUpdater;
 class SvVarianceUpdater;
 
 /**
- * @brief Draw strategy for the autoregressive coefficient matrix
- *
- * Implementations own only their own extra state (e.g. a time-varying implementation would hold the
- * per-time coefficient history and its state-innovation prior); everything shared with the impact and
- * variance blocks travels through `TriangularState`.
+ * @brief Draw strategy for the coefficient matrix
+ * 
  */
 class CoefUpdater {
 public:
@@ -36,7 +33,7 @@ public:
 	/**
 	 * @brief Draw the coefficient matrix and its SAVS-sparsified counterpart
 	 *
-	 * @param state Shared mutable MCMC state
+	 * @param state MCMC state
 	 * @param favar_updater FAVAR factor augmenter, if enabled
 	 * @param exogen_updater Exogenous-block shrinkage prior, if enabled
 	 * @param factor_updater Factor-block shrinkage prior, if enabled
@@ -52,7 +49,8 @@ public:
 };
 
 /**
- * @brief Time-invariant coefficient draw (column-wise Gaussian regression, current `McmcTriangular::updateCoef()`)
+ * @brief Time-invariant coefficient draw
+ * 
  */
 class StaticCoefUpdater : public CoefUpdater {
 public:
@@ -129,7 +127,8 @@ public:
 };
 
 /**
- * @brief Draw strategy for the contemporaneous (impact) coefficients
+ * @brief Draw strategy for the contemporaneous coefficients (impact)
+ * 
  */
 class ImpactUpdater {
 public:
@@ -139,14 +138,15 @@ public:
 	/**
 	 * @brief Draw the contemporaneous coefficients and their SAVS-sparsified counterpart
 	 *
-	 * @param state Shared mutable MCMC state
+	 * @param state MCMC state
 	 * @param rng RNG
 	 */
 	virtual void updateImpact(TriangularState& state, BVHAR_BHRNG& rng) = 0;
 };
 
 /**
- * @brief Time-invariant impact draw (current `McmcTriangular::updateImpact()`)
+ * @brief Time-invariant impact draw
+ * 
  */
 class StaticImpactUpdater : public ImpactUpdater {
 public:
@@ -175,9 +175,7 @@ private:
 
 /**
  * @brief Draw strategy for the innovation covariance block (D in the LDLT decomposition)
- *
- * Also owns writing the combined per-step record row, since which `RegRecords::assignRecords()`
- * overload applies (LDLT vs. SV) depends on which variance state this updater carries.
+ * 
  */
 class VarianceUpdater {
 public:
@@ -185,23 +183,27 @@ public:
 	virtual ~VarianceUpdater() = default;
 
 	/**
-	 * @brief Recompute the diagonal scale used by the coefficient/impact draws (D^(1/2) in `sqrt_sv`)
+	 * @brief Compute D
+	 * 
 	 */
 	virtual void updateSv(TriangularState& state) = 0;
 
 	/**
-	 * @brief Draw the next variance state (diag_vec, or the SV latent volatility path)
+	 * @brief Draw state vector
+	 * 
 	 */
 	virtual void updateState(TriangularState& state, BVHAR_BHRNG& rng) = 0;
 
 	/**
-	 * @brief Save this step's full posterior draw (coefficient, impact, and variance state)
+	 * @brief Save coefficient records
+	 * 
 	 */
 	virtual void updateRecords(int step, TriangularState& state, RegRecords& reg_record, SparseRecords& sparse_record) = 0;
 };
 
 /**
- * @brief Homoskedastic LDLT variance (current `McmcReg` variance logic)
+ * @brief Homoskedastic LDLT
+ * 
  */
 class LdltVarianceUpdater : public VarianceUpdater {
 public:
@@ -231,7 +233,8 @@ private:
 };
 
 /**
- * @brief Stochastic-volatility variance (current `McmcSv` variance logic)
+ * @brief Cholesky stochastic volatility
+ * 
  */
 class SvVarianceUpdater : public VarianceUpdater {
 public:
