@@ -21,6 +21,8 @@ struct SvParams;
 struct RegInits;
 struct LdltInits;
 struct SvInits;
+// MCMC states
+struct TriangularState;
 // MCMC records
 struct RegRecords;
 struct SparseRecords;
@@ -226,6 +228,87 @@ struct SvInits : public RegInits {
 				return exp(unif_rand(-1, 1, rng));
 			}
 		);
+	}
+};
+
+/**
+ * @brief Mutable, per-iteration quantities shared by the coefficient, impact, and variance updaters
+ *
+ * This is a non-owning view over `McmcTriangular`'s member state: `McmcTriangular` builds one fresh
+ * (via `buildState()`) before each pipeline step and passes it by reference, so every field here
+ * aliases the corresponding `McmcTriangular` member instead of copying it.
+ */
+struct TriangularState {
+	// const bool& include_mean;
+	// const int& dim, dim_design, num_design, nrow_coef;
+	// const int& num_alpha, num_endog, num_exogen, nrow_endog, nrow_exogen;
+	// const int& size_factor, num_factor;
+	// Eigen::MatrixXd& x;
+	// const Eigen::MatrixXd& y;
+	// Eigen::MatrixXd& coef_mat;
+	// Eigen::VectorXd& coef_vec;
+	// Eigen::VectorXd& contem_coef;
+	// Eigen::MatrixXd& chol_lower;
+	// Eigen::MatrixXd& latent_innov;
+	// Eigen::MatrixXd& sqrt_sv;
+	// Eigen::MatrixXd& sparse_coef;
+	// Eigen::VectorXd& sparse_contem;
+	// Eigen::VectorXd& alpha_penalty;
+	// Eigen::VectorXd& prior_alpha_mean;
+	// Eigen::VectorXd& prior_alpha_prec;
+	// Eigen::VectorXd& prior_chol_mean;
+	// Eigen::VectorXd& prior_chol_prec;
+	bool include_mean;
+	Eigen::MatrixXd x;
+	Eigen::MatrixXd y;
+	int dim; // k
+  int dim_design; // kp(+1)
+  int num_design; // n = T - p
+  int num_lowerchol;
+  int num_coef;
+	int num_alpha;
+	int nrow_coef;
+	int nrow_exogen, num_exogen;
+	int size_factor, num_factor, num_endog, nrow_endog, nrow_varx;
+	Eigen::VectorXd coef_vec;
+	Eigen::VectorXd contem_coef;
+	Eigen::VectorXd prior_alpha_mean; // prior mean vector of alpha
+	Eigen::VectorXd prior_alpha_prec; // Diagonal of alpha prior precision
+	Eigen::VectorXd alpha_penalty; // SAVS penalty vector
+	Eigen::VectorXd prior_chol_mean; // prior mean vector of a = 0
+	Eigen::VectorXd prior_chol_prec; // Diagonal of prior precision of a = I
+	Eigen::MatrixXd coef_mat;
+	Eigen::MatrixXd sparse_coef;
+	Eigen::VectorXd sparse_contem;
+	Eigen::MatrixXd chol_lower; // L in Sig_t^(-1) = L D_t^(-1) LT
+	Eigen::MatrixXd latent_innov; // Z0 = Y0 - X0 A = (eps_p+1, eps_p+2, ..., eps_n+p)^T
+	Eigen::MatrixXd sqrt_sv; // stack sqrt of exp(h_t) = (exp(-h_1t / 2), ..., exp(-h_kt / 2)), t = 1, ..., n => n x k
+
+	TriangularState(const RegParams& params, const RegInits& inits)
+	: include_mean(params._mean), x(params._x), y(params._y),
+		dim(params._dim), dim_design(params._dim_design), num_design(params._num_design),
+		num_lowerchol(params._num_lowerchol), num_coef(params._num_coef), num_alpha(params._num_alpha), nrow_coef(params._nrow),
+		nrow_exogen(params._nrow_exogen), num_exogen(params._num_exogen),// num_endog(num_coef - num_exogen), nrow_endog(num_endog / dim),
+		size_factor(params._size_factor), num_factor(params._num_factor),
+		num_endog(params._num_endog), nrow_endog(num_endog / dim),
+		nrow_varx(nrow_endog + nrow_exogen),
+		coef_vec(Eigen::VectorXd::Zero(num_coef)), contem_coef(inits._contem),
+		prior_alpha_mean(params._alpha_mean), prior_alpha_prec(params._alpha_prec),
+		alpha_penalty(Eigen::VectorXd::Zero(num_alpha)),
+		prior_chol_mean(params._chol_mean), prior_chol_prec(params._chol_prec),
+		coef_mat(inits._coef),
+		sparse_coef(Eigen::MatrixXd::Zero(dim_design, dim)), sparse_contem(Eigen::VectorXd::Zero(num_lowerchol)),
+		chol_lower(build_inv_lower(dim, contem_coef)),
+		latent_innov(y - x * coef_mat),
+		sqrt_sv(Eigen::MatrixXd::Zero(num_design, dim)) {
+		if (include_mean) {
+			prior_alpha_mean.segment(num_alpha, dim) = params._mean_non;
+			prior_alpha_prec.segment(num_alpha, dim) = 1 / (params._sd_non * Eigen::VectorXd::Ones(dim)).array().square();
+		}
+		coef_vec.head(num_alpha) = coef_mat.topRows(nrow_coef).reshaped();
+		if (include_mean) {
+			coef_vec.segment(num_alpha, dim) = coef_mat.middleRows<1>(nrow_coef).transpose();
+		}
 	}
 };
 
