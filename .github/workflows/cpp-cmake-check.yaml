@@ -57,6 +57,7 @@ jobs:
           generator: Ninja
           options: |
             CMAKE_CXX_STANDARD=${{ matrix.cxx_std }}
+            BVHAR_FETCH_DEPS=ON
             BVHAR_BUILD_EXAMPLES=ON
             BVHAR_BUILD_TESTS=ON
             BVHAR_ENABLE_COVERAGE=OFF

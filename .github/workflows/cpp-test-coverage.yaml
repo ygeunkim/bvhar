@@ -38,6 +38,7 @@ jobs:
           run-build: true
           generator: Ninja
           options: |
+            BVHAR_FETCH_DEPS=ON
             BVHAR_BUILD_EXAMPLES=OFF
             BVHAR_BUILD_TESTS=ON
             BVHAR_ENABLE_COVERAGE=ON
