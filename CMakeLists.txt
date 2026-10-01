@@ -19,7 +19,12 @@ endif()
 
 project(bvhar VERSION ${BVHAR_VERSION} LANGUAGES CXX)
 
-include(cmake/utils.cmake)
+option(BVHAR_FETCH_DEPS "Fetch all depending libraries using FetchContent" OFF)
+
+if(BVHAR_FETCH_DEPS)
+    include(cmake/deps.cmake)
+endif()
+
 include(GNUInstallDirs)
 
 # atomic linking issue in llvm (macos, windows): dummy atomic
@@ -27,34 +32,17 @@ if ((APPLE OR WIN32) AND CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_library(atomic INTERFACE)
 endif()
 
-# Specify boost components before fetching
-set(BOOST_INCLUDE_LIBRARIES random math accumulators optional)
-
 # Required libraries
-find_or_fetch_package(
-    Eigen3
-    3.4
-    https://gitlab.com/libeigen/eigen.git
-    "3.4.1"
-)
-find_or_fetch_package(
-    Boost
-    1.87.0
-    https://github.com/boostorg/boost.git
-    "boost-1.87.0"
-)
-find_or_fetch_package(
-    lbfgspp
-    0.4.0
-    https://github.com/yixuan/LBFGSpp.git
-    "v0.4.0"
-)
-find_or_fetch_package(
-    spdlog
-    1.15.3
-    https://github.com/gabime/spdlog.git
-    "v1.15.3"
-)
+find_package(Boost 1.87.0 REQUIRED COMPONENTS random math accumulators optional)
+find_package(Eigen3 3.4...5 REQUIRED CONFIG)
+# find_package(lbfgspp 0.4 REQUIRED)
+if(NOT TARGET lbfgspp)
+    add_library(lbfgspp INTERFACE)
+    target_include_directories(lbfgspp INTERFACE ${lbfgspp_SOURCE_DIR}/include)
+    target_link_libraries(lbfgspp INTERFACE Eigen3::Eigen)
+endif()
+find_package(spdlog 1.15 REQUIRED CONFIG)
+
 # Optional OpenMP
 find_package(OpenMP QUIET)
 
